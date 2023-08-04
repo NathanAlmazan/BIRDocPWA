@@ -12,6 +12,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Autocomplete from '@mui/material/Autocomplete';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Paper from '@mui/material/Paper';
+import { Dayjs } from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 // icons
 import SendIcon from '@mui/icons-material/Send';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
@@ -44,6 +49,7 @@ interface ThreadInput {
     docTypeId?: number;
     attachments: boolean;
     completed: boolean;
+    dateDue: Dayjs | null;
 }
 
 interface Queue {
@@ -52,7 +58,8 @@ interface Queue {
 
 interface CreateThreadProps {
     userId: string;
-    onDiscardThread: () => void
+    onDiscardThread: () => void;
+    onCreateThread: (threadId: string) => void;
 }
 
 export default function CreateThread(props: CreateThreadProps) {
@@ -68,6 +75,7 @@ export default function CreateThread(props: CreateThreadProps) {
     statusId: 2,
     attachments: true,
     completed: false,
+    dateDue: null
   })
   const [messageData, setMessageData] = React.useState<MessageInput>({
     message: "",
@@ -108,6 +116,8 @@ export default function CreateThread(props: CreateThreadProps) {
   const handleRecipientChange = (_: any, newValue: string | null) => setFormData({ ...formData, recipientId: offices[newValue as string] });
 
   const handleToggleAttachments = (event: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, attachments: event.target.checked });
+
+  const handleDateDueChange = (date: Dayjs | null) => setFormData({ ...formData, dateDue: date });
 
   const handleCloseSnackbar = () => setFormError({ ...formError, general: undefined });
 
@@ -177,6 +187,8 @@ export default function CreateThread(props: CreateThreadProps) {
                 senderId: props.userId,
                 threadId: threadResult.data.createThread.refId
             }}})
+
+            props.onCreateThread(threadResult.data.createThread.refId);
         } catch (err) {
             setFormError({ ...formError, general: (err as Error).message });
             return
@@ -189,91 +201,103 @@ export default function CreateThread(props: CreateThreadProps) {
   }
 
   return (
-    <Stack spacing={3}>
-        <div>
-            <Stack direction='row' spacing={1} alignItems='center' sx={{ py: 1 }}>
-                <Button 
-                    variant='contained' 
-                    endIcon={<SendIcon />}
-                    onClick={handleCreateThread}
-                >
-                    Send
-                </Button>
-                <Tooltip title='Discard'>
-                    <IconButton onClick={props.onDiscardThread}>
-                        <DeleteOutlinedIcon />
-                    </IconButton>
-                </Tooltip>
-            </Stack>
-            <Divider />
-        </div>
-       
-        <Stack direction='row' spacing={2}>
-            <Chip label='To' variant='outlined' sx={{ width: 80 }} />
-            <Autocomplete
-                freeSolo
-                fullWidth
-                options={Object.keys(offices)}
-                onChange={handleRecipientChange}
-                renderInput={(params) => 
-                    <TextField 
-                        {...params} 
-                        variant='standard' 
-                        error={formError?.recipient !== undefined}
-                        helperText={formError && formError.recipient}
-                    />
-                }
-            />
-        </Stack>
-       
-        <Stack direction='row' spacing={2}>
-            <Chip label='Subject' variant='outlined' sx={{ width: 80 }} />
-            <TextField 
-                name='subject'
-                variant='standard'
-                value={formData.subject}
-                onChange={handleSubjectTextChange}
-                fullWidth
-                error={formError?.subject !== undefined}
-                helperText={formError && formError.subject}
-            />
-        </Stack>
+    <Paper>
+        <Stack spacing={3} sx={{ p: 2 }}>
+            <div>
+                <Stack direction='row' spacing={1} alignItems='center' sx={{ py: 1 }}>
+                    <Button 
+                        variant='contained' 
+                        endIcon={<SendIcon />}
+                        onClick={handleCreateThread}
+                    >
+                        Send
+                    </Button>
+                    <Tooltip title='Discard'>
+                        <IconButton onClick={props.onDiscardThread}>
+                            <DeleteOutlinedIcon />
+                        </IconButton>
+                    </Tooltip>
+                </Stack>
+                <Divider />
+            </div>
         
-        <Stack direction='row' spacing={2}>
-            <Chip label='Type' variant='outlined' sx={{ width: 80 }} />
-            <Autocomplete
-                freeSolo
-                fullWidth
-                onChange={handleThreadTypeChange}
-                options={Object.keys(types)}
-                renderInput={(params) => 
-                    <TextField 
-                        {...params} 
-                        variant='standard' 
-                        error={formError?.type !== undefined}
-                        helperText={formError && formError.type}
-                    />
-                }
-            />
-        </Stack>
-
-        <FormControlLabel 
-            control={
-                <Checkbox 
-                    checked={formData.attachments} 
-                    onChange={handleToggleAttachments} 
+            <Stack direction='row' spacing={2}>
+                <Chip label='To' variant='outlined' sx={{ width: 80 }} />
+                <Autocomplete
+                    freeSolo
+                    fullWidth
+                    options={Object.keys(offices)}
+                    onChange={handleRecipientChange}
+                    renderInput={(params) => 
+                        <TextField 
+                            {...params} 
+                            variant='standard' 
+                            error={formError?.recipient !== undefined}
+                            helperText={formError && formError.recipient}
+                        />
+                    }
                 />
-            } 
-            label="Attachments Required" 
-        />
+            </Stack>
+        
+            <Stack direction='row' spacing={2}>
+                <Chip label='Subject' variant='outlined' sx={{ width: 80 }} />
+                <TextField 
+                    name='subject'
+                    variant='standard'
+                    value={formData.subject}
+                    onChange={handleSubjectTextChange}
+                    fullWidth
+                    error={formError?.subject !== undefined}
+                    helperText={formError && formError.subject}
+                />
+            </Stack>
+            
+            <Stack direction='row' spacing={2}>
+                <Chip label='Type' variant='outlined' sx={{ width: 80 }} />
+                <Autocomplete
+                    freeSolo
+                    fullWidth
+                    onChange={handleThreadTypeChange}
+                    options={Object.keys(types)}
+                    renderInput={(params) => 
+                        <TextField 
+                            {...params} 
+                            variant='standard' 
+                            error={formError?.type !== undefined}
+                            helperText={formError && formError.type}
+                        />
+                    }
+                />
+            </Stack>
 
-        <ReplyBox userId={props.userId} onChange={(data) => setMessageData(data)} />
+            <Stack direction='row' spacing={2}>
+                <Chip label='Date Due' variant='outlined' sx={{ width: 80 }} />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker 
+                        value={formData.dateDue} 
+                        onChange={handleDateDueChange} 
+                    />
+                </LocalizationProvider>
+            </Stack>
 
-        <Snackbar open={formError?.general !== undefined} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-            <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
-                {formError && formError.general}
-            </Alert>
-        </Snackbar>
-    </Stack>
+            <FormControlLabel 
+                control={
+                    <Checkbox 
+                        checked={formData.attachments} 
+                        onChange={handleToggleAttachments} 
+                    />
+                } 
+                label="Attachments Required" 
+            />
+
+            <ReplyBox userId={props.userId} onChange={(data) => setMessageData(data)} />
+
+            <Snackbar open={formError?.general !== undefined} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+                    {formError && formError.general}
+                </Alert>
+            </Snackbar>
+        </Stack>
+    </Paper>
   )
 }

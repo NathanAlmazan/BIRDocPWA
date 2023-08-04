@@ -8,7 +8,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
+import { useTheme } from '@mui/material/styles';
 
 // icons
 import TuneIcon from '@mui/icons-material/Tune';
@@ -29,12 +31,19 @@ import {
 } from '../../api/threads';
 
 
+const formatInboxDate = (date: string | Date) => {
+    const target = new Date(date);
+  
+    return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })
+  }
+
 interface ThreadListProps {
     userId: string;
     threadId: string;
 }
 
 export default function ThreadList({ userId, threadId }: ThreadListProps) {
+  const theme = useTheme();
   const { data: threadData, loading, refetch } = useQuery<{ getThreadById: Thread }>(GET_THREAD_BY_ID, {
     variables: { uid: threadId }
   });
@@ -84,70 +93,114 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
   if (loading || !threadData || !threadStatus) return <LoadOverlay open={true} />
 
-  const { subject, author, docType, dateCreated, messages } = threadData.getThreadById;
+  const { subject, author, docType, dateCreated, messages, recipient } = threadData.getThreadById;
 
   return (
-    <Stack spacing={3} sx={{ p: 2 }}>
-        <Box sx={{ width: '100%' }}>
-            <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
-            <Typography variant='subtitle2'>{docType.docType}</Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                    <Typography variant='subtitle2'>{`Created at ${new Date(dateCreated).toString().split('GMT')[0]}`}</Typography>
-                    {userId === threadData.getThreadById.author.accountId && (
-                        <IconButton onClick={handleExpand}  sx={{ ml: 2 }}>
-                            {expanded ? <CloseIcon /> : <TuneIcon />}
-                        </IconButton>
-                    )}
-                </Box>
-            </Stack>
-            <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <Stack direction='row' spacing={2} justifyContent='flex-end' sx={{ my: 2 }}>
-                    <TextField
-                        name='status'
-                        label='Status'
-                        select
-                        sx={{ width: 200 }}
-                        value={statusId}
-                        onChange={handleStatusChange}
-                    >
-                        {threadStatus.getAllThreadStatus.map(status => (
-                            <MenuItem key={status.statusId} value={status.statusId}>{status.statusLabel}</MenuItem>
-                        ))}
-                       
-                    </TextField>
-                    <TextField
-                        name='attachments'
-                        label='Attachments'
-                        select
-                        sx={{ width: 200 }}
-                        value={attach}
-                        onChange={handleAttachmentChange}
-                    >
-                        <MenuItem value='true'>Required</MenuItem>
-                        <MenuItem value='false'>Not Required</MenuItem> 
-                    </TextField>
+    <Paper sx={{ width: '100%' }}>
+        <Box 
+            sx={{ 
+                width: '100%', 
+                maxHeight: '85vh', 
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                "::-webkit-scrollbar": {
+                    height: "8px",
+                    width: "8px"
+                },
+
+                /* Track */
+                "::-webkit-scrollbar-track": {
+                    background: theme.palette.grey[300] 
+                },
+                
+                /* Handle */
+                "::-webkit-scrollbar-thumb": {
+                    background: theme.palette.secondary.main
+                },
+                
+                /* Handle on hover */
+                "::-webkit-scrollbar-thumb:hover": {
+                    background: theme.palette.primary.dark
+                }
+            }}
+        >
+            <Box sx={{ width: '100%', p: 2 }}>
+                <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
+                    <Typography variant='subtitle2'>{docType.docType}</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <Typography variant='body2'>{`Due at ${formatInboxDate(dateCreated)}`}</Typography>
+                        {userId === threadData.getThreadById.author.accountId && (
+                            <IconButton onClick={handleExpand}>
+                                {expanded ? <CloseIcon /> : <TuneIcon />}
+                            </IconButton>
+                        )}
+                    </Box>
                 </Stack>
-            </Collapse>
-            
-            <Divider />
+                <Collapse in={expanded} timeout="auto" unmountOnExit>
+                    <Stack direction='row' spacing={2} justifyContent='flex-end' sx={{ my: 2 }}>
+                        <TextField
+                            name='status'
+                            label='Status'
+                            select
+                            sx={{ width: 200 }}
+                            value={statusId}
+                            onChange={handleStatusChange}
+                        >
+                            {threadStatus.getAllThreadStatus.map(status => (
+                                <MenuItem key={status.statusId} value={status.statusId}>{status.statusLabel}</MenuItem>
+                            ))}
+                        
+                        </TextField>
+                        <TextField
+                            name='attachments'
+                            label='Attachments'
+                            select
+                            sx={{ width: 200 }}
+                            value={attach}
+                            onChange={handleAttachmentChange}
+                        >
+                            <MenuItem value='true'>Required</MenuItem>
+                            <MenuItem value='false'>Not Required</MenuItem> 
+                        </TextField>
+                    </Stack>
+                </Collapse>
+                <Divider />
+            </Box>
 
-            <Typography variant='subtitle1' color='secondary' sx={{ mt: 2 }}>
-                {author.firstName + ' ' + author.lastName} <span style={{ color: 'black' }}>to</span> Collection Division — Tax Collection Office
-            </Typography>
-            <Typography variant='h4' sx={{ fontWeight: 700 }}>
-                {subject}
-            </Typography>
+            <Box sx={{ px: 2 }}>
+                <Typography variant='body1' color='secondary'>
+                    {author.firstName + ' ' + author.lastName} 
+                    <span style={{ color: 'black' }}>{' to '}</span> 
+                    {`${recipient.sectionOffice.officeName} — ${recipient.sectionName === "default" ? "" : recipient.sectionName}`}
+                </Typography>
+                <Typography variant='h4'>
+                    {subject}
+                </Typography>
+            </Box>
+           
+            <Box sx={{ p: 2 }}>
+                {messages.map(msg => (
+                    <Box 
+                        key={msg.msgId} 
+                        sx={{ 
+                            my: 2, 
+                            pr: msg.sender.accountId === userId ? 8 : 0,
+                            pl: msg.sender.accountId !== userId ? 8 : 0
+                        }}
+                    >
+                        <MessageCard content={msg} sender={msg.sender.accountId === userId} />
+                    </Box>
+                ))}
+            </Box>
+
+            <Box sx={{ p: 2 }}>
+            {completed ? (
+                <Alert severity="info" sx={{  }}>This thread is complied and closed.</Alert>
+            ) : (
+                <ReplyBox userId={userId} threadId={threadId} onSubmit={reloadThread} />
+            )}
+            </Box>
         </Box>
-
-        {messages.map(msg => (
-            <MessageCard key={msg.msgId} content={msg} sender={msg.sender.accountId === userId} />
-        ))}
-
-        {completed ? (
-            <Alert severity="info">This thread is complied and closed.</Alert>
-        ) : (
-            <ReplyBox userId={userId} threadId={threadId} onSubmit={reloadThread} />
-        )}
-    </Stack>
+    </Paper>
   )
 }

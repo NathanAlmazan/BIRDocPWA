@@ -9,7 +9,7 @@ export interface Authentication {
 }
 
 const initialState: Authentication = {
-    uid: "622dd38a-c25f-49a6-8443-bad4493db47b",
+    uid: "88f4b611-cfcf-4033-a675-73cc7b3d7a75",
     username: "John Doe",
     position: "Regional Director",
     office: "Office of the Regional Director",

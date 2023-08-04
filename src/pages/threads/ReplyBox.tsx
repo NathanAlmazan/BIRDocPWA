@@ -135,6 +135,13 @@ export default function ReplyBox({ userId, threadId, attached, onChange, onSubmi
             threadId: threadId
         }}})
 
+        // reset form
+        setFormData({
+            message: "",
+            files: [],
+            links: []
+        })
+
         if (onSubmit) onSubmit();
     } catch (err) {
         setFormError((err as Error).message);
@@ -150,7 +157,7 @@ export default function ReplyBox({ userId, threadId, attached, onChange, onSubmi
             value={formData.message}
             onChange={handleMessageTextChange}
             multiline
-            rows={7}
+            rows={6}
             fullWidth
         />
         <Stack 

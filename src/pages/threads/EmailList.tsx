@@ -9,22 +9,77 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import { useTheme } from '@mui/material/styles';
+// api
+import { useQuery } from '@apollo/client';
+import { GET_SENT_THREAD, GET_THREAD_INBOX } from '../../api/threads';
 // icons
 import FilterListIcon from '@mui/icons-material/FilterList';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
+import FolderCopyIcon from '@mui/icons-material/FolderCopy';
+// project imports
+import { Thread } from '../../api/threads/types';
+import { LoadOverlay } from '../../components/Loaders';
 
 
 interface EmailListProps {
+  userId: string;
+  mode: string;
   compose: boolean;
-  onComposeThread: () => void
+  onComposeThread: () => void;
+  onThreadClick: (threadId: string) => void;
+}
+
+const emptyMessages: { [key: string]: { title: string, sub: string }} = {
+  "inbox": {
+    title: "Job Well Done!",
+    sub: "You have no active threads"
+  },
+  "sent": {
+    title: "Compose a thread",
+    sub: "You have no created threads"
+  }
+}
+
+const formatInboxDate = (date: string | Date) => {
+  const current = new Date();
+  const target = new Date(date);
+
+  if (current.getMonth() === target.getMonth() && current.getDate() === target.getDate()) {
+    return target.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 export default function EmailList(props: EmailListProps) {
+  const theme = useTheme();
+  const { data: threadInbox, loading: inboxLoad } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
+    variables: {
+      userId: props.userId
+    }
+  });
+  const { data: sentThread, loading: sentLoad } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
+    variables: {
+      userId: props.userId
+    }
+  });
+  const [mails, setMails] = React.useState<Thread[]>([]);
+
+  React.useEffect(() => {
+    if (threadInbox && sentThread) {
+      if (props.mode === "inbox") setMails(threadInbox.getThreadInbox);
+      else if (props.mode === "sent") setMails(sentThread.getSentThread);
+    }
+  }, [threadInbox, sentThread, props.mode])
+
   return (
     <React.Fragment>
-      <Stack direction='row' spacing={1} alignItems='center' sx={{ py: 1 }}>
+      <LoadOverlay open={inboxLoad || sentLoad} />
+      <Stack direction='row' spacing={2} alignItems='center' sx={{ mb: 3 }}>
           <Button 
             variant='contained' 
             endIcon={<AddIcon />} 
@@ -33,89 +88,91 @@ export default function EmailList(props: EmailListProps) {
           >
               Compose
           </Button>
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-          <IconButton>
-            <RefreshIcon />
-          </IconButton>
+          <div>
+            <IconButton>
+              <FilterListIcon />
+            </IconButton>
+            <IconButton>
+              <RefreshIcon />
+            </IconButton>
+          </div>
       </Stack>
-      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        <ListItemButton alignItems="flex-start">
-          <ListItemAvatar>
-            <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-          </ListItemAvatar>
-          <ListItemText
-            primary={
-              <Stack direction='row' justifyContent='space-between'>
-                  <Typography variant='body1'>
-                      Summer BBQ
-                  </Typography>
-                  <Typography variant='subtitle2'>
-                      5:10 AM
-                  </Typography>
-              </Stack>
-            } 
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: 'inline' }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  Ali Connors
-                </Typography>
-                {" — I'll be in your neighborhood doing errands this…"}
-              </React.Fragment>
+      <Paper sx={{ width: '100%' }}>
+        <List 
+          sx={{ 
+            width: '100%', 
+            maxHeight: '70vh', 
+            overflowY: 'auto',
+            "::-webkit-scrollbar": {
+              height: "8px",
+              width: "8px"
+            },
+
+            /* Track */
+            "::-webkit-scrollbar-track": {
+                background: theme.palette.grey[300] 
+            },
+            
+            /* Handle */
+            "::-webkit-scrollbar-thumb": {
+                background: theme.palette.secondary.main
+            },
+            
+            /* Handle on hover */
+            "::-webkit-scrollbar-thumb:hover": {
+                background: theme.palette.primary.dark
             }
-          />
-        </ListItemButton>
-        <Divider variant="inset" component="li" />
-        <ListItemButton alignItems="flex-start">
-          <ListItemAvatar>
-            <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
-          </ListItemAvatar>
-          <ListItemText
-            primary="Summer BBQ"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: 'inline' }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  to Scott, Alex, Jennifer
-                </Typography>
-                {" — Wish I could come, but I'm out of town this…"}
-              </React.Fragment>
-            }
-          />
-        </ListItemButton>
-        <Divider variant="inset" component="li" />
-        <ListItemButton alignItems="flex-start">
-          <ListItemAvatar>
-            <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
-          </ListItemAvatar>
-          <ListItemText
-            primary="Oui Oui"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: 'inline' }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  Sandra Adams
-                </Typography>
-                {' — Do you have Paris recommendations? Have you ever…'}
-              </React.Fragment>
-            }
-          />
-        </ListItemButton>
-      </List>
+          }}>
+          {mails.length === 0 && (
+            <Box sx={{ display: 'flex', height: 300, justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+              <FolderCopyIcon color='secondary' sx={{ fontSize: 64, mb: 1 }} />
+              <Typography variant="subtitle1">
+                  {emptyMessages[props.mode].title}
+              </Typography>
+              <Typography variant="body1">
+                {emptyMessages[props.mode].sub}
+              </Typography>
+            </Box>
+          )}
+          {mails.map(msg => (
+            <React.Fragment key={msg.refId}>
+              <ListItemButton alignItems="flex-start" onClick={() => props.onThreadClick(msg.refId)}>
+                <ListItemAvatar>
+                  <Avatar>
+                    {`${msg.author.firstName.charAt(0)}${msg.author.lastName.charAt(0)}`}
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={
+                    <Stack direction='row' justifyContent='space-between'>
+                        <Typography variant='body1'>
+                            {msg.docType.docType}
+                        </Typography>
+                        <Typography variant='caption'>
+                          {formatInboxDate(msg.dateUpdated)}
+                        </Typography>
+                    </Stack>
+                  } 
+                  secondary={
+                    <React.Fragment>
+                      <Typography
+                        sx={{ display: 'inline' }}
+                        component="span"
+                        variant="subtitle2"
+                        color="text.primary"
+                      >
+                        {msg.author.firstName + ' ' + msg.author.lastName}
+                      </Typography>
+                      {" — " + msg.subject}
+                    </React.Fragment>
+                  }
+                />
+              </ListItemButton>
+              <Divider variant="inset" component="li" />
+            </React.Fragment>
+          ))}
+        </List>
+      </Paper>
     </React.Fragment>
   );
 }

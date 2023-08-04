@@ -10,7 +10,7 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-
+// icons
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -122,7 +122,7 @@ export default function EmailLayout() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
+            Document Control Log
           </Typography>
         </Toolbar>
       </AppBar>
@@ -183,7 +183,8 @@ export default function EmailLayout() {
           ))}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box 
+        component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: "#EEEEEE", height: "100vh" }}>
         <DrawerHeader />
         <Outlet />
       </Box>

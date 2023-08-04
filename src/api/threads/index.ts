@@ -79,6 +79,40 @@ export const GET_THREAD_BY_ID = gql`
     }
 `
 
+export const GET_THREAD_INBOX = gql`
+    query GetThreadInbox($userId: String!) {
+        getThreadInbox(userId: $userId) {
+            refId
+            subject
+            author {
+                firstName
+                lastName
+            }
+            docType {
+                docType
+            }
+            dateUpdated
+        }
+    }
+`
+
+export const GET_SENT_THREAD = gql`
+    query GetSentThread($userId: String!) {
+        getSentThread(userId: $userId) {
+            refId
+            subject
+            author {
+                firstName
+                lastName
+            }
+            docType {
+                docType
+            }
+            dateUpdated
+        }
+    }
+`
+
 // ========================= Mutations =============================== //
 export const CREATE_THREAD = gql`
     mutation CreateThread($data: ThreadInput!) {

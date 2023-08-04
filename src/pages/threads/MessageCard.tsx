@@ -11,8 +11,18 @@ import Stack from '@mui/material/Stack';
 import { Messages } from '../../api/threads/types';
 
 
-export default function MessageCard({ content, sender }: { content: Messages, sender: boolean }) {
+const formatInboxDate = (date: string | Date) => {
+  const current = new Date();
+  const target = new Date(date);
 
+  if (current.getMonth() === target.getMonth() && current.getDate() === target.getDate()) {
+    return target.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+export default function MessageCard({ content, sender }: { content: Messages, sender: boolean }) {
   if (sender) return (
     <Card>
       <CardHeader
@@ -25,7 +35,7 @@ export default function MessageCard({ content, sender }: { content: Messages, se
         subheader={content.sender.position}
         action={
           <Typography variant='body2'>
-            {new Date(content.dateSent).toString().split('GMT')[0]}
+            {formatInboxDate(content.dateSent)}
           </Typography>
         }
       />
@@ -54,7 +64,7 @@ export default function MessageCard({ content, sender }: { content: Messages, se
         subheader={content.sender.position}
         action={
           <Typography variant='body2'>
-            {new Date(content.dateSent).toString().split('GMT')[0]}
+            {formatInboxDate(content.dateSent)}
           </Typography>
         }
       />
@@ -64,7 +74,15 @@ export default function MessageCard({ content, sender }: { content: Messages, se
         </Typography>
         <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
             {content.files.map(file => (
-              <Chip key={file.fileId} label={file.fileName} variant="outlined" component="a" href={file.fileUrl} clickable />
+              <Chip 
+                key={file.fileId} 
+                label={file.fileName} 
+                variant="outlined" 
+                component="a" 
+                href={file.fileUrl} 
+                target='_blank' 
+                clickable 
+              />
             ))}
         </Stack>
       </CardContent>
