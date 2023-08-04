@@ -13,7 +13,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -49,7 +49,7 @@ interface ThreadInput {
     docTypeId?: number;
     attachments: boolean;
     completed: boolean;
-    dateDue: Dayjs | null;
+    dateDue: string;
 }
 
 interface Queue {
@@ -75,7 +75,7 @@ export default function CreateThread(props: CreateThreadProps) {
     statusId: 2,
     attachments: true,
     completed: false,
-    dateDue: null
+    dateDue: new Date().toISOString()
   })
   const [messageData, setMessageData] = React.useState<MessageInput>({
     message: "",
@@ -117,7 +117,9 @@ export default function CreateThread(props: CreateThreadProps) {
 
   const handleToggleAttachments = (event: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, attachments: event.target.checked });
 
-  const handleDateDueChange = (date: Dayjs | null) => setFormData({ ...formData, dateDue: date });
+  const handleDateDueChange = (date: Dayjs | null) => {
+    if (date) setFormData({ ...formData, dateDue: date.toISOString() });
+  }
 
   const handleCloseSnackbar = () => setFormError({ ...formError, general: undefined });
 
@@ -270,15 +272,15 @@ export default function CreateThread(props: CreateThreadProps) {
                 />
             </Stack>
 
-            <Stack direction='row' spacing={2}>
-                <Chip label='Date Due' variant='outlined' sx={{ width: 80 }} />
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker 
-                        value={formData.dateDue} 
-                        onChange={handleDateDueChange} 
-                    />
-                </LocalizationProvider>
-            </Stack>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker 
+                    label="Date Due"
+                    views={["year", "month", "day"]}
+                    value={dayjs(formData.dateDue)} 
+                    onChange={handleDateDueChange} 
+                    format="MMMM DD, YYYY"
+                />
+            </LocalizationProvider>
 
             <FormControlLabel 
                 control={

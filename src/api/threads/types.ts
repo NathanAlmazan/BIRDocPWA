@@ -33,6 +33,7 @@ export type Thread = {
     completed: boolean;
     dateCreated: Date;
     dateUpdated: Date;
+    dateDue: Date;
     messages: Messages[]
 }
 

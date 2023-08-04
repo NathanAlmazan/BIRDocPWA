@@ -57,6 +57,8 @@ export const GET_THREAD_BY_ID = gql`
                 docType
             }
             dateCreated
+            dateUpdated
+            dateDue
             attachments
             completed
             messages {
@@ -80,8 +82,8 @@ export const GET_THREAD_BY_ID = gql`
 `
 
 export const GET_THREAD_INBOX = gql`
-    query GetThreadInbox($userId: String!) {
-        getThreadInbox(userId: $userId) {
+    query GetThreadInbox($userId: String!, $completed: Boolean) {
+        getThreadInbox(userId: $userId, completed: $completed) {
             refId
             subject
             author {
@@ -91,7 +93,10 @@ export const GET_THREAD_INBOX = gql`
             docType {
                 docType
             }
-            dateUpdated
+            status {
+                statusLabel
+            }
+            dateDue
         }
     }
 `
@@ -108,7 +113,10 @@ export const GET_SENT_THREAD = gql`
             docType {
                 docType
             }
-            dateUpdated
+            status {
+                statusLabel
+            }
+            dateDue
         }
     }
 `

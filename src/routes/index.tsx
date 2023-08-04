@@ -1,22 +1,44 @@
 import React from 'react';
-import { useRoutes } from 'react-router-dom';
+import { useRoutes, Navigate } from 'react-router-dom';
 // loaders
 import { SuspenseLoader } from '../components/Loaders';
 // layouts
-import { EmailLayout } from "../layouts";
+import { EmailLayout, PlainLayout } from "../layouts";
 
 // pages
-const EmailPage = React.lazy(() => import("../pages/threads"))
+const Dashboard = React.lazy(() => import("../pages/dashboard"));
+const Inbox = React.lazy(() => import("../pages/threads/Inbox"));
+const SentItems = React.lazy(() => import("../pages/threads/SentItems"));
+const Completed = React.lazy(() => import("../pages/threads/Completed"));
 
 export default function Router() {
     return useRoutes([
         {
             path: '',
+            element: <PlainLayout />,
+            children: [
+                { path: '/', element: <Navigate to={"app/dashboard"} /> }
+            ]
+        },
+        {
+            path: 'app',
             element: <EmailLayout />,
             children: [
                 {
-                    path: '',
-                    element: <SuspenseLoader children={<EmailPage />} />
+                    path: 'dashboard',
+                    element: <SuspenseLoader children={<Dashboard />} />
+                },
+                {
+                    path: 'inbox',
+                    element: <SuspenseLoader children={<Inbox />} />
+                },
+                {
+                    path: 'sent',
+                    element: <SuspenseLoader children={<SentItems />} />
+                },
+                {
+                    path: 'completed',
+                    element: <SuspenseLoader children={<Completed />} />
                 }
             ]
         }

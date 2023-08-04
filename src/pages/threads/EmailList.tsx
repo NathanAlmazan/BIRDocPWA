@@ -41,28 +41,32 @@ const emptyMessages: { [key: string]: { title: string, sub: string }} = {
   "sent": {
     title: "Compose a thread",
     sub: "You have no created threads"
+  },
+  "completed": {
+    title: "It's time to work!",
+    sub: "You have no finished threads"
   }
 }
 
 const formatInboxDate = (date: string | Date) => {
-  const current = new Date();
   const target = new Date(date);
-
-  if (current.getMonth() === target.getMonth() && current.getDate() === target.getDate()) {
-    return target.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  }
-
   return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 export default function EmailList(props: EmailListProps) {
   const theme = useTheme();
-  const { data: threadInbox, loading: inboxLoad } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
+  const { data: threadInbox, loading: inboxLoad, refetch: refetchInbox } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
     variables: {
       userId: props.userId
     }
   });
-  const { data: sentThread, loading: sentLoad } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
+  const { data: threadCompleted, loading: completedLoad, refetch: refetchCompleted } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
+    variables: {
+      userId: props.userId,
+      completed: true
+    }
+  });
+  const { data: sentThread, loading: sentLoad, refetch: refetchSent } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
     variables: {
       userId: props.userId
     }
@@ -70,16 +74,24 @@ export default function EmailList(props: EmailListProps) {
   const [mails, setMails] = React.useState<Thread[]>([]);
 
   React.useEffect(() => {
-    if (threadInbox && sentThread) {
+    if (threadInbox && sentThread && threadCompleted) {
       if (props.mode === "inbox") setMails(threadInbox.getThreadInbox);
       else if (props.mode === "sent") setMails(sentThread.getSentThread);
+      else if (props.mode === "completed") setMails(threadCompleted.getThreadInbox);
     }
-  }, [threadInbox, sentThread, props.mode])
+  }, [threadInbox, sentThread, threadCompleted, props.mode])
+
+  const handleRefreshList = () => {
+    if (props.mode === "inbox") refetchInbox({ userId: props.userId });
+    else if (props.mode === "sent") refetchSent({ userId: props.userId });
+    else if (props.mode === "completed") refetchCompleted({ userId: props.userId, completed: true });
+  }
 
   return (
     <React.Fragment>
-      <LoadOverlay open={inboxLoad || sentLoad} />
-      <Stack direction='row' spacing={2} alignItems='center' sx={{ mb: 3 }}>
+      <LoadOverlay open={inboxLoad || sentLoad || completedLoad} />
+      {props.mode !== "completed" && (
+        <Stack direction='row' spacing={2} alignItems='center' sx={{ mb: 3 }}>
           <Button 
             variant='contained' 
             endIcon={<AddIcon />} 
@@ -92,16 +104,17 @@ export default function EmailList(props: EmailListProps) {
             <IconButton>
               <FilterListIcon />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={handleRefreshList}>
               <RefreshIcon />
             </IconButton>
           </div>
-      </Stack>
+        </Stack>
+      )}
       <Paper sx={{ width: '100%' }}>
         <List 
           sx={{ 
             width: '100%', 
-            maxHeight: '70vh', 
+            maxHeight: 'calc(100vh - 170px)', 
             overflowY: 'auto',
             "::-webkit-scrollbar": {
               height: "8px",
@@ -144,14 +157,14 @@ export default function EmailList(props: EmailListProps) {
                 </ListItemAvatar>
                 <ListItemText
                   primary={
-                    <Stack direction='row' justifyContent='space-between'>
+                    <Box>
                         <Typography variant='body1'>
-                            {msg.docType.docType}
+                            {msg.subject}
                         </Typography>
-                        <Typography variant='caption'>
-                          {formatInboxDate(msg.dateUpdated)}
+                        <Typography variant='caption' gutterBottom>
+                          {`Due at ${formatInboxDate(msg.dateDue)}  (${msg.status.statusLabel})`}
                         </Typography>
-                    </Stack>
+                    </Box>
                   } 
                   secondary={
                     <React.Fragment>
@@ -161,9 +174,9 @@ export default function EmailList(props: EmailListProps) {
                         variant="subtitle2"
                         color="text.primary"
                       >
-                        {msg.author.firstName + ' ' + msg.author.lastName}
+                        {`${msg.author.firstName} ${msg.author.lastName}`}
                       </Typography>
-                      {" — " + msg.subject}
+                      {" — " + msg.docType.docType}
                     </React.Fragment>
                   }
                 />

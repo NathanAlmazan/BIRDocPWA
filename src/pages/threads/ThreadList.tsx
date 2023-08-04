@@ -33,8 +33,7 @@ import {
 
 const formatInboxDate = (date: string | Date) => {
     const target = new Date(date);
-  
-    return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })
+    return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
   }
 
 interface ThreadListProps {
@@ -77,6 +76,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
     setCompleted(completedId.includes(parseInt(event.target.value)));
 
     setStatusId(parseInt(event.target.value));
+    refetch({ uid: threadId });
   }
 
   const handleAttachmentChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,14 +93,14 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
   if (loading || !threadData || !threadStatus) return <LoadOverlay open={true} />
 
-  const { subject, author, docType, dateCreated, messages, recipient } = threadData.getThreadById;
+  const { subject, author, docType, dateDue, messages, recipient, dateUpdated, dateCreated, status } = threadData.getThreadById;
 
   return (
     <Paper sx={{ width: '100%' }}>
         <Box 
             sx={{ 
                 width: '100%', 
-                maxHeight: '85vh', 
+                maxHeight: 'calc(100vh - 105px)', 
                 overflowY: 'auto',
                 overflowX: 'hidden',
                 "::-webkit-scrollbar": {
@@ -128,7 +128,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
                 <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
                     <Typography variant='subtitle2'>{docType.docType}</Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                        <Typography variant='body2'>{`Due at ${formatInboxDate(dateCreated)}`}</Typography>
+                        <Typography variant='body2'>{`From ${formatInboxDate(dateCreated)} to ${formatInboxDate(dateDue)}`}</Typography>
                         {userId === threadData.getThreadById.author.accountId && (
                             <IconButton onClick={handleExpand}>
                                 {expanded ? <CloseIcon /> : <TuneIcon />}
@@ -164,14 +164,17 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
                         </TextField>
                     </Stack>
                 </Collapse>
-                <Divider />
+                <Divider sx={{ mb: 1 }} />
+                <Alert severity={completed ? "success" : "info"}>
+                    {completed ? `This thread is complied and closed at ${formatInboxDate(dateUpdated)}.` : status.statusLabel}
+                </Alert>
             </Box>
 
             <Box sx={{ px: 2 }}>
                 <Typography variant='body1' color='secondary'>
                     {author.firstName + ' ' + author.lastName} 
                     <span style={{ color: 'black' }}>{' to '}</span> 
-                    {`${recipient.sectionOffice.officeName} — ${recipient.sectionName === "default" ? "" : recipient.sectionName}`}
+                    {`${recipient.sectionOffice.officeName} ${recipient.sectionName === "default" ? "" : ` — ${recipient.sectionName}`}`}
                 </Typography>
                 <Typography variant='h4'>
                     {subject}
@@ -184,8 +187,8 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
                         key={msg.msgId} 
                         sx={{ 
                             my: 2, 
-                            pr: msg.sender.accountId === userId ? 8 : 0,
-                            pl: msg.sender.accountId !== userId ? 8 : 0
+                            pl: msg.sender.accountId === userId ? 8 : 0,
+                            pr: msg.sender.accountId !== userId ? 8 : 0
                         }}
                     >
                         <MessageCard content={msg} sender={msg.sender.accountId === userId} />
@@ -194,11 +197,9 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
             </Box>
 
             <Box sx={{ p: 2 }}>
-            {completed ? (
-                <Alert severity="info" sx={{  }}>This thread is complied and closed.</Alert>
-            ) : (
-                <ReplyBox userId={userId} threadId={threadId} onSubmit={reloadThread} />
-            )}
+                {!completed && (
+                    <ReplyBox userId={userId} threadId={threadId} onSubmit={reloadThread} />
+                )}
             </Box>
         </Box>
     </Paper>

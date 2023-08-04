@@ -12,13 +12,7 @@ import { Messages } from '../../api/threads/types';
 
 
 const formatInboxDate = (date: string | Date) => {
-  const current = new Date();
   const target = new Date(date);
-
-  if (current.getMonth() === target.getMonth() && current.getDate() === target.getDate()) {
-    return target.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  }
-
   return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 }
 
@@ -27,7 +21,7 @@ export default function MessageCard({ content, sender }: { content: Messages, se
     <Card>
       <CardHeader
         avatar={
-          <Avatar>
+          <Avatar sx={{ backgroundColor: 'red' }}>
             {`${content.sender.firstName.charAt(0)}${content.sender.lastName.charAt(0)}`}
           </Avatar>
         }
@@ -43,10 +37,19 @@ export default function MessageCard({ content, sender }: { content: Messages, se
         <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
           {content.message}
         </Typography>
+        
         <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-            {content.files.map(file => (
-              <Chip key={file.fileId} label={file.fileName} variant="outlined" component="a" href={file.fileUrl} clickable />
-            ))}
+          {content.files.map(file => (
+            <Chip 
+              key={file.fileId} 
+              label={file.fileName} 
+              variant="outlined" 
+              component="a" 
+              href={file.fileUrl} 
+              target='_blank' 
+              clickable 
+            />
+          ))}
         </Stack>
       </CardContent>
     </Card>
