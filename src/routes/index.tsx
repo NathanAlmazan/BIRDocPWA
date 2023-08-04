@@ -6,7 +6,7 @@ import { SuspenseLoader } from '../components/Loaders';
 import { EmailLayout } from "../layouts";
 
 // pages
-const EmailPage = React.lazy(() => import("../pages/email"))
+const EmailPage = React.lazy(() => import("../pages/threads"))
 
 export default function Router() {
     return useRoutes([
