@@ -15,11 +15,13 @@ export type OfficeSections = {
 export type DocumentTypes = {
     docId: number;
     docType: string;
+    threadCount?: number;
 }
 
 export type DocumentStatus = {
     statusId: number;
     statusLabel: string;
+    threadCount?: number;
 }
 
 export type Thread = {

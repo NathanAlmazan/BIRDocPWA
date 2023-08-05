@@ -11,6 +11,7 @@ const Inbox = React.lazy(() => import("../pages/threads/Inbox"));
 const SentItems = React.lazy(() => import("../pages/threads/SentItems"));
 const Completed = React.lazy(() => import("../pages/threads/Completed"));
 const Users = React.lazy(() => import("../pages/users"));
+const Settings = React.lazy(() => import("../pages/settings"));
 
 export default function Router() {
     return useRoutes([
@@ -50,6 +51,10 @@ export default function Router() {
                 {
                     path: 'users',
                     element: <SuspenseLoader children={<Users />} />
+                },
+                {
+                    path: 'settings',
+                    element: <SuspenseLoader children={<Settings />} />
                 }
             ]
         }

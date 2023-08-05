@@ -2,10 +2,9 @@ import React from 'react';
 // mui
 import Paper from '@mui/material/Paper';
 import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
+import ListItem from '@mui/material/ListItem';
 import Divider from '@mui/material/Divider';
 import ListItemText from '@mui/material/ListItemText';
-import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -14,34 +13,29 @@ import { useTheme } from '@mui/material/styles';
 // icons
 import BusinessIcon from '@mui/icons-material/Business';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-// project imports
-import AddOfficeDialog from './AddOfficeDialog';
-import DeleteOfficeDialog from './DeleteOfficeDialog';
-import { LoadOverlay } from '../../components/Loaders';
 // api
 import { useQuery } from '@apollo/client';
-import { GET_ALL_BIR_OFFICES } from '../../api/offices';
-import { BirOffices } from '../../api/threads/types';
+import { GET_ALL_THREAD_TYPES } from '../../api/settings';
+import { DocumentTypes } from '../../api/threads/types';
+// project imports
+import { LoadOverlay } from '../../components/Loaders';
+import AddTypeDialog from './AddTypeDialog';
+import DeleteTypeDialog from './DeleteTypeDialog';
 
 
-interface OfficeListProps {
-    selected: number;
-    onSelect: (id: number) => void;
-}
-
-export default function OfficeList(props: OfficeListProps) {
+export default function ThreadTypeList() {
     const theme = useTheme();
-    const { data: offices, refetch } = useQuery<{ getAllBirOffices: BirOffices[] }>(GET_ALL_BIR_OFFICES);
+    const { data: docTypes, refetch } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES); 
     const [add, setAdd] = React.useState<boolean>(false);
-    const [selected, setSelected] = React.useState<BirOffices | null>(null);
+    const [selected, setSelected] = React.useState<DocumentTypes | null>(null);
 
     const handleToggleDialog = () => setAdd(!add);
 
     const handleRefresh = () => refetch();
     
-    const handleConfirmDelete = (office: BirOffices) => setSelected(office); 
+    const handleConfirmDelete = (type: DocumentTypes) => setSelected(type); 
 
-    if (!offices) return <LoadOverlay open={true} />
+    if (!docTypes) return <LoadOverlay open={true} /> 
 
     return (
         <Paper sx={{ width: "100%", height: '100%' }}>
@@ -54,8 +48,8 @@ export default function OfficeList(props: OfficeListProps) {
                     alignItems: 'center'
                 }}
             >
-                <Typography variant='h6'>BIR Offices</Typography>
-                <Button variant='contained' onClick={handleToggleDialog}>Add Office</Button>
+                <Typography variant='h6'>Document Types</Typography>
+                <Button variant='contained' onClick={handleToggleDialog}>Add Type</Button>
             </Box>
 
             <Divider />
@@ -86,52 +80,43 @@ export default function OfficeList(props: OfficeListProps) {
                     }
                 }}>
 
-                {offices.getAllBirOffices.length === 0 && (
+                {docTypes.getAllThreadTypes.length === 0 && (
                      <Box sx={{ display: 'flex', height: 300, justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                         <BusinessIcon color='secondary' sx={{ fontSize: 64, mb: 1 }} />
                         <Typography variant="subtitle1">
-                            No Office Yet
+                            No Document Type Yet
                         </Typography>
                         <Typography variant="body1">
-                            Create an office
+                            Create a Document Type
                         </Typography>
                     </Box>
                 )}
 
-                {offices.getAllBirOffices.map(office => (
-                    <ListItem key={office.officeId} secondaryAction={
-                        <IconButton onClick={() => handleConfirmDelete(office)}>
-                            <DeleteOutlineOutlinedIcon color='error' fontSize='small' />
-                        </IconButton>
-                    }>
-                        <ListItemButton 
-                            alignItems="flex-start" 
-                            selected={office.officeId === props.selected}
-                            onClick={() => props.onSelect(office.officeId)}
-                        >
+                {docTypes.getAllThreadTypes.map(docType => (
+                    <React.Fragment key={docType.docId}>
+                        <ListItem secondaryAction={
+                            <IconButton onClick={() => handleConfirmDelete(docType)}>
+                                <DeleteOutlineOutlinedIcon color='error' fontSize='small' />
+                            </IconButton>
+                        }>
                             <ListItemText
                                 primary={
-                                    <Box>
-                                        <Typography variant='body1'>
-                                            {office.officeName}
-                                        </Typography>
-                                        <Typography variant='caption' gutterBottom>
-                                            Sample Code
-                                        </Typography>
-                                    </Box>
+                                    <Typography variant='body1'>
+                                        {docType.docType}
+                                    </Typography>
                                 }
                             />
-                        </ListItemButton>
+                        </ListItem>
                         <Divider />
-                    </ListItem>
+                    </React.Fragment>
                 ))}
             </List>
 
-            <AddOfficeDialog open={add} onClose={handleToggleDialog} onSubmit={handleRefresh} />
+            <AddTypeDialog open={add} onClose={handleToggleDialog} onSubmit={handleRefresh} />
 
             {selected && (
-                <DeleteOfficeDialog open={selected !== null} office={selected} onClose={() => setSelected(null)} onDelete={handleRefresh} />
+                <DeleteTypeDialog open={selected !== null} docType={selected} onClose={() => setSelected(null)} onDelete={handleRefresh} />
             )}
         </Paper>
-    )   
+    )
 }

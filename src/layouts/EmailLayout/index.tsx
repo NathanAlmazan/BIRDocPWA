@@ -171,6 +171,7 @@ export default function EmailLayout() {
                   px: 2.5,
                 }}
                 onClick={() => navigate(path.url)}
+                selected={path.url === pathname}
               >
                 <ListItemIcon
                   sx={{

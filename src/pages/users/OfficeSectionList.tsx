@@ -1,5 +1,6 @@
 import React from 'react';
 // mui
+import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Card from '@mui/material/Card';
@@ -52,102 +53,118 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
     }
 
     return (
-        <Grid 
-            container   
-            spacing={3} 
-            alignItems="stretch" 
-            sx={{ 
-                p: 2,
-                width: '100%',
-                maxHeight: 'calc(100vh - 80px)', 
-                overflowY: 'auto',
-                "::-webkit-scrollbar": {
-                height: "8px",
-                width: "8px"
-                },
+        <Paper sx={{ width: "100%", height: '100%' }}>
+            <Box 
+                sx={{ 
+                    p: 2, 
+                    display: 'flex', 
+                    flexDirection: 'row', 
+                    alignItems: 'center'
+                }}
+            >
+                <Typography variant='h6'>{`${office.getBirOfficeById.officeName} Sections`}</Typography>
+            </Box>
 
-                /* Track */
-                "::-webkit-scrollbar-track": {
-                    background: theme.palette.grey[300] 
-                },
-                
-                /* Handle */
-                "::-webkit-scrollbar-thumb": {
-                    background: theme.palette.secondary.dark
-                },
-                
-                /* Handle on hover */
-                "::-webkit-scrollbar-thumb:hover": {
-                    background: theme.palette.primary.dark
-                }
-            }}>
-            
-            {office.getBirOfficeById.officeSections.filter((o, index, arr) => o.sectionName !== "default" || arr.length === 1).map(section => (
-                <Grid item md={6} key={section.sectionId}>
-                    <Card sx={{ width: '100%', height: '100%' }}>
-                        <CardHeader 
-                            title={section.sectionName === 'default' ? 'Main' : section.sectionName}
-                            action={
-                                <Button variant='contained' sx={{ ml: 2 }} onClick={() => setSelectedSection(section)}>
-                                    Register
-                                </Button>
-                            }
-                        />
-                        <CardContent>
-                            <Divider />
-                            {section.officers.length === 0 && (
-                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                                    <SupervisorAccountOutlinedIcon color='secondary' sx={{ fontSize: 48, my: 1 }} />
-                                    <Typography variant="subtitle1">
-                                        No Officer Registered
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        Click Register to Add Officers
-                                    </Typography>
-                                </Box>
-                            )}
-                            <List>
-                                {section.officers.map(officer => (
-                                    <React.Fragment key={officer.accountId}>
-                                        <ListItemButton alignItems="flex-start" onClick={() => handleSelectUser(officer, section)}>
-                                            <ListItemAvatar>
-                                                <Avatar>
-                                                    {`${officer.firstName.charAt(0)}${officer.lastName.charAt(0)}`}
-                                                </Avatar>
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={
-                                                    <Box>
-                                                        <Typography variant='body1'>
-                                                            {officer.firstName + ' ' + officer.lastName}
-                                                        </Typography>
-                                                        <Typography variant='caption' gutterBottom>
-                                                            {officer.position}
-                                                        </Typography>
-                                                    </Box>
-                                                }
-                                            />
-                                        </ListItemButton>
-                                        <Divider variant="inset" component="li" />
-                                    </React.Fragment>
-                                ))}
-                            </List>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            ))}
+            <Divider />
 
-            {selectedSection && (
-                <AddOfficerDrawer 
-                    open={selectedSection !== null}  
-                    section={selectedSection}
-                    officer={selectedUser}
-                    office={office.getBirOfficeById}
-                    onClose={handleCloseOfficerDialog}
-                    onSubmit={reloadList}
-                />
-            )}
-            
-        </Grid> 
+            <Grid 
+                container   
+                spacing={3} 
+                alignItems="stretch" 
+                sx={{ 
+                    mt: 1,
+                    px: 2,
+                    pb: 2,
+                    width: '100%',
+                    maxHeight: 'calc(100vh - 170px)', 
+                    overflowY: 'auto',
+                    "::-webkit-scrollbar": {
+                    height: "8px",
+                    width: "8px"
+                    },
+
+                    /* Track */
+                    "::-webkit-scrollbar-track": {
+                        background: theme.palette.grey[300] 
+                    },
+                    
+                    /* Handle */
+                    "::-webkit-scrollbar-thumb": {
+                        background: theme.palette.secondary.dark
+                    },
+                    
+                    /* Handle on hover */
+                    "::-webkit-scrollbar-thumb:hover": {
+                        background: theme.palette.primary.dark
+                    }
+                }}>
+                
+                {office.getBirOfficeById.officeSections.filter((o, index, arr) => o.sectionName !== "default" || arr.length === 1).map(section => (
+                    <Grid item md={6} key={section.sectionId}>
+                        <Card sx={{ width: '100%', height: '100%' }}>
+                            <CardHeader 
+                                title={section.sectionName === 'default' ? 'Main' : section.sectionName}
+                                action={
+                                    <Button variant='contained' sx={{ ml: 2 }} onClick={() => setSelectedSection(section)}>
+                                        Register
+                                    </Button>
+                                }
+                            />
+                            <CardContent>
+                                <Divider />
+                                {section.officers.length === 0 && (
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                                        <SupervisorAccountOutlinedIcon color='secondary' sx={{ fontSize: 48, my: 1 }} />
+                                        <Typography variant="subtitle1">
+                                            No Officer Registered
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            Click Register to Add Officers
+                                        </Typography>
+                                    </Box>
+                                )}
+                                <List>
+                                    {section.officers.map(officer => (
+                                        <React.Fragment key={officer.accountId}>
+                                            <ListItemButton alignItems="flex-start" onClick={() => handleSelectUser(officer, section)}>
+                                                <ListItemAvatar>
+                                                    <Avatar>
+                                                        {`${officer.firstName.charAt(0)}${officer.lastName.charAt(0)}`}
+                                                    </Avatar>
+                                                </ListItemAvatar>
+                                                <ListItemText
+                                                    primary={
+                                                        <Box>
+                                                            <Typography variant='body1'>
+                                                                {officer.firstName + ' ' + officer.lastName}
+                                                            </Typography>
+                                                            <Typography variant='caption' gutterBottom>
+                                                                {officer.position}
+                                                            </Typography>
+                                                        </Box>
+                                                    }
+                                                />
+                                            </ListItemButton>
+                                            <Divider variant="inset" component="li" />
+                                        </React.Fragment>
+                                    ))}
+                                </List>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
+
+                {selectedSection && (
+                    <AddOfficerDrawer 
+                        open={selectedSection !== null}  
+                        section={selectedSection}
+                        officer={selectedUser}
+                        office={office.getBirOfficeById}
+                        onClose={handleCloseOfficerDialog}
+                        onSubmit={reloadList}
+                    />
+                )}
+            </Grid> 
+        </Paper>
     )
 }
