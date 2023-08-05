@@ -9,6 +9,7 @@ export type OfficeSections = {
     sectionId: number;
     sectionName: string;
     sectionOffice: BirOffices;
+    officers: UserAccounts[];
 }
 
 export type DocumentTypes = {

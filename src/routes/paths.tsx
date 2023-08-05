@@ -44,7 +44,7 @@ export const settings: Paths[] = [
     },
     {
         label: 'Accounts',
-        url: '/admin/accounts',
+        url: '/admin/users',
         icon: <SupervisorAccountIcon />
     }
 ]

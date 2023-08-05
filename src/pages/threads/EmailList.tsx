@@ -136,6 +136,7 @@ export default function EmailList(props: EmailListProps) {
                 background: theme.palette.primary.dark
             }
           }}>
+
           {mails.length === 0 && (
             <Box sx={{ display: 'flex', height: 300, justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
               <FolderCopyIcon color='secondary' sx={{ fontSize: 64, mb: 1 }} />
@@ -147,6 +148,7 @@ export default function EmailList(props: EmailListProps) {
               </Typography>
             </Box>
           )}
+          
           {mails.map(msg => (
             <React.Fragment key={msg.refId}>
               <ListItemButton alignItems="flex-start" onClick={() => props.onThreadClick(msg.refId)}>

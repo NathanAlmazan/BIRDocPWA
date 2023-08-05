@@ -10,6 +10,7 @@ const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const Inbox = React.lazy(() => import("../pages/threads/Inbox"));
 const SentItems = React.lazy(() => import("../pages/threads/SentItems"));
 const Completed = React.lazy(() => import("../pages/threads/Completed"));
+const Users = React.lazy(() => import("../pages/users"));
 
 export default function Router() {
     return useRoutes([
@@ -39,6 +40,16 @@ export default function Router() {
                 {
                     path: 'completed',
                     element: <SuspenseLoader children={<Completed />} />
+                }
+            ]
+        },
+        {
+            path: 'admin',
+            element: <EmailLayout />,
+            children: [
+                {
+                    path: 'users',
+                    element: <SuspenseLoader children={<Users />} />
                 }
             ]
         }
