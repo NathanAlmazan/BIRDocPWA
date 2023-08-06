@@ -1,19 +1,27 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { OfficeSections } from "../../api/threads/types";
 
 export interface Authentication {
-    uid: string | null,
-    username: string | null,
-    position: string | null,
-    office: string | null,
-    section: string | null
+    uid: string | null;
+    username: string | null;
+    position: string | null;
+    office: OfficeSections | null;
 }
 
 const initialState: Authentication = {
-    uid: "88f4b611-cfcf-4033-a675-73cc7b3d7a75",
+    uid: "622dd38a-c25f-49a6-8443-bad4493db47b",
     username: "John Doe",
     position: "Regional Director",
-    office: "Office of the Regional Director",
-    section: null
+    office: {
+        sectionId: 29,
+        sectionName: "sample",
+        officers: [],
+        sectionOffice: {
+            officeId: 8,
+            officeName: "Collection Division",
+            officeSections: []
+        }
+    }
 }
 
 const authSlice = createSlice({

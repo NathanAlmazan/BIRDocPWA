@@ -66,3 +66,9 @@ export type UserAccounts = {
     password: string;
     resetCode: string | null;
 }
+
+export type Analytics = {
+    status: DocumentStatus;
+    docType: DocumentTypes;
+    count: number;
+}

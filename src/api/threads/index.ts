@@ -97,6 +97,8 @@ export const GET_THREAD_INBOX = gql`
                 statusLabel
             }
             dateDue
+            dateCreated
+            dateUpdated
         }
     }
 `

@@ -35,6 +35,34 @@ export const GET_BIR_OFFICE_BY_ID = gql`
     }
 `
 
+export const GET_DOCUMENT_TYPE_ANALYTICS = gql`
+    query GetThreadTypeAnalytics($officeId: Int!, $startDate: String!, $endDate: String!) {
+        getThreadTypeAnalytics(officeId: $officeId, startDate: $startDate, endDate: $endDate) {
+          docType {
+            docId
+            docType
+          }
+          status {
+            statusId
+            statusLabel
+          }
+          count
+        }
+    }
+`
+
+export const GET_DOCUMENT_STATUS_ANALYTICS = gql`
+    query GetStatusAnalytics($officeId: Int!, $completed: Boolean!) {
+        getStatusAnalytics(officeId: $officeId, completed: $completed) {
+            docType {
+                docId
+                docType
+            }
+            count
+        }
+    }
+`
+
 // ====================== Mutations ========================== //
 
 export const ADD_BIR_OFFICE = gql`
