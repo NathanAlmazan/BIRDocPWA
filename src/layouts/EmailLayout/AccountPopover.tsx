@@ -73,7 +73,7 @@ export default function AccountPopover() {
             p: 0,
             mt: 1.5,
             ml: 0.75,
-            width: 200,
+            width: 300,
             '& .MuiMenuItem-root': {
               typography: 'body2',
               borderRadius: 0.75,
@@ -93,12 +93,20 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Box sx={{ my: 1.5, px: 2.5 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {office && office.sectionName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {office && office.sectionOffice.officeName}
-          </Typography>
+          {office && office.sectionName === "default" ? (
+            <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+              {office && office.sectionOffice.officeName}
+            </Typography>
+          ) : (
+            <>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+                {office && office.sectionOffice.officeName}
+              </Typography>
+              <Typography variant="subtitle2" sx={{ color: 'text.secondary' }} noWrap>
+                {office && office.sectionName}
+              </Typography>
+            </>
+          )} 
         </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />

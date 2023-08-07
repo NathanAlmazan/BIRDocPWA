@@ -1,4 +1,4 @@
-const convertedVapidKey = urlBase64ToUint8Array('BMs4UAwpUebe4BJNVh2ZmdDyDHsEkqJTKlBDzOk2ADwTj8rdWVsdrYdgeUIxt-3KJLjYcCPLChLb7v_mcC4fvSE');
+const convertedVapidKey = urlBase64ToUint8Array("BAx1Mp15W6GlmsIaykyVRdI1A0-ZMbhy4B8-rs1gnksLzRpfsxBFkB5HB97-IHV8ZeRCL3R4-5rXwfqPGoltdkI");
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - base64String.length % 4) % 4)
@@ -15,7 +15,7 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 function sendSubscription(subscription: PushSubscription, uid: string) {
-  return fetch(`${process.env.REACT_APP_MEDIA_URL}/subscribe/${uid}`, {
+  return fetch(`${process.env.REACT_APP_SUBSCRIBE_URL}/${uid}`, {
     method: 'POST',
     body: JSON.stringify(subscription),
     headers: {
@@ -52,8 +52,8 @@ export default function subscribeUser(uid: string) {
                     })
 
                 } else {
-                    console.log('Existed subscription detected.')
-                    sendSubscription(existedSubscription, uid)
+                    console.log('Existed subscription detected.');
+                    sendSubscription(existedSubscription, uid);
                 }
             })
         })

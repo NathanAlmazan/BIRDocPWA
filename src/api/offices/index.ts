@@ -115,6 +115,7 @@ export const USER_REGISTER = gql`
             officeSection {
                 sectionId
                 sectionName
+                admin
                 sectionOffice {
                     officeId
                     officeName
@@ -135,6 +136,7 @@ export const USER_LOGIN = gql`
             officeSection {
                 sectionId
                 sectionName
+                admin
                 sectionOffice {
                     officeId
                     officeName
@@ -142,6 +144,28 @@ export const USER_LOGIN = gql`
             }
             position
             resetCode
+        }
+    }
+`
+
+export const GET_USER_NOTIFICATIONS = gql`
+    query GetUserNotifications($userId: String!) {
+        getUserNotifications(userId: $userId) {
+            msgId
+            sender {
+                accountId
+                firstName
+                lastName
+            }
+            message
+            thread {
+                refId
+                subject
+                author {
+                    accountId
+                }
+            }
+            dateSent
         }
     }
 `

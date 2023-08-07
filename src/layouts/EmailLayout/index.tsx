@@ -11,6 +11,7 @@ import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 // icons
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -21,12 +22,19 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import Autocomplete from '@mui/material/Autocomplete';
 // project imports
 import AccountPopover from './AccountPopover';
+import NotificationPopover from './NotificationsPopover';
 // paths
 import { settings, paths } from '../../routes/paths';
+// redux
 import { useAppSelector } from '../../redux/hooks';
+import subscribeUser from '../../subscription';
+// api
+import { useQuery } from '@apollo/client';
+import { Thread } from '../../api/threads/types';
+import { GET_SENT_THREAD, GET_THREAD_INBOX } from '../../api/threads';
 
 const drawerWidth = 240;
 
@@ -103,16 +111,57 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
+const formatInboxDate = (date: string | Date) => {
+  const target = new Date(date);
+  return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 export default function EmailLayout() {
   const navigate = useNavigate();
-  const { uid } = useAppSelector((state) => state.auth);
+  const { uid, office } = useAppSelector((state) => state.auth);
   const { pathname } = useLocation();
   const theme = useTheme();
+
+  const { data: threadInbox } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
+    variables: {
+      userId: uid
+    }
+  });
+  const { data: threadCompleted } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
+    variables: {
+      userId: uid,
+      completed: true
+    }
+  });
+  const { data: sentThread } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
+    variables: {
+      userId: uid
+    }
+  });
+
   const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState<string>('');
+  const [selected, setSelected] = React.useState<Thread | null>(null);
+  const [options, setOptions] = React.useState<Thread[]>([]);
 
   React.useEffect(() => {
     if (!uid) navigate("/auth/login")
+    else subscribeUser(uid);
   }, [uid, navigate])
+
+  React.useEffect(() => {
+    if (threadInbox && threadCompleted && sentThread) {
+      setOptions(threadInbox.getThreadInbox.concat(threadCompleted.getThreadInbox).concat(sentThread.getSentThread));
+    }
+  }, [threadInbox, threadCompleted, sentThread])
+
+  React.useEffect(() => {
+    if (selected) {
+      if (selected.author.accountId === uid) navigate(`/app/sent/${selected.refId}`);
+      else if (selected.completed) navigate(`/app/sent/${selected.refId}`);
+      else navigate(`/app/inbox/${selected.refId}`);
+    }
+  }, [selected, navigate, uid])
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -121,6 +170,8 @@ export default function EmailLayout() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  console.log(options);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -140,24 +191,57 @@ export default function EmailLayout() {
               >
                 <MenuIcon />
               </IconButton>
-              <TextField 
-                name='search'
-                variant='outlined'
-                InputProps={{
-                  endAdornment: 
-                    <InputAdornment position='end'>
-                      <IconButton>
-                        <SearchIcon />
-                      </IconButton>
-                    </InputAdornment>
+              <Autocomplete 
+                autoHighlight
+                options={options}
+                value={selected}
+                onChange={(_: any, newValue: Thread | null) => {
+                  setSelected(newValue);
                 }}
+                inputValue={query}
+                onInputChange={(_, newInputValue) => {
+                  setQuery(newInputValue);
+                }}
+                filterOptions={option => query.length === 0 ? [] : option.filter(mail => 
+                  mail.subject.includes(query) || mail.docType.docType.includes(query) || mail.author.firstName.includes(query) || 
+                  mail.author.lastName.includes(query) || formatInboxDate(mail.dateCreated).includes(query)
+                )}
+                noOptionsText={'Please type a search query'}
+                getOptionLabel={(option) => option.subject}
+                renderOption={(props, option) => (
+                  <Stack component='li' direction="row" alignItems="center" spacing={2} {...props}>
+                    <Box sx={{ minWidth: 240, flexGrow: 1 }}>
+                        <Typography color="inherit" variant="subtitle2" noWrap>
+                            {option.subject}
+                        </Typography>
+
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+                            {`${option.author.firstName} ${option.author.lastName} — ${option.docType.docType}`}
+                        </Typography>
+                    </Box>
+                    <Typography variant="caption" sx={{ pr: 3, flexShrink: 0, color: 'text.secondary' }}>
+                        {`Created at ${formatInboxDate(option.dateCreated)}`}
+                    </Typography>
+                  </Stack>
+                )}
                 sx={{ minWidth: 450 }}
+                renderInput={(params) => (
+                  <TextField 
+                    {...params}
+                    variant='outlined'
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: 
+                        <InputAdornment position='end'>
+                          <SearchIcon />
+                        </InputAdornment>
+                    }}
+                  />
+                )}
               />
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <IconButton>
-                <NotificationsIcon />
-              </IconButton>
+              <NotificationPopover uid={uid as string} />
               <AccountPopover />
             </Box>
           </Stack>
@@ -197,32 +281,34 @@ export default function EmailLayout() {
           ))}
         </List>
         <Divider />
-        <List>
-          {settings.map(path => (
-            <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-                onClick={() => navigate(path.url)}
-                selected={path.url === pathname}
-              >
-                <ListItemIcon
+        {office && office.admin && (
+          <List>
+            {settings.map(path => (
+              <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
                   sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
                   }}
+                  onClick={() => navigate(path.url)}
+                  selected={path.url === pathname}
                 >
-                  {path.icon}
-                </ListItemIcon>
-                <ListItemText primary={path.label} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {path.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={path.label} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Drawer>
       <Box 
         component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: "#EEEEEE", height: "100vh" }}>

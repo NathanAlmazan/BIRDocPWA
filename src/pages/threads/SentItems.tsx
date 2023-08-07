@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 // mui
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -12,8 +13,9 @@ import CreateThread from './CreateThread';
 import { useAppSelector } from '../../redux/hooks';
 
 export default function EmailPage() {
+  const { refId } = useParams();
   const { uid } = useAppSelector((state) => state.auth);
-  const [threadId, setThreadId] = React.useState<string | null>(null);
+  const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
   const [compose, setCompose] = React.useState<boolean>(false);
 
   const handleComposeThread = () => setCompose(!compose);

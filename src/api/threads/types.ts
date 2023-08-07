@@ -8,6 +8,7 @@ export type BirOffices = {
 export type OfficeSections = {
     sectionId: number;
     sectionName: string;
+    admin: boolean;
     sectionOffice: BirOffices;
     officers: UserAccounts[];
 }
@@ -42,7 +43,7 @@ export type Thread = {
 
 export type Messages = {
     msgId: string;
-    refId: string;
+    thread: Thread;
     sender: UserAccounts;
     message: string;
     dateSent: Date;

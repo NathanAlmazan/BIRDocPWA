@@ -41,6 +41,12 @@ export const GET_THREAD_BY_ID = gql`
                 accountId
                 firstName
                 lastName
+                position
+                officeSection {
+                    sectionOffice {
+                        officeName
+                    }
+                }
             }
             status {
                 statusId
@@ -99,6 +105,7 @@ export const GET_THREAD_INBOX = gql`
             dateDue
             dateCreated
             dateUpdated
+            completed
         }
     }
 `
@@ -119,6 +126,9 @@ export const GET_SENT_THREAD = gql`
                 statusLabel
             }
             dateDue
+            dateCreated
+            dateUpdated
+            completed
         }
     }
 `
@@ -143,6 +153,14 @@ export const UPDATE_THREAD_STATUS = gql`
     mutation UpdateThreadStatus($uid: String!, $statusId: Int!, $attachments: Boolean!) {
         updateThreadStatus(uid: $uid, statusId: $statusId, attachments: $attachments) {
             refId
+        }
+    }
+`
+
+export const SET_MESSAGE_AS_READ = gql`
+    mutation SetMessageAsRead($threadId: String!, $userId: String!) {
+        setMessageAsRead(threadId: $threadId, userId: $userId) {
+            msgId
         }
     }
 `

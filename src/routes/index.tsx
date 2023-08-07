@@ -15,6 +15,7 @@ const Users = React.lazy(() => import("../pages/users"));
 const Settings = React.lazy(() => import("../pages/settings"));
 const RegisterUser = React.lazy(() => import("../pages/authentication/RegisterUser"));
 const LoginUser = React.lazy(() => import("../pages/authentication/LoginUser"));
+const Page404 = React.lazy(() => import("../pages/Page404"));
 
 export default function Router() {
     const { uid } = useAppSelector((state) => state.auth);
@@ -40,7 +41,15 @@ export default function Router() {
                     element: <SuspenseLoader children={<Inbox />} />
                 },
                 {
+                    path: 'inbox/:refId',
+                    element: <SuspenseLoader children={<Inbox />} />
+                },
+                {
                     path: 'sent',
+                    element: <SuspenseLoader children={<SentItems />} />
+                },
+                {
+                    path: 'sent/:refId',
                     element: <SuspenseLoader children={<SentItems />} />
                 },
                 {
@@ -76,6 +85,18 @@ export default function Router() {
                     element: <SuspenseLoader children={<LoginUser />} />
                 }
             ]
-        }
+        },
+        {
+            element: <PlainLayout />,
+            children: [
+              { element: <Navigate to="/dashboard/app" />, index: true },
+              { path: '404', element: <Page404 /> },
+              { path: '*', element: <Navigate to="/404" /> },
+            ],
+        },
+        {
+            path: '*',
+            element: <Navigate to="/404" replace />,
+        },
     ])
 }

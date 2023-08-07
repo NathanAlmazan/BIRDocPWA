@@ -78,3 +78,15 @@ self.addEventListener('message', (event) => {
 });
 
 // Any other custom service worker logic can go here.
+self.addEventListener('push', event => {
+  console.log(event.data);
+  if (event.data) {
+    const data = event.data.json();
+    const promiseChain = self.registration.showNotification(data.title, {
+      body: data.description,
+      icon: data.icon
+    })
+
+    event.waitUntil(promiseChain);
+  }
+})

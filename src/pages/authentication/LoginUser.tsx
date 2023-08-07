@@ -69,6 +69,7 @@ export default function LoginUser() {
             office: {
                 sectionId: userAccount.userLogin.officeSection.sectionId,
                 sectionName: userAccount.userLogin.officeSection.sectionName,
+                admin: userAccount.userLogin.officeSection.admin,
                 officers: [],
                 sectionOffice: {
                     officeId: userAccount.userLogin.officeSection.sectionOffice.officeId,

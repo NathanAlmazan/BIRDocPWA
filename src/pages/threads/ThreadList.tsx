@@ -9,26 +9,27 @@ import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
+import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
-
 // icons
 import TuneIcon from '@mui/icons-material/Tune';
 import CloseIcon from '@mui/icons-material/Close';
-
 // project imports
 import { LoadOverlay } from '../../components/Loaders';
 import MessageCard from './MessageCard';
 import ReplyBox from './ReplyBox';
 import { DocumentStatus, Thread } from '../../api/threads/types';
-
 // api
 import { useQuery, useMutation } from '@apollo/client';
 import { 
     GET_ALL_THREAD_STATUS, 
     GET_THREAD_BY_ID, 
+    SET_MESSAGE_AS_READ, 
     UPDATE_THREAD_STATUS
 } from '../../api/threads';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import Form2309 from '../../components/Form2309';
 
 
 const formatInboxDate = (date: string | Date) => {
@@ -48,6 +49,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
   });
   const { data: threadStatus } = useQuery<{ getAllThreadStatus: DocumentStatus[] }>(GET_ALL_THREAD_STATUS);
   const [updateThreadStatus] = useMutation(UPDATE_THREAD_STATUS); 
+  const [setMessageAsRead] = useMutation(SET_MESSAGE_AS_READ);
 
   const [expanded, setExpanded] = React.useState<boolean>(false);
   const [statusId, setStatusId] = React.useState<number>(2);
@@ -61,6 +63,19 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
         setCompleted(threadData.getThreadById.completed);
     }
   }, [threadData])
+
+  React.useEffect(() => {
+    if (threadData) {
+        threadData.getThreadById.messages.filter(msg => msg.sender.accountId !== userId).forEach(user => {
+            setMessageAsRead({
+                variables: {
+                    threadId: threadData.getThreadById.refId,
+                    userId: user.sender.accountId
+                }
+            })
+        })
+    }
+  }, [threadData, userId, setMessageAsRead])
 
   const handleExpand = () => setExpanded(!expanded);
 
@@ -126,7 +141,14 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
         >
             <Box sx={{ width: '100%', p: 2 }}>
                 <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
-                    <Typography variant='subtitle2'>{docType.docType}</Typography>
+                    <PDFDownloadLink document={<Form2309 thread={threadData.getThreadById} />} fileName={`${threadData.getThreadById.subject}.pdf`}>
+                        {({ blob, url, loading, error }) => (
+                            <Link variant='subtitle2' href={url as string} target='_blank' sx={{ textDecoration: 'none', color: 'black' }}>
+                                {`${docType.docType} ${!loading && '(Download Form 2309)'}`}
+                            </Link>
+                        )}
+                    </PDFDownloadLink>
+        
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                         <Typography variant='body2'>{`From ${formatInboxDate(dateCreated)} to ${formatInboxDate(dateDue)}`}</Typography>
                         {userId === threadData.getThreadById.author.accountId && (

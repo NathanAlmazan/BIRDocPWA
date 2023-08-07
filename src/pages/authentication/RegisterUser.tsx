@@ -19,7 +19,6 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useMutation, useQuery } from '@apollo/client';
 import { BirOffices, UserAccounts } from '../../api/threads/types';
 import { GET_ALL_BIR_OFFICES, USER_REGISTER } from '../../api/offices';
-import subscribeUser from '../../subscription';
 
 // ----------------------------------------------------------------------
 
@@ -59,10 +58,7 @@ export default function RegisterUser() {
   const { firstName, lastName, officeId, sectionId, password, resetCode } = credentials;
 
   React.useEffect(() => {
-    if (userAccount) {
-        subscribeUser(userAccount.changePassword.accountId);
-        navigate("/auth/login");
-    }
+    if (userAccount) navigate("/auth/login");
   }, [userAccount, navigate])
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
