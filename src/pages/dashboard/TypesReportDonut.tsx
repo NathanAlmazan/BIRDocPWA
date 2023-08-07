@@ -10,6 +10,7 @@ import { useQuery } from '@apollo/client';
 import { Analytics, DocumentTypes } from '../../api/threads/types';
 import { GET_ALL_THREAD_TYPES } from '../../api/threads';
 import { GET_DOCUMENT_STATUS_ANALYTICS } from '../../api/offices';
+import { chartColors } from '.';
 
 // ----------------------------------------------------------------------
 
@@ -51,6 +52,7 @@ export default function TypesReportDonut({ officeId, completed }: TypesReportDon
   const [chartValues, setChartValues] = React.useState<number[]>([]);
 
   const chartOptions = useChart({
+    colors: chartColors,
     labels: threadTypes ? threadTypes.getAllThreadTypes.map(type => type.docType) : [],
     stroke: { colors: [theme.palette.background.paper] },
     legend: { floating: true, horizontalAlign: 'center' },

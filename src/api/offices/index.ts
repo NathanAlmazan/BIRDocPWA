@@ -8,6 +8,7 @@ export const GET_ALL_BIR_OFFICES = gql`
             officeId
             officeName
             officeSections {
+                sectionId
                 sectionName
             }
         }
@@ -101,6 +102,46 @@ export const DELETE_OFFICER = gql`
     mutation SetAccountInactive($accountId: String!) {
         setAccountInactive(accountId: $accountId) {
             accountId
+        }
+    }
+`
+
+export const USER_REGISTER = gql`
+    mutation ChangePassword($data: UserChangePasswordInput!) {
+        changePassword(data: $data) {
+            accountId
+            firstName
+            lastName
+            officeSection {
+                sectionId
+                sectionName
+                sectionOffice {
+                    officeId
+                    officeName
+                }
+            }
+            position
+            resetCode
+        }
+    }
+`
+
+export const USER_LOGIN = gql`
+    mutation UserLogin($data: UserLoginInputInput!) {
+        userLogin(data: $data) {
+            accountId
+            firstName
+            lastName
+            officeSection {
+                sectionId
+                sectionName
+                sectionOffice {
+                    officeId
+                    officeName
+                }
+            }
+            position
+            resetCode
         }
     }
 `

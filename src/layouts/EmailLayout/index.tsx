@@ -3,13 +3,14 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 // mui
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
 // icons
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -18,8 +19,14 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+// project imports
+import AccountPopover from './AccountPopover';
 // paths
 import { settings, paths } from '../../routes/paths';
+import { useAppSelector } from '../../redux/hooks';
 
 const drawerWidth = 240;
 
@@ -65,6 +72,10 @@ const AppBar = styled(MuiAppBar, {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
+  boxShadow: 'none',
+  backdropFilter: `blur(6px)`,
+  WebkitBackdropFilter: `blur(6px)`,
+  backgroundColor: theme.palette.background.paper,
   ...(open && {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
@@ -94,9 +105,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function EmailLayout() {
   const navigate = useNavigate();
+  const { uid } = useAppSelector((state) => state.auth);
   const { pathname } = useLocation();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!uid) navigate("/auth/login")
+  }, [uid, navigate])
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -110,21 +126,41 @@ export default function EmailLayout() {
     <Box sx={{ display: 'flex' }}>
       <AppBar position="fixed" open={open}>
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: 'none' }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Document Control Log
-          </Typography>
+          <Stack direction='row' justifyContent='space-between' alignItems='center' sx={{ width: '100%' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+              <IconButton
+                color="secondary"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                sx={{
+                  marginRight: 5,
+                  ...(open && { display: 'none' }),
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <TextField 
+                name='search'
+                variant='outlined'
+                InputProps={{
+                  endAdornment: 
+                    <InputAdornment position='end'>
+                      <IconButton>
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                }}
+                sx={{ minWidth: 450 }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+              <IconButton>
+                <NotificationsIcon />
+              </IconButton>
+              <AccountPopover />
+            </Box>
+          </Stack>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>

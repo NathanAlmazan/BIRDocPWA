@@ -17,6 +17,7 @@ import { useQuery } from '@apollo/client';
 import { GET_DOCUMENT_TYPE_ANALYTICS } from '../../api/offices';
 import { DocumentStatus, DocumentTypes, Analytics } from '../../api/threads/types';
 import { GET_ALL_THREAD_STATUS, GET_ALL_THREAD_TYPES } from '../../api/threads';
+import { chartColors } from '.';
 
 
 function getWeekBeforeDate() {
@@ -63,6 +64,7 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
                         enabled: true
                     }
                 },
+                colors: chartColors,
                 responsive: [
                     {
                         breakpoint: 500,

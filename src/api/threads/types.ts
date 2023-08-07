@@ -62,8 +62,7 @@ export type UserAccounts = {
     firstName: string;
     lastName: string;
     position: string;
-    officeId: number;
-    password: string;
+    officeSection: OfficeSections;
     resetCode: string | null;
 }
 

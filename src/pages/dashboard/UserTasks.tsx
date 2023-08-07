@@ -37,7 +37,7 @@ export default function UserTasks({ userId }: UserTasksProps) {
 
         <Box sx={{ maxHeight: 500, overflowY: 'auto' }}>
             {tasks?.getThreadInbox.length === 0 && (
-                 <Box sx={{ display: 'flex', height: 300, justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                 <Box sx={{ display: 'flex', height: 280, justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                     <TaskAltIcon color='secondary' sx={{ fontSize: 64, mb: 1 }} />
                     <Typography variant="subtitle1">
                         Job Well Done!

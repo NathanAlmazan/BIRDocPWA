@@ -34,3 +34,5 @@ export default function DashboardPage() {
         </Grid>
     )
 }
+
+export const chartColors = ['#35155D', '#512B81', '#4477CE', '#8CABFF', '#6F61C0', '#A084E8', '#8BE8E5', '#D5FFE4', '#4682A9', '#749BC2', '#91C8E4', '#F6F4EB', '#FFE7A0', '#322653', '#8062D6', '#9288F8', '#FFD2D7', '#461959', '#7A316F', '#CD6688', '#AED8CC', '#9A208C', '#E11299', '#FFEAEA', '#F5C6EC'];

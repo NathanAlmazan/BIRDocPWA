@@ -1,10 +1,13 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import { Outlet } from "react-router-dom";
+
+// ----------------------------------------------------------------------
 
 export default function PlainLayout() {
-    return (
-        <div>
-            <Outlet />
-        </div>
-    )
+
+  return (
+    <Box sx={{ display: 'flex', position: "relative" }}>
+        <Outlet />
+    </Box>
+  );
 }
