@@ -89,9 +89,10 @@ export default function Router() {
         {
             element: <PlainLayout />,
             children: [
-              { element: <Navigate to="/dashboard/app" />, index: true },
-              { path: '404', element: <Page404 /> },
-              { path: '*', element: <Navigate to="/404" /> },
+                { element: <Navigate to={uid ? "app/dashboard" : "auth/login"} />, index: true },
+                { path: '/', element: <Navigate to={uid ? "app/dashboard" : "auth/login"} /> },
+                { path: '404', element: <Page404 /> },
+                { path: '*', element: <Navigate to="/404" /> },
             ],
         },
         {

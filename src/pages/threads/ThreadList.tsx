@@ -15,6 +15,7 @@ import { useTheme } from '@mui/material/styles';
 // icons
 import TuneIcon from '@mui/icons-material/Tune';
 import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
 // project imports
 import { LoadOverlay } from '../../components/Loaders';
 import MessageCard from './MessageCard';
@@ -77,6 +78,10 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
     }
   }, [threadData, userId, setMessageAsRead])
 
+  React.useEffect(() => {
+    refetch({ uid: threadId });
+  }, [threadId, refetch])
+
   const handleExpand = () => setExpanded(!expanded);
 
   const handleStatusChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +113,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
   if (loading || !threadData || !threadStatus) return <LoadOverlay open={true} />
 
-  const { subject, author, docType, dateDue, messages, recipient, dateUpdated, dateCreated, status } = threadData.getThreadById;
+  const { subject, author, docType, dateDue, messages, recipient, dateUpdated, dateCreated, status, attachments } = threadData.getThreadById;
 
   return (
     <Paper sx={{ width: '100%' }}>
@@ -156,6 +161,9 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
                                 {expanded ? <CloseIcon /> : <TuneIcon />}
                             </IconButton>
                         )}
+                         <IconButton onClick={reloadThread}>
+                            <RefreshIcon />
+                        </IconButton>
                     </Box>
                 </Stack>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -220,7 +228,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
             <Box sx={{ p: 2 }}>
                 {!completed && (
-                    <ReplyBox userId={userId} threadId={threadId} onSubmit={reloadThread} />
+                    <ReplyBox userId={userId} threadId={threadId} attached={attachments} onSubmit={reloadThread} />
                 )}
             </Box>
         </Box>

@@ -1,4 +1,4 @@
-const convertedVapidKey = urlBase64ToUint8Array("BAx1Mp15W6GlmsIaykyVRdI1A0-ZMbhy4B8-rs1gnksLzRpfsxBFkB5HB97-IHV8ZeRCL3R4-5rXwfqPGoltdkI");
+const convertedVapidKey = urlBase64ToUint8Array('BNKqAlyLaJyWEodJnlPQTxq84VGgyOxnWgi48zEmCuuz8qDPsO_l_5F4Z5jP2p4U_dpTGpnNX2Tr5oA92YHxk1w');
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - base64String.length % 4) % 4)
