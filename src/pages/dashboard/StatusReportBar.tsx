@@ -180,7 +180,7 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
                 title={
                     <Box>
                         <Typography variant='h4'>
-                            1260
+                            {`${analytics?.getThreadTypeAnalytics.reduce((sum, a) => sum + a.count, 0)}`}
                         </Typography>
                         <Typography variant='body2'>
                             Total Documents
