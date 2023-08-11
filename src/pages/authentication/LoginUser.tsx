@@ -162,7 +162,7 @@ export default function LoginUser() {
                     required
                     select
                 >
-                    {offices.getAllBirOffices.find(office => office.officeId === officeId)?.officeSections.map(section => (
+                    {offices.getAllBirOffices.find(office => office.officeId === officeId)?.officeSections.filter((section, index, arr) => section.sectionName !== "default" || arr.length === 1).map(section => (
                         <MenuItem key={section.sectionId} value={section.sectionId}>{section.sectionName === "default" ? "Main" : section.sectionName}</MenuItem>
                     ))}
                 </TextField>
