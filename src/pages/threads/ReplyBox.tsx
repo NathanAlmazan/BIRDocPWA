@@ -89,7 +89,7 @@ export default function ReplyBox({ userId, threadId, attached, onChange, onSubmi
     // validation
     if (!threadId) return
 
-    if (attached && (formData.files.length === 0 || formData.links.length === 0)) {
+    if (attached && formData.files.length === 0 && formData.links.length === 0) {
         setFormError("Attached file is required.");
         return
     }

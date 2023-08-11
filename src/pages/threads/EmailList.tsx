@@ -16,7 +16,7 @@ import { useTheme } from '@mui/material/styles';
 import { useQuery } from '@apollo/client';
 import { GET_SENT_THREAD, GET_THREAD_INBOX } from '../../api/threads';
 // icons
-import FilterListIcon from '@mui/icons-material/FilterList';
+// import FilterListIcon from '@mui/icons-material/FilterList';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 import FolderCopyIcon from '@mui/icons-material/FolderCopy';
@@ -101,9 +101,9 @@ export default function EmailList(props: EmailListProps) {
               Compose
           </Button>
           <div>
-            <IconButton>
+            {/* <IconButton>
               <FilterListIcon />
-            </IconButton>
+            </IconButton> */}
             <IconButton onClick={handleRefreshList}>
               <RefreshIcon />
             </IconButton>

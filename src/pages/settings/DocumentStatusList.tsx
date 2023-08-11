@@ -37,8 +37,6 @@ export default function DocumentStatusList() {
 
     if (!statusList) return <LoadOverlay open={true} /> 
 
-    console.log(statusList);
-
     return (
         <Paper sx={{ width: "100%", height: '100%' }}>
             <Box 

@@ -135,20 +135,20 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
                 }
             })
 
-            setChartSeries(threadStatus.getAllThreadStatus.map(status => ({
-                name: status.statusLabel,
-                data: [35, 125, 35, 35, 35, 80, 35, 20, 35, 45, 15, 75, 35, 125, 35, 35, 35, 80, 35, 20]
-            })))
-
             // setChartSeries(threadStatus.getAllThreadStatus.map(status => ({
             //     name: status.statusLabel,
-            //     data: threadTypes.getAllThreadTypes.map(type => {
-            //         const data = analytics.getThreadTypeAnalytics.filter(s => s.status.statusId === status.statusId && s.docType.docId === type.docId);
-
-            //         if (data.length > 0) return data.reduce((sum, d) => sum + d.count, 0);
-            //         return 0;
-            //     })
+            //     data: [35, 125, 35, 35, 35, 80, 35, 20, 35, 45, 15, 75, 35, 125, 35, 35, 35, 80, 35, 20]
             // })))
+
+            setChartSeries(threadStatus.getAllThreadStatus.map(status => ({
+                name: status.statusLabel,
+                data: threadTypes.getAllThreadTypes.map(type => {
+                    const data = analytics.getThreadTypeAnalytics.filter(s => s.status.statusId === status.statusId && s.docType.docId === type.docId);
+
+                    if (data.length > 0) return data.reduce((sum, d) => sum + d.count, 0);
+                    return 0;
+                })
+            })))
         }
     }, [analytics, threadTypes, threadStatus, theme]);
 

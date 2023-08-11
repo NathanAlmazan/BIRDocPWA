@@ -171,10 +171,8 @@ export default function EmailLayout() {
     setOpen(false);
   };
 
-  console.log(options);
-
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: { sm: 'none', md: 'flex' } }}>
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <Stack direction='row' justifyContent='space-between' alignItems='center' sx={{ width: '100%' }}>
@@ -310,8 +308,7 @@ export default function EmailLayout() {
           </List>
         )}
       </Drawer>
-      <Box 
-        component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: "#EEEEEE", height: "100vh" }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: "#EEEEEE", height: "100vh" }}>
         <DrawerHeader />
         <Outlet />
       </Box>

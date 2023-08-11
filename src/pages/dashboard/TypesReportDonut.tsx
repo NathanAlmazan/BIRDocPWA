@@ -70,13 +70,13 @@ export default function TypesReportDonut({ officeId, completed }: TypesReportDon
 
   React.useEffect(() => {
     if (analytics && threadTypes) {
-      setChartValues([35, 125, 35, 35, 35, 80, 35, 20, 35, 45, 15, 75, 35, 125, 35, 35, 35, 80, 35, 20]);
-      // setChartValues(threadTypes.getAllThreadTypes.map(type => {
-      //   const data = analytics.getStatusAnalytics.filter(d => d.docType.docId === type.docId);
+      // setChartValues([35, 125, 35, 35, 35, 80, 35, 20, 35, 45, 15, 75, 35, 125, 35, 35, 35, 80, 35, 20]);
+      setChartValues(threadTypes.getAllThreadTypes.map(type => {
+        const data = analytics.getStatusAnalytics.filter(d => d.docType.docId === type.docId);
 
-      //   if (data.length > 0) return data.reduce((sum, a) => sum + a.count, 0);
-      //   return 0;
-      // }))
+        if (data.length > 0) return data.reduce((sum, a) => sum + a.count, 0);
+        return 0;
+      }))
     }
   }, [analytics, threadTypes])
 
