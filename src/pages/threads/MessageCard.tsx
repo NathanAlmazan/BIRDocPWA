@@ -26,7 +26,7 @@ export default function MessageCard({ content, sender }: { content: Messages, se
           </Avatar>
         }
         title={content.sender.firstName + ' ' + content.sender.lastName}
-        subheader={content.sender.position}
+        subheader={content.sender.role.roleName}
         action={
           <Typography variant='body2'>
             {formatInboxDate(content.dateSent)}
@@ -64,7 +64,7 @@ export default function MessageCard({ content, sender }: { content: Messages, se
           </Avatar>
         }
         title={content.sender.firstName + ' ' + content.sender.lastName}
-        subheader={content.sender.position}
+        subheader={content.sender.role.roleName}
         action={
           <Typography variant='body2'>
             {formatInboxDate(content.dateSent)}

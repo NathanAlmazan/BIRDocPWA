@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import { useTheme } from '@mui/material/styles';
-import { BirOffices, OfficeSections, UserAccounts } from '../../api/threads/types';
+import { BirOffices, OfficeSections, Roles, UserAccounts } from '../../api/threads/types';
 // icons
 import SupervisorAccountOutlinedIcon from '@mui/icons-material/SupervisorAccountOutlined';
 // api
@@ -24,14 +24,26 @@ import { GET_BIR_OFFICE_BY_ID } from '../../api/offices';
 import { LoadOverlay } from '../../components/Loaders';
 // project imports
 import AddOfficerDrawer from './OfficerDialog';
+import { useAppSelector } from '../../redux/hooks';
 
 
 interface OfficeSectionListProps {
     officeId: number;
 }
 
+const isAuthorized = (role: Roles | null, office: OfficeSections | null, sectionId: number, officeId: number): boolean => {
+    if (!role || !office) return false;
+    else if (role.superuser) return true;
+    else if (role.roleName === "Section Chief" && office.sectionId === sectionId) return true;
+    else if ((role.roleName === "Revenue District Officer" || role.roleName === "Asst. Revenue District Officer") && office.sectionOffice.officeId === officeId) return true;
+    else if ((role.roleName === "Division Chief" || role.roleName === "Asst. Division Chief") && office.sectionOffice.officeId === officeId) return true;
+
+    return false;
+}
+
 export default function OfficeSectionList(props: OfficeSectionListProps) {
     const theme = useTheme();
+    const { role, office: userOffice } = useAppSelector((state) => state.auth);
     const { data: office, loading, refetch } = useQuery<{ getBirOfficeById: BirOffices }>(GET_BIR_OFFICE_BY_ID, { variables: {
         officeId: props.officeId
     }});
@@ -102,14 +114,18 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                 {office.getBirOfficeById.officeSections.filter((o, index, arr) => o.sectionName !== "default" || arr.length === 1).map(section => (
                     <Grid item md={6} key={section.sectionId}>
                         <Card sx={{ width: '100%', height: '100%' }}>
-                            <CardHeader 
-                                title={section.sectionName === 'default' ? 'Main' : section.sectionName}
-                                action={
-                                    <Button variant='contained' sx={{ ml: 2 }} onClick={() => setSelectedSection(section)}>
-                                        Register
-                                    </Button>
-                                }
-                            />
+                            {isAuthorized(role, userOffice, section.sectionId, section.sectionOffice.officeId) ? (
+                                <CardHeader 
+                                    title={section.sectionName === 'default' ? 'Main' : section.sectionName}
+                                    action={
+                                        <Button variant='contained' sx={{ ml: 2 }} onClick={() => setSelectedSection(section)}>
+                                            Register
+                                        </Button>
+                                    }
+                                />
+                            ) : (
+                                <CardHeader title={section.sectionName === 'default' ? 'Main' : section.sectionName} />
+                            )}
                             <CardContent>
                                 <Divider />
                                 {section.officers.length === 0 && (
@@ -118,15 +134,20 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                                         <Typography variant="subtitle1">
                                             No Officer Registered
                                         </Typography>
-                                        <Typography variant="body1">
-                                            Click Register to Add Officers
-                                        </Typography>
+                                        {isAuthorized(role, userOffice, section.sectionId, section.sectionOffice.officeId) && (
+                                            <Typography variant="body1">
+                                                Click Register to Add Officers
+                                            </Typography>
+                                        )}
                                     </Box>
                                 )}
                                 <List>
                                     {section.officers.map(officer => (
                                         <React.Fragment key={officer.accountId}>
-                                            <ListItemButton alignItems="flex-start" onClick={() => handleSelectUser(officer, section)}>
+                                            <ListItemButton alignItems="flex-start" onClick={
+                                                isAuthorized(role, userOffice, section.sectionId, section.sectionOffice.officeId) ? 
+                                                    () => handleSelectUser(officer, section) : undefined}
+                                            >
                                                 <ListItemAvatar>
                                                     <Avatar>
                                                         {`${officer.firstName.charAt(0)}${officer.lastName.charAt(0)}`}
@@ -139,7 +160,7 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                                                                 {officer.firstName + ' ' + officer.lastName}
                                                             </Typography>
                                                             <Typography variant='caption' gutterBottom>
-                                                                {officer.position}
+                                                                {officer.role.roleName}
                                                             </Typography>
                                                         </Box>
                                                     }

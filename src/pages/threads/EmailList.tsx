@@ -16,11 +16,11 @@ import { useTheme } from '@mui/material/styles';
 import { useQuery } from '@apollo/client';
 import { GET_SENT_THREAD, GET_THREAD_INBOX } from '../../api/threads';
 // icons
-// import FilterListIcon from '@mui/icons-material/FilterList';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 import FolderCopyIcon from '@mui/icons-material/FolderCopy';
 // project imports
+import FilterPopover from './FilterPopover';
 import { Thread } from '../../api/threads/types';
 import { LoadOverlay } from '../../components/Loaders';
 
@@ -72,6 +72,7 @@ export default function EmailList(props: EmailListProps) {
     }
   });
   const [mails, setMails] = React.useState<Thread[]>([]);
+  const [selectedType, setSelectedType] = React.useState<number>(-1);
 
   React.useEffect(() => {
     if (threadInbox && sentThread && threadCompleted) {
@@ -100,14 +101,10 @@ export default function EmailList(props: EmailListProps) {
           >
               Compose
           </Button>
-          <div>
-            {/* <IconButton>
-              <FilterListIcon />
-            </IconButton> */}
-            <IconButton onClick={handleRefreshList}>
-              <RefreshIcon />
-            </IconButton>
-          </div>
+          <IconButton onClick={handleRefreshList}>
+            <RefreshIcon />
+          </IconButton>
+          <FilterPopover selected={selectedType} onClick={id => setSelectedType(id)} />
         </Stack>
       )}
       <Paper sx={{ width: '100%' }}>
@@ -149,7 +146,7 @@ export default function EmailList(props: EmailListProps) {
             </Box>
           )}
           
-          {mails.map(msg => (
+          {mails.filter(mail => mail.docType.docId === selectedType || selectedType === -1).map(msg => (
             <React.Fragment key={msg.refId}>
               <ListItemButton alignItems="flex-start" onClick={() => props.onThreadClick(msg.refId)}>
                 <ListItemAvatar>

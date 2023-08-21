@@ -8,18 +8,19 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
 // icons
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 // api
-import { useMutation } from '@apollo/client';
-import { BirOffices, OfficeSections, UserAccounts } from '../../api/threads/types';
-import { DELETE_OFFICER, REGISTER_OFFICER, UPDATE_OFFICER } from '../../api/offices';
+import { useMutation, useQuery } from '@apollo/client';
+import { BirOffices, OfficeSections, Roles, UserAccounts } from '../../api/threads/types';
+import { DELETE_OFFICER, GET_ALL_ROLES, REGISTER_OFFICER, UPDATE_OFFICER } from '../../api/offices';
 
 interface AccountRegister {
     accountId: string;
     firstName: string;
     lastName: string;
-    position: string;
+    roleId: number;
     resetCode: string | null;
     officeId: number;
 }
@@ -34,6 +35,7 @@ interface AddOfficerDrawerProps {
 }
 
 export default function OfficerDrawer(props: AddOfficerDrawerProps) {
+    const { data: roles } = useQuery<{ getAllRoles: Roles[] }>(GET_ALL_ROLES);
     const [registerOfficer] = useMutation(REGISTER_OFFICER);
     const [updateOfficer] = useMutation(UPDATE_OFFICER);
     const [deleteOfficer] = useMutation(DELETE_OFFICER);
@@ -42,10 +44,10 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
         firstName: '',
         lastName: '',
         officeId: props.section.sectionId,
-        position: '',
+        roleId: 9,
         resetCode: null
     })
-    const { firstName, lastName, position, resetCode, officeId, accountId } = formData;
+    const { firstName, lastName, roleId, resetCode, officeId, accountId } = formData;
 
     React.useEffect(() => {
         if (props.officer) {
@@ -54,7 +56,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
                 firstName: props.officer.firstName,
                 lastName: props.officer.lastName,
                 officeId: props.section.sectionId,
-                position: props.officer.position,
+                roleId: props.officer.role.roleId,
                 resetCode: props.officer.resetCode
             })
         }
@@ -73,7 +75,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
                     firstName: firstName,
                     lastName: lastName,
                     officeId: officeId,
-                    position: position
+                    roleId: roleId
                 }
             }
         })
@@ -83,7 +85,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
             firstName: '',
             lastName: '',
             officeId: props.section.sectionId,
-            position: '',
+            roleId: 9,
             resetCode: null
         })
 
@@ -100,7 +102,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
                     accountId: accountId,
                     firstName: firstName,
                     lastName: lastName,
-                    position: position
+                    roleId: roleId
                 }
             }
         })
@@ -110,7 +112,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
             firstName: '',
             lastName: '',
             officeId: props.section.sectionId,
-            position: '',
+            roleId: 9,
             resetCode: null
         })
 
@@ -130,7 +132,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
             firstName: '',
             lastName: '',
             officeId: props.section.sectionId,
-            position: '',
+            roleId: 9,
             resetCode: null
         })
 
@@ -187,13 +189,21 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
                         />
                     )}
 
-                    <TextField 
-                        name='position'
-                        label='Position'
-                        value={position}
-                        onChange={handleTextChange}
-                        required
-                    />
+                    {roles && (
+                        <TextField 
+                            name='roleId'
+                            label='Position'
+                            value={roleId}
+                            onChange={handleTextChange}
+                            fullWidth
+                            required
+                            select
+                        >
+                            {roles.getAllRoles.map(role => (
+                                <MenuItem key={role.roleId} value={role.roleId}>{role.roleName}</MenuItem>
+                            ))}
+                        </TextField>
+                    )}
 
                     {resetCode && (
                         <TextField 

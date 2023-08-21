@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { OfficeSections } from "../../api/threads/types";
+import { OfficeSections, Roles } from "../../api/threads/types";
 
 export interface Authentication {
     uid: string | null;
     username: string | null;
-    position: string | null;
+    role: Roles | null;
     office: OfficeSections | null;
 }
 
@@ -21,7 +21,7 @@ const authSlice = createSlice({
     reducers: {
         login: (state, action: PayloadAction<Authentication>) => {
             state.uid = action.payload.uid
-            state.position = action.payload.position
+            state.role = action.payload.role
             state.username = action.payload.username
             state.office = action.payload.office
 
@@ -29,7 +29,7 @@ const authSlice = createSlice({
         },
         logout: (state) => {
             state.uid = null
-            state.position = null
+            state.role = null
             state.username = null
             state.office = null
 

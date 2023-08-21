@@ -8,7 +8,6 @@ export type BirOffices = {
 export type OfficeSections = {
     sectionId: number;
     sectionName: string;
-    admin: boolean;
     sectionOffice: BirOffices;
     officers: UserAccounts[];
 }
@@ -58,11 +57,17 @@ export type MessageFiles = {
     fileType: string;
 }
 
+export type Roles = {
+    roleId: number;
+    roleName: string;
+    superuser: boolean;
+}
+
 export type UserAccounts = {
     accountId: string;
     firstName: string;
     lastName: string;
-    position: string;
+    role: Roles;
     officeSection: OfficeSections;
     resetCode: string | null;
 }

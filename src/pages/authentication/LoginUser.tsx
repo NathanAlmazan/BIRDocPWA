@@ -17,8 +17,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 // api
 import { useMutation, useQuery } from '@apollo/client';
-import { BirOffices, UserAccounts } from '../../api/threads/types';
-import { GET_ALL_BIR_OFFICES, USER_LOGIN } from '../../api/offices';
+import { BirOffices, Roles, UserAccounts } from '../../api/threads/types';
+import { GET_ALL_BIR_OFFICES, GET_ALL_ROLES, USER_LOGIN } from '../../api/offices';
 // redux
 import { useAppDispatch } from '../../redux/hooks';
 import { login } from '../../redux/slice/auth';
@@ -41,6 +41,7 @@ export interface RegisterUserForm {
     firstName: string;
     lastName: string;
     officeId: number;
+    roleId: number;
     sectionId: number;
     password: string;
 }
@@ -49,27 +50,39 @@ export default function LoginUser() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { data: offices } = useQuery<{ getAllBirOffices: BirOffices[] }>(GET_ALL_BIR_OFFICES);
+  const { data: roles } = useQuery<{ getAllRoles: Roles[] }>(GET_ALL_ROLES);
   const [userLogin, { data: userAccount, error }] = useMutation<{ userLogin: UserAccounts }>(USER_LOGIN);
+  const [selectedOffice, setSelectedOffice] = React.useState<BirOffices>();
   const [visible, setVisible] = React.useState<boolean>(false);
   const [credentials, setCredentials] = React.useState<RegisterUserForm>({
     firstName: "",
     lastName: "",
     officeId: 1,
     sectionId: 1,
+    roleId: 9,
     password: ""
   })
-  const { firstName, lastName, officeId, sectionId, password } = credentials;
+  const { firstName, lastName, officeId, sectionId, roleId, password } = credentials;
+
+  React.useEffect(() => {
+    if (offices) {
+        const selected = offices.getAllBirOffices.find(office => office.officeId === officeId);
+        setSelectedOffice(selected);
+
+        if (selected && selected.officeSections.length > 1) setCredentials(state => ({ ...state, sectionId: selected.officeSections[1].sectionId }));
+        else if (selected) setCredentials(state => ({ ...state, sectionId: selected.officeSections[0].sectionId }));
+    }
+  }, [officeId, offices])
 
   React.useEffect(() => {
     if (userAccount) {
         dispatch(login({
             uid: userAccount.userLogin.accountId,
             username: userAccount.userLogin.firstName + " " + userAccount.userLogin.lastName,
-            position: userAccount.userLogin.position,
+            role: userAccount.userLogin.role,
             office: {
                 sectionId: userAccount.userLogin.officeSection.sectionId,
                 sectionName: userAccount.userLogin.officeSection.sectionName,
-                admin: userAccount.userLogin.officeSection.admin,
                 officers: [],
                 sectionOffice: {
                     officeId: userAccount.userLogin.officeSection.sectionOffice.officeId,
@@ -96,7 +109,8 @@ export default function LoginUser() {
                     firstName: firstName,
                     lastName: lastName,
                     officeId: sectionId,
-                    password: password
+                    password: password,
+                    roleId: roleId
                 }
             }
         })
@@ -152,7 +166,7 @@ export default function LoginUser() {
                 </TextField>
             )}
 
-            {offices && (
+            {selectedOffice && selectedOffice.officeSections.length > 1 && (
                 <TextField 
                     name='sectionId'
                     label='Section'
@@ -162,8 +176,24 @@ export default function LoginUser() {
                     required
                     select
                 >
-                    {offices.getAllBirOffices.find(office => office.officeId === officeId)?.officeSections.filter((section, index, arr) => section.sectionName !== "default" || arr.length === 1).map(section => (
+                    {selectedOffice.officeSections.filter(section => section.sectionName !== "default").map(section => (
                         <MenuItem key={section.sectionId} value={section.sectionId}>{section.sectionName === "default" ? "Main" : section.sectionName}</MenuItem>
+                    ))}
+                </TextField>
+            )}
+
+            {roles && (
+                <TextField 
+                    name='roleId'
+                    label='Position'
+                    value={roleId}
+                    onChange={handleTextChange}
+                    fullWidth
+                    required
+                    select
+                >
+                    {roles.getAllRoles.map(role => (
+                        <MenuItem key={role.roleId} value={role.roleId}>{role.roleName}</MenuItem>
                     ))}
                 </TextField>
             )}

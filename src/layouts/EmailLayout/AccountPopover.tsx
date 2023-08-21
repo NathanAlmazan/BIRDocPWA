@@ -18,7 +18,7 @@ import { logout } from '../../redux/slice/auth';
 
 export default function AccountPopover() {
   const navigate = useNavigate();
-  const { username, office, position } = useAppSelector((state) => state.auth);
+  const { username, office, role } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState<Element | null>(null);
 
@@ -86,7 +86,7 @@ export default function AccountPopover() {
             {username && username}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {position && position}
+            {role && role.roleName}
           </Typography>
         </Box>
 

@@ -118,7 +118,7 @@ const formatInboxDate = (date: string | Date) => {
 
 export default function EmailLayout() {
   const navigate = useNavigate();
-  const { uid, office } = useAppSelector((state) => state.auth);
+  const { uid, role } = useAppSelector((state) => state.auth);
   const { pathname } = useLocation();
   const theme = useTheme();
 
@@ -172,7 +172,7 @@ export default function EmailLayout() {
   };
 
   return (
-    <Box sx={{ display: { sm: 'none', md: 'flex' } }}>
+    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <Stack direction='row' justifyContent='space-between' alignItems='center' sx={{ width: '100%' }}>
@@ -279,9 +279,9 @@ export default function EmailLayout() {
           ))}
         </List>
         <Divider />
-        {office && office.admin && (
+        {role && !['Technical Staff', 'Administrative Officer/Staff'].includes(role.roleName) && (
           <List>
-            {settings.map(path => (
+            {settings.filter(setting => setting.label !== "Settings" || role.superuser).map(path => (
               <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
                 <ListItemButton
                   sx={{

@@ -41,7 +41,10 @@ export const GET_THREAD_BY_ID = gql`
                 accountId
                 firstName
                 lastName
-                position
+                role {
+                    roleId
+                    roleName
+                }
                 officeSection {
                     sectionOffice {
                         officeName
@@ -74,7 +77,10 @@ export const GET_THREAD_BY_ID = gql`
                     accountId
                     firstName
                     lastName
-                    position
+                    role {
+                        roleId
+                        roleName
+                    }
                 }
                 files {
                     fileId

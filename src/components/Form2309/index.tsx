@@ -90,7 +90,7 @@ export default function Form2309({ thread }: { thread: Thread }) {
                             <Text style={styles.tableCellLeftBold}>FROM:</Text>
                             <Text style={styles.emptyCell}></Text>
                             <Text style={styles.tableCellCenter}>{thread.author.firstName + ' ' + thread.author.lastName}</Text>
-                            <Text style={styles.tableCellCenterSmall}>{thread.author.position}</Text>
+                            <Text style={styles.tableCellCenterSmall}>{thread.author.role.roleName}</Text>
                             <Text style={styles.tableCellCenterSmall}>{thread.author.officeSection.sectionOffice.officeName}</Text>
                         </View>
                         <View style={styles.dateCol}>

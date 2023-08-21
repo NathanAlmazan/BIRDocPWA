@@ -11,6 +11,7 @@ import { Analytics, DocumentTypes } from '../../api/threads/types';
 import { GET_ALL_THREAD_TYPES } from '../../api/threads';
 import { GET_DOCUMENT_STATUS_ANALYTICS } from '../../api/offices';
 import { chartColors } from '.';
+import { useAppSelector } from '../../redux/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -42,11 +43,13 @@ interface TypesReportDonutProps {
 
 export default function TypesReportDonut({ officeId, completed }: TypesReportDonutProps) {
   const theme = useTheme();
+  const { role } = useAppSelector((state) => state.auth);
   const { data: threadTypes } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES);
   const { data: analytics } = useQuery<{ getStatusAnalytics: Analytics[] }>(GET_DOCUMENT_STATUS_ANALYTICS, {
     variables: {
       officeId: officeId,
-      completed: completed
+      completed: completed,
+      superuser: role ? role.superuser : null
     }
   });
   const [chartValues, setChartValues] = React.useState<number[]>([]);

@@ -22,6 +22,8 @@ import { LoadOverlay } from '../../components/Loaders';
 import { useQuery } from '@apollo/client';
 import { GET_ALL_BIR_OFFICES } from '../../api/offices';
 import { BirOffices } from '../../api/threads/types';
+// redux
+import { useAppSelector } from '../../redux/hooks';
 
 
 interface OfficeListProps {
@@ -31,6 +33,7 @@ interface OfficeListProps {
 
 export default function OfficeList(props: OfficeListProps) {
     const theme = useTheme();
+    const { role } = useAppSelector((state) => state.auth);
     const { data: offices, refetch } = useQuery<{ getAllBirOffices: BirOffices[] }>(GET_ALL_BIR_OFFICES);
     const [add, setAdd] = React.useState<boolean>(false);
     const [selected, setSelected] = React.useState<BirOffices | null>(null);
@@ -55,7 +58,9 @@ export default function OfficeList(props: OfficeListProps) {
                 }}
             >
                 <Typography variant='h6'>BIR Offices</Typography>
-                <Button variant='contained' onClick={handleToggleDialog}>Add Office</Button>
+                {role && role.superuser && (
+                    <Button variant='contained' onClick={handleToggleDialog}>Add Office</Button>
+                )}
             </Box>
 
             <Divider />
@@ -99,11 +104,11 @@ export default function OfficeList(props: OfficeListProps) {
                 )}
 
                 {offices.getAllBirOffices.map(office => (
-                    <ListItem key={office.officeId} secondaryAction={
+                    <ListItem key={office.officeId} secondaryAction={role && role.superuser && (
                         <IconButton onClick={() => handleConfirmDelete(office)}>
                             <DeleteOutlineOutlinedIcon color='error' fontSize='small' />
                         </IconButton>
-                    }>
+                    )}>
                         <ListItemButton 
                             alignItems="flex-start" 
                             selected={office.officeId === props.selected}

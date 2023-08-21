@@ -18,24 +18,27 @@ import { GET_DOCUMENT_TYPE_ANALYTICS } from '../../api/offices';
 import { DocumentStatus, DocumentTypes, Analytics } from '../../api/threads/types';
 import { GET_ALL_THREAD_STATUS, GET_ALL_THREAD_TYPES } from '../../api/threads';
 import { chartColors } from '.';
+import { useAppSelector } from '../../redux/hooks';
 
 
 function getWeekBeforeDate() {
     const current = new Date();
-    current.setDate(current.getDate() - 7);
+    current.setDate(current.getDate() - 30);
 
     return current;
 }
 
 export default function StatusReportBar({ officeId }: { officeId: number }) {
     const theme = useTheme();
+    const { role } = useAppSelector((state) => state.auth);
     const [startDate, setStartDate] = React.useState<string>(getWeekBeforeDate().toISOString());
     const [endDate, setEndDate] = React.useState<string>(new Date().toISOString());
     const { data: analytics, refetch } = useQuery<{ getThreadTypeAnalytics: Analytics[] }>(GET_DOCUMENT_TYPE_ANALYTICS, {
         variables: {
             officeId: officeId,
             startDate: startDate,
-            endDate: endDate
+            endDate: endDate,
+            superuser: role ? role.superuser : null
         }
     });
     const { data: threadTypes } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES);

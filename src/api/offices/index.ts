@@ -15,6 +15,16 @@ export const GET_ALL_BIR_OFFICES = gql`
     }
 `
 
+export const GET_ALL_ROLES = gql`
+    query GetAllRoles {
+        getAllRoles {
+            roleId
+            roleName
+            superuser
+        }
+    }
+`
+
 export const GET_BIR_OFFICE_BY_ID = gql`
     query GetBirOfficeById($officeId: Int!) {
         getBirOfficeById(id: $officeId) {
@@ -23,11 +33,18 @@ export const GET_BIR_OFFICE_BY_ID = gql`
             officeSections {
                 sectionId
                 sectionName
+                sectionOffice {
+                    officeId
+                }
                 officers {
                     accountId
                     firstName
                     lastName
-                    position
+                    role {
+                        roleId
+                        roleName
+                        superuser
+                    }
                     resetCode
                     registered
                 }
@@ -37,8 +54,8 @@ export const GET_BIR_OFFICE_BY_ID = gql`
 `
 
 export const GET_DOCUMENT_TYPE_ANALYTICS = gql`
-    query GetThreadTypeAnalytics($officeId: Int!, $startDate: String!, $endDate: String!) {
-        getThreadTypeAnalytics(officeId: $officeId, startDate: $startDate, endDate: $endDate) {
+    query GetThreadTypeAnalytics($officeId: Int!, $startDate: String!, $endDate: String!, $superuser: Boolean) {
+        getThreadTypeAnalytics(officeId: $officeId, startDate: $startDate, endDate: $endDate, superuser: $superuser) {
           docType {
             docId
             docType
@@ -53,8 +70,8 @@ export const GET_DOCUMENT_TYPE_ANALYTICS = gql`
 `
 
 export const GET_DOCUMENT_STATUS_ANALYTICS = gql`
-    query GetStatusAnalytics($officeId: Int!, $completed: Boolean!) {
-        getStatusAnalytics(officeId: $officeId, completed: $completed) {
+    query GetStatusAnalytics($officeId: Int!, $completed: Boolean!, $superuser: Boolean) {
+        getStatusAnalytics(officeId: $officeId, completed: $completed, superuser: $superuser) {
             docType {
                 docId
                 docType
@@ -115,13 +132,16 @@ export const USER_REGISTER = gql`
             officeSection {
                 sectionId
                 sectionName
-                admin
                 sectionOffice {
                     officeId
                     officeName
                 }
             }
-            position
+            role {
+                roleId
+                roleName
+                superuser
+            }
             resetCode
         }
     }
@@ -136,13 +156,16 @@ export const USER_LOGIN = gql`
             officeSection {
                 sectionId
                 sectionName
-                admin
                 sectionOffice {
                     officeId
                     officeName
                 }
             }
-            position
+            role {
+                roleId
+                roleName
+                superuser
+            }
             resetCode
         }
     }
