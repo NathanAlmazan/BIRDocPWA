@@ -111,7 +111,7 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                     }
                 }}>
                 
-                {office.getBirOfficeById.officeSections.filter((o, index, arr) => o.sectionName !== "default" || arr.length === 1).map(section => (
+                {office.getBirOfficeById.officeSections.map(section => (
                     <Grid item md={6} key={section.sectionId}>
                         <Card sx={{ width: '100%', height: '100%' }}>
                             {isAuthorized(role, userOffice, section.sectionId, section.sectionOffice.officeId) ? (

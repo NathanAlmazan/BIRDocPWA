@@ -46,6 +46,14 @@ export interface RegisterUserForm {
     password: string;
 }
 
+export const getFilteredOffices = (roleId: number, officeId: number): boolean => {
+    if (roleId === 1) return (officeId === 1);
+    else if (roleId === 2) return (officeId === 2);
+    else if (roleId === 3 || roleId === 4) return [11, 12, 13, 14, 15, 16, 17].includes(officeId);
+    else if (roleId === 5 || roleId === 6) return [3, 4, 5, 6, 7, 8, 9, 10].includes(officeId);
+    else return true;
+}
+
 export default function LoginUser() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -53,6 +61,7 @@ export default function LoginUser() {
   const { data: roles } = useQuery<{ getAllRoles: Roles[] }>(GET_ALL_ROLES);
   const [userLogin, { data: userAccount, error }] = useMutation<{ userLogin: UserAccounts }>(USER_LOGIN);
   const [selectedOffice, setSelectedOffice] = React.useState<BirOffices>();
+  const [showSections, setShowSections] = React.useState<boolean>(true);
   const [visible, setVisible] = React.useState<boolean>(false);
   const [credentials, setCredentials] = React.useState<RegisterUserForm>({
     firstName: "",
@@ -69,10 +78,32 @@ export default function LoginUser() {
         const selected = offices.getAllBirOffices.find(office => office.officeId === officeId);
         setSelectedOffice(selected);
 
-        if (selected && selected.officeSections.length > 1) setCredentials(state => ({ ...state, sectionId: selected.officeSections[1].sectionId }));
-        else if (selected) setCredentials(state => ({ ...state, sectionId: selected.officeSections[0].sectionId }));
+        if (selected && [3, 4, 5, 6].includes(roleId)) {
+            setShowSections(false);
+            setCredentials(state => ({ ...state, sectionId: selected.officeSections[0].sectionId }));
+        }
+        else if (selected && selected.officeSections.length > 1) {
+            setShowSections(true);
+            setCredentials(state => ({ ...state, sectionId: selected.officeSections[1].sectionId }));
+        }
+        else if (selected) {
+            setShowSections(false);
+            setCredentials(state => ({ ...state, sectionId: selected.officeSections[0].sectionId }));
+        }
     }
-  }, [officeId, offices])
+  }, [officeId, offices, roleId]);
+
+  React.useEffect(() => {
+    if (roleId === 1) {
+        setShowSections(false);
+        setCredentials(state => ({ ...state, sectionId: 1, officeId: 1 }));
+    } else if (roleId === 2) {
+        setShowSections(false);
+        setCredentials(state => ({ ...state, sectionId: 2, officeId: 2 }));
+    } else if (offices) {
+        setCredentials(state => ({ ...state, officeId: offices.getAllBirOffices.filter(office => getFilteredOffices(roleId, office.officeId))[0].officeId }));
+    }
+  }, [roleId, offices])
 
   React.useEffect(() => {
     if (userAccount) {
@@ -150,38 +181,6 @@ export default function LoginUser() {
                 required
             />
 
-            {offices && (
-                <TextField 
-                    name='officeId'
-                    label='Office'
-                    value={officeId}
-                    onChange={handleTextChange}
-                    fullWidth
-                    required
-                    select
-                >
-                    {offices.getAllBirOffices.map(office => (
-                        <MenuItem key={office.officeId} value={office.officeId}>{office.officeName}</MenuItem>
-                    ))}
-                </TextField>
-            )}
-
-            {selectedOffice && selectedOffice.officeSections.length > 1 && (
-                <TextField 
-                    name='sectionId'
-                    label='Section'
-                    value={sectionId}
-                    onChange={handleTextChange}
-                    fullWidth
-                    required
-                    select
-                >
-                    {selectedOffice.officeSections.filter(section => section.sectionName !== "default").map(section => (
-                        <MenuItem key={section.sectionId} value={section.sectionId}>{section.sectionName === "default" ? "Main" : section.sectionName}</MenuItem>
-                    ))}
-                </TextField>
-            )}
-
             {roles && (
                 <TextField 
                     name='roleId'
@@ -197,6 +196,38 @@ export default function LoginUser() {
                     ))}
                 </TextField>
             )}
+
+            {offices && (
+                <TextField 
+                    name='officeId'
+                    label='Office'
+                    value={officeId}
+                    onChange={handleTextChange}
+                    fullWidth
+                    required
+                    select
+                >
+                    {offices.getAllBirOffices.filter(office => getFilteredOffices(roleId, office.officeId)).map(office => (
+                        <MenuItem key={office.officeId} value={office.officeId}>{office.officeName}</MenuItem>
+                    ))}
+                </TextField>
+            )}
+
+           {showSections && selectedOffice && selectedOffice.officeSections.length > 1 && (
+                <TextField 
+                    name='sectionId'
+                    label='Section'
+                    value={sectionId}
+                    onChange={handleTextChange}
+                    fullWidth
+                    required
+                    select
+                >
+                    {selectedOffice.officeSections.filter(section => section.sectionName !== "default").map(section => (
+                        <MenuItem key={section.sectionId} value={section.sectionId}>{section.sectionName === "default" ? "Main" : section.sectionName}</MenuItem>
+                    ))}
+                </TextField>
+           )}
 
             <TextField
                 fullWidth
