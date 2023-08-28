@@ -281,7 +281,7 @@ export default function EmailLayout() {
         <Divider />
         {role && !['Technical Staff', 'Administrative Officer/Staff'].includes(role.roleName) && (
           <List>
-            {settings.filter(setting => setting.label !== "Settings" || role.superuser).map(path => (
+            {settings.filter(setting => (setting.label !== "Settings" && setting.label !== 'Region Inbox') || role.superuser).map(path => (
               <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
                 <ListItemButton
                   sx={{

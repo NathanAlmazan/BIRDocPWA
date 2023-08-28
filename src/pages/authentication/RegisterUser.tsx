@@ -209,6 +209,7 @@ export default function RegisterUser() {
                 label='Register Code'
                 value={resetCode}
                 onChange={handleTextChange}
+                helperText={'Please ask your Division Chief or System Admin for your Registration Code'}
                 fullWidth
                 required
                 inputProps={{ min: 6, max: 6 }}
@@ -222,6 +223,7 @@ export default function RegisterUser() {
                 required
                 value={password}
                 onChange={handleTextChange}
+                inputProps={{ minLength: 8 }}
                 InputProps={{
                 endAdornment: (
                     <InputAdornment position="end">

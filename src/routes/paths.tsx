@@ -38,6 +38,11 @@ export const paths: Paths[] = [
 
 export const settings: Paths[] = [
     {
+        label: 'Region Inbox',
+        url: '/admin/inbox',
+        icon: <AllInboxIcon />
+    },
+    {
         label: 'Settings',
         url: '/admin/settings',
         icon: <SettingsIcon />

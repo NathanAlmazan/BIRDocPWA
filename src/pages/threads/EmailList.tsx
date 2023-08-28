@@ -1,6 +1,7 @@
 import React from 'react';
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
+import Chip from '@mui/material/Chip';
 import ListItemButton from '@mui/material/ListItemButton';
 import Divider from '@mui/material/Divider';
 import ListItemText from '@mui/material/ListItemText';
@@ -12,9 +13,6 @@ import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
-// api
-import { useQuery } from '@apollo/client';
-import { GET_SENT_THREAD, GET_THREAD_INBOX } from '../../api/threads';
 // icons
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,9 +24,10 @@ import { LoadOverlay } from '../../components/Loaders';
 
 
 interface EmailListProps {
-  userId: string;
   mode: string;
   compose: boolean;
+  mails?: Thread[];
+  onRefresh: () => void;
   onComposeThread: () => void;
   onThreadClick: (threadId: string) => void;
 }
@@ -45,6 +44,10 @@ const emptyMessages: { [key: string]: { title: string, sub: string }} = {
   "completed": {
     title: "It's time to work!",
     sub: "You have no finished threads"
+  },
+  "regionInbox": {
+    title: "Compose a thread",
+    sub: "No threads are created yet"
   }
 }
 
@@ -55,44 +58,13 @@ const formatInboxDate = (date: string | Date) => {
 
 export default function EmailList(props: EmailListProps) {
   const theme = useTheme();
-  const { data: threadInbox, loading: inboxLoad, refetch: refetchInbox } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
-    variables: {
-      userId: props.userId
-    }
-  });
-  const { data: threadCompleted, loading: completedLoad, refetch: refetchCompleted } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
-    variables: {
-      userId: props.userId,
-      completed: true
-    }
-  });
-  const { data: sentThread, loading: sentLoad, refetch: refetchSent } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
-    variables: {
-      userId: props.userId
-    }
-  });
-  const [mails, setMails] = React.useState<Thread[]>([]);
   const [selectedType, setSelectedType] = React.useState<number>(-1);
-
-  React.useEffect(() => {
-    if (threadInbox && sentThread && threadCompleted) {
-      if (props.mode === "inbox") setMails(threadInbox.getThreadInbox);
-      else if (props.mode === "sent") setMails(sentThread.getSentThread);
-      else if (props.mode === "completed") setMails(threadCompleted.getThreadInbox);
-    }
-  }, [threadInbox, sentThread, threadCompleted, props.mode])
-
-  const handleRefreshList = () => {
-    if (props.mode === "inbox") refetchInbox({ userId: props.userId });
-    else if (props.mode === "sent") refetchSent({ userId: props.userId });
-    else if (props.mode === "completed") refetchCompleted({ userId: props.userId, completed: true });
-  }
 
   return (
     <React.Fragment>
-      <LoadOverlay open={inboxLoad || sentLoad || completedLoad} />
-      {props.mode !== "completed" && (
-        <Stack direction='row' spacing={2} alignItems='center' sx={{ mb: 3 }}>
+      <LoadOverlay open={props.mails === undefined} />
+      <Stack direction='row' spacing={2} alignItems='center' sx={{ mb: 3 }}>
+        {props.mode !== "completed" && (
           <Button 
             variant='contained' 
             endIcon={<AddIcon />} 
@@ -101,12 +73,14 @@ export default function EmailList(props: EmailListProps) {
           >
               Compose
           </Button>
-          <IconButton onClick={handleRefreshList}>
-            <RefreshIcon />
-          </IconButton>
-          <FilterPopover selected={selectedType} onClick={id => setSelectedType(id)} />
-        </Stack>
-      )}
+        )}
+        
+        <IconButton onClick={props.onRefresh}>
+          <RefreshIcon />
+        </IconButton>
+        <FilterPopover selected={selectedType} onClick={id => setSelectedType(id)} />
+      </Stack>
+      
       <Paper sx={{ width: '100%' }}>
         <List 
           sx={{ 
@@ -134,7 +108,7 @@ export default function EmailList(props: EmailListProps) {
             }
           }}>
 
-          {mails.length === 0 && (
+          {props.mails && props.mails.length === 0 && (
             <Box sx={{ display: 'flex', height: 300, justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
               <FolderCopyIcon color='secondary' sx={{ fontSize: 64, mb: 1 }} />
               <Typography variant="subtitle1">
@@ -146,9 +120,10 @@ export default function EmailList(props: EmailListProps) {
             </Box>
           )}
           
-          {mails.filter(mail => mail.docType.docId === selectedType || selectedType === -1).map(msg => (
+          {props.mails && props.mails.filter(mail => mail.docType.docId === selectedType || selectedType === -1).map(msg => (
             <React.Fragment key={msg.refId}>
               <ListItemButton alignItems="flex-start" onClick={() => props.onThreadClick(msg.refId)}>
+
                 <ListItemAvatar>
                   <Avatar>
                     {`${msg.author.firstName.charAt(0)}${msg.author.lastName.charAt(0)}`}
@@ -157,11 +132,12 @@ export default function EmailList(props: EmailListProps) {
                 <ListItemText
                   primary={
                     <Box>
-                        <Typography variant='body1'>
+                        <Typography variant='body1' gutterBottom>
                             {msg.subject}
                         </Typography>
-                        <Typography variant='caption' gutterBottom>
-                          {`Due at ${formatInboxDate(msg.dateDue)}  (${msg.status.statusLabel})`}
+                        <Chip color={msg.completed ? 'success' : 'info'} label={msg.status.statusLabel} size='small' sx={{ fontSize: 10 }} />
+                        <Typography variant='caption'>
+                          {` Due at ${formatInboxDate(msg.dateDue)}`}
                         </Typography>
                     </Box>
                   } 
@@ -173,7 +149,7 @@ export default function EmailList(props: EmailListProps) {
                         variant="subtitle2"
                         color="text.primary"
                       >
-                        {`${msg.author.firstName} ${msg.author.lastName}`}
+                        {props.mode === 'regionInbox' ? msg.recipient.sectionOffice.officeName : `${msg.author.firstName} ${msg.author.lastName}`}
                       </Typography>
                       {" — " + msg.docType.docType}
                     </React.Fragment>

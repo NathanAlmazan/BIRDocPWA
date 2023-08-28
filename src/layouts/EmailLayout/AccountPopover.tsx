@@ -13,6 +13,8 @@ import { useAppSelector } from '../../redux/hooks';
 // redux
 import { useAppDispatch } from '../../redux/hooks';
 import { logout } from '../../redux/slice/auth';
+// project imports
+import EditProfileDialog from './EditProfile';
 
 // ----------------------------------------------------------------------
 
@@ -20,6 +22,7 @@ export default function AccountPopover() {
   const navigate = useNavigate();
   const { username, office, role } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const [editProfile, setEditProfile] = useState<boolean>(false);
   const [open, setOpen] = useState<Element | null>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -34,6 +37,11 @@ export default function AccountPopover() {
     dispatch(logout());
     setOpen(null);
     navigate("/auth/login");
+  }
+
+  const handleToggleEditDialog = () => {
+    setOpen(null);
+    setEditProfile(!editProfile);
   }
 
   return (
@@ -111,10 +119,18 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <MenuItem onClick={handleLogout} sx={{ m: 1, color: 'red' }}>
-          Logout
-        </MenuItem>
+        <Box sx={{ my: 1 }}>
+          <MenuItem onClick={handleToggleEditDialog} sx={{ mx: 1 }}>
+            Edit Profile
+          </MenuItem>
+
+          <MenuItem onClick={handleLogout} sx={{ mx: 1, color: 'red' }}>
+            Logout
+          </MenuItem>
+        </Box>
       </Popover>
+
+      <EditProfileDialog open={editProfile} onClose={handleToggleEditDialog} />
     </>
   );
 }

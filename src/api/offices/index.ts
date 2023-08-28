@@ -226,3 +226,16 @@ export const GET_USER_NOTIFICATIONS = gql`
         }
     }
 `
+
+export const GET_USER_BY_ID = gql`
+    query GetAccountByUid($uid: String!) {
+        getAccountByUid(uid: $uid) {
+            accountId
+            firstName
+            lastName
+            role {
+                roleId
+            }
+        }
+    }
+`

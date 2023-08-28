@@ -8,13 +8,19 @@ import { useAppSelector } from '../redux/hooks';
 
 // pages
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
+
 const Inbox = React.lazy(() => import("../pages/threads/Inbox"));
 const SentItems = React.lazy(() => import("../pages/threads/SentItems"));
 const Completed = React.lazy(() => import("../pages/threads/Completed"));
+const RegionInbox = React.lazy(() => import("../pages/threads/RegionInbox"));
+
 const Users = React.lazy(() => import("../pages/users"));
 const Settings = React.lazy(() => import("../pages/settings"));
+
 const RegisterUser = React.lazy(() => import("../pages/authentication/RegisterUser"));
 const LoginUser = React.lazy(() => import("../pages/authentication/LoginUser"));
+const ForgotPassword = React.lazy(() => import("../pages/authentication/ForgotPassword"))
+
 const Page404 = React.lazy(() => import("../pages/Page404"));
 
 export default function Router() {
@@ -63,6 +69,10 @@ export default function Router() {
             element: <EmailLayout />,
             children: [
                 {
+                    path: 'inbox',
+                    element: <SuspenseLoader children={<RegionInbox />} />
+                },
+                {
                     path: 'users',
                     element: <SuspenseLoader children={<Users />} />
                 },
@@ -83,6 +93,10 @@ export default function Router() {
                 {
                     path: 'login',
                     element: <SuspenseLoader children={<LoginUser />} />
+                },
+                {
+                    path: 'reset',
+                    element: <SuspenseLoader children={<ForgotPassword />} />
                 }
             ]
         },

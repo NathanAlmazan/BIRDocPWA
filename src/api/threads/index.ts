@@ -103,6 +103,7 @@ export const GET_THREAD_INBOX = gql`
                 lastName
             }
             docType {
+                docId
                 docType
             }
             status {
@@ -126,10 +127,41 @@ export const GET_SENT_THREAD = gql`
                 lastName
             }
             docType {
+                docId
                 docType
             }
             status {
                 statusLabel
+            }
+            dateDue
+            dateCreated
+            dateUpdated
+            completed
+        }
+    }
+`
+
+export const GET_REGION_INBOX = gql`
+    query GetAllThread {
+        getAllThread {
+            refId
+            subject
+            author {
+                firstName
+                lastName
+            }
+            docType {
+                docId
+                docType
+            }
+            status {
+                statusLabel
+            }
+            recipient {
+                sectionOffice {
+                    officeName
+                    officeId
+                }
             }
             dateDue
             dateCreated

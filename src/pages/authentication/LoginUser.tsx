@@ -159,7 +159,7 @@ export default function LoginUser() {
         </Stack>
 
         {error && (
-            <Alert severity='error' sx={{ my: 2 }}>{error.message}</Alert>
+            <Alert severity='error' sx={{ my: 2 }}>{`${error.message}. `} <a href='/auth/reset'>Forgot Password?</a></Alert>
         )}
         
         <Stack spacing={2} component='form' onSubmit={handleRegisterUser}>

@@ -208,7 +208,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
                     {resetCode && (
                         <TextField 
                             name='resetCode'
-                            label='Reset Code'
+                            label='Reset/Registration Code'
                             value={resetCode}
                         />
                     )}

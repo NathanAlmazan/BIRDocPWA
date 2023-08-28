@@ -11,10 +11,19 @@ import EmailList from './EmailList';
 import ThreadList from './ThreadList';
 import CreateThread from './CreateThread';
 import { useAppSelector } from '../../redux/hooks';
+// api
+import { Thread } from '../../api/threads/types';
+import { GET_SENT_THREAD } from '../../api/threads';
+import { useQuery } from '@apollo/client';
 
 export default function EmailPage() {
   const { refId } = useParams();
   const { uid } = useAppSelector((state) => state.auth);
+  const { data, refetch } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
+    variables: {
+      userId: uid
+    }
+  });
   const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
   const [compose, setCompose] = React.useState<boolean>(false);
 
@@ -27,13 +36,18 @@ export default function EmailPage() {
     setCompose(false)
   }
 
+  const handleRefreshList = () => {
+    refetch({ userId: uid });
+  }
+
   return (
     <Grid container spacing={3} alignItems="stretch" sx={{ height: "95%" }}>
       <Grid item md={4}>
         <EmailList 
-          userId={uid as string}
+          mails={data?.getSentThread}
           compose={compose}
           mode="sent"
+          onRefresh={handleRefreshList}
           onComposeThread={handleComposeThread}
           onThreadClick={handleThreadClick}
         />
