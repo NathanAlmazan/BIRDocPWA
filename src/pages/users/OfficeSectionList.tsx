@@ -6,6 +6,7 @@ import Divider from '@mui/material/Divider';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
@@ -18,12 +19,14 @@ import { useTheme } from '@mui/material/styles';
 import { BirOffices, OfficeSections, Roles, UserAccounts } from '../../api/threads/types';
 // icons
 import SupervisorAccountOutlinedIcon from '@mui/icons-material/SupervisorAccountOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 // api
 import { useQuery } from '@apollo/client';
 import { GET_BIR_OFFICE_BY_ID } from '../../api/offices';
 import { LoadOverlay } from '../../components/Loaders';
 // project imports
 import AddOfficerDrawer from './OfficerDialog';
+import AddSectionDialog from './AddSectionDialog';
 import { useAppSelector } from '../../redux/hooks';
 
 
@@ -47,22 +50,41 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
     const { data: office, loading, refetch } = useQuery<{ getBirOfficeById: BirOffices }>(GET_BIR_OFFICE_BY_ID, { variables: {
         officeId: props.officeId
     }});
+    const [userDialog, setUserDialog] = React.useState<boolean>(false);
+    const [sectionDialog, setSectionDialog] = React.useState<boolean>(false);
     const [selectedSection, setSelectedSection] = React.useState<OfficeSections | null>(null);
     const [selectedUser, setSelectedUser] = React.useState<UserAccounts | null>(null);
 
     if (!office) return <LoadOverlay open={loading} />
 
-    const reloadList = () => refetch({ officeId: props.officeId });
+    const reloadList = () => {
+        setSelectedSection(null);
+        refetch({ officeId: props.officeId });
+    }
+
+    const handleRegisterOfficer = (section: OfficeSections) => {
+        setSelectedSection(section);
+        setUserDialog(true);
+    }
 
     const handleSelectUser = (user: UserAccounts, section: OfficeSections) => {
         setSelectedSection(section);
         setSelectedUser(user);
+        setUserDialog(true);
     } 
 
     const handleCloseOfficerDialog = () => {
         setSelectedSection(null);
         setSelectedUser(null);
+        setUserDialog(false);
     }
+
+    const handleToggleDialog = () => setSectionDialog(!sectionDialog);
+
+    const handleUpdateSection = (section: OfficeSections) => {
+        setSelectedSection(section);
+        setSectionDialog(true);
+    } 
 
     return (
         <Paper sx={{ width: "100%", height: '100%' }}>
@@ -71,10 +93,15 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                     p: 2, 
                     display: 'flex', 
                     flexDirection: 'row', 
+                    justifyContent: 'space-between',
                     alignItems: 'center'
                 }}
             >
                 <Typography variant='h6'>{`${office.getBirOfficeById.officeName} Sections`}</Typography>
+
+                {role && role.superuser && (
+                    <Button variant='contained' onClick={handleToggleDialog}>Add Section</Button>
+                )}
             </Box>
 
             <Divider />
@@ -118,9 +145,14 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                                 <CardHeader 
                                     title={section.sectionName === 'default' ? 'Main' : section.sectionName}
                                     action={
-                                        <Button variant='contained' sx={{ ml: 2 }} onClick={() => setSelectedSection(section)}>
+                                       <>
+                                        <IconButton onClick={() => handleUpdateSection(section)}>
+                                            <EditOutlinedIcon />
+                                        </IconButton>
+                                        <Button variant='contained' sx={{ ml: 2 }} onClick={() => handleRegisterOfficer(section)}>
                                             Register
                                         </Button>
+                                       </>
                                     }
                                 />
                             ) : (
@@ -177,7 +209,7 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
 
                 {selectedSection && (
                     <AddOfficerDrawer 
-                        open={selectedSection !== null}  
+                        open={userDialog}  
                         section={selectedSection}
                         officer={selectedUser}
                         office={office.getBirOfficeById}
@@ -186,6 +218,14 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                     />
                 )}
             </Grid> 
+
+            <AddSectionDialog 
+                officeId={props.officeId}
+                section={selectedSection}
+                open={sectionDialog}
+                onSubmit={reloadList}
+                onClose={handleToggleDialog}
+            />
         </Paper>
     )
 }

@@ -13,10 +13,9 @@ import IconButton from '@mui/material/IconButton';
 import { useTheme } from '@mui/material/styles';
 // icons
 import BusinessIcon from '@mui/icons-material/Business';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 // project imports
 import AddOfficeDialog from './AddOfficeDialog';
-import DeleteOfficeDialog from './DeleteOfficeDialog';
 import { LoadOverlay } from '../../components/Loaders';
 // api
 import { useQuery } from '@apollo/client';
@@ -35,14 +34,17 @@ export default function OfficeList(props: OfficeListProps) {
     const theme = useTheme();
     const { role } = useAppSelector((state) => state.auth);
     const { data: offices, refetch } = useQuery<{ getAllBirOffices: BirOffices[] }>(GET_ALL_BIR_OFFICES);
-    const [add, setAdd] = React.useState<boolean>(false);
+    const [officeDialog, setOfficeDialog] = React.useState<boolean>(false);
     const [selected, setSelected] = React.useState<BirOffices | null>(null);
 
-    const handleToggleDialog = () => setAdd(!add);
+    const handleToggleDialog = () => setOfficeDialog(!officeDialog);
 
     const handleRefresh = () => refetch();
     
-    const handleConfirmDelete = (office: BirOffices) => setSelected(office); 
+    const handleEditOffice = (office: BirOffices) => {
+        setSelected(office); 
+        setOfficeDialog(true);
+    }
 
     if (!offices) return <LoadOverlay open={true} />
 
@@ -105,8 +107,8 @@ export default function OfficeList(props: OfficeListProps) {
 
                 {offices.getAllBirOffices.map(office => (
                     <ListItem key={office.officeId} secondaryAction={role && role.superuser && (
-                        <IconButton onClick={() => handleConfirmDelete(office)}>
-                            <DeleteOutlineOutlinedIcon color='error' fontSize='small' />
+                        <IconButton onClick={() => handleEditOffice(office)}>
+                            <EditOutlinedIcon />
                         </IconButton>
                     )}>
                         <ListItemButton 
@@ -121,7 +123,7 @@ export default function OfficeList(props: OfficeListProps) {
                                             {office.officeName}
                                         </Typography>
                                         <Typography variant='caption' gutterBottom>
-                                            Sample Code
+                                            RR-6
                                         </Typography>
                                     </Box>
                                 }
@@ -132,11 +134,12 @@ export default function OfficeList(props: OfficeListProps) {
                 ))}
             </List>
 
-            <AddOfficeDialog open={add} onClose={handleToggleDialog} onSubmit={handleRefresh} />
-
-            {selected && (
-                <DeleteOfficeDialog open={selected !== null} office={selected} onClose={() => setSelected(null)} onDelete={handleRefresh} />
-            )}
+            <AddOfficeDialog 
+                open={officeDialog} 
+                office={selected}
+                onClose={handleToggleDialog} 
+                onSubmit={handleRefresh} 
+            />
         </Paper>
     )   
 }

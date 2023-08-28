@@ -91,10 +91,42 @@ export const ADD_BIR_OFFICE = gql`
     }
 `
 
+export const UPDATE_BIR_OFFICE = gql`
+    mutation UpdateBirOffice($officeId: Int!, $officeName: String!) {
+        updateBirOffice(officeId: $officeId, officeName: $officeName) {
+            officeId
+        }
+    }
+`
+
 export const DELETE_BIR_OFFICE = gql`
     mutation DeleteBirOffice($officeId: Int!) {
         deleteBirOffice(id: $officeId) {
             officeId
+        }
+    }
+`
+
+export const ADD_SECTION_OFFICE = gql`
+    mutation AddOfficeSection($officeId: Int!, $sectionName: String!) {
+        addOfficeSection(officeId: $officeId, sectionName: $sectionName) {
+            sectionId
+        }
+    }
+`
+
+export const UPDATE_SECTION_OFFICE = gql`
+    mutation UpdateSection($sectionId: Int!, $sectionName: String!) {
+        updateSection(sectionId: $sectionId, sectionName: $sectionName) {
+            sectionId
+        }
+    }
+`
+
+export const DELETE_SECTION_OFFICE = gql`
+    mutation DeleteOfficeSection($sectionId: Int!) {
+        deleteOfficeSection(sectionId: $sectionId) {
+            sectionId
         }
     }
 `
@@ -122,6 +154,8 @@ export const DELETE_OFFICER = gql`
         }
     }
 `
+
+// ================================= USER ACCOUNTS ================================== //
 
 export const USER_REGISTER = gql`
     mutation ChangePassword($data: UserChangePasswordInput!) {

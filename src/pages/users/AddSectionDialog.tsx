@@ -9,101 +9,101 @@ import TextField from '@mui/material/TextField';
 import { LoadOverlay } from '../../components/Loaders';
 // api
 import { useMutation } from '@apollo/client';
-import { ADD_BIR_OFFICE, DELETE_BIR_OFFICE, UPDATE_BIR_OFFICE } from '../../api/offices';
-import { BirOffices } from '../../api/threads/types';
+import { 
+    ADD_SECTION_OFFICE, 
+    DELETE_SECTION_OFFICE, 
+    UPDATE_SECTION_OFFICE 
+} from '../../api/offices';
+import { OfficeSections } from '../../api/threads/types';
 
-interface AddOfficeDialogProps {
+interface AddSectionDialogProps {
+    officeId: number;
+    section: OfficeSections | null;
     open: boolean;
-    office: BirOffices | null;
     onClose: () => void;
     onSubmit: () => void;
 }
 
-export default function AddOfficeDialog(props: AddOfficeDialogProps) {
-    const [addBirOffice, { loading: addLoad }] = useMutation<{ addBirOffice: BirOffices }, {
-        data: {
-            officeName: string,
-            officeSections?: string[]    
-        }
-    }>(ADD_BIR_OFFICE);
-
-    const [updateBirOffice, { loading: updateLoad }] = useMutation<{ updateBirOffice: BirOffices }, {
+export default function AddSectionDialog(props: AddSectionDialogProps) {
+    const [addOfficeSection, { loading: addLoad }] = useMutation<{ addOfficeSection: OfficeSections }, {
         officeId: number,
-        officeName: string
-    }>(UPDATE_BIR_OFFICE);
+        sectionName: string 
+    }>(ADD_SECTION_OFFICE);
 
-    const [deleteBirOffice, { loading: deleteLoad }] = useMutation<{ deleteBirOffice: BirOffices }, {
-        officeId: number
-    }>(DELETE_BIR_OFFICE);
+    const [updateOfficeSection, { loading: updateLoad }] = useMutation<{ updateSection: OfficeSections }, {
+        sectionId: number,
+        sectionName: string 
+    }>(UPDATE_SECTION_OFFICE);
 
-    const [officeName, setOfficeName] = React.useState<string>("");
+    const [deleteOfficeSection, { loading: deleteLoad }] = useMutation<{ deleteOfficeSection: OfficeSections }, {
+        sectionId: number
+    }>(DELETE_SECTION_OFFICE);
+
+    const [sectionName, setSectionName] = React.useState<string>("");
 
     React.useEffect(() => {
-        if (props.office) setOfficeName(props.office.officeName);
-    }, [props.office])
+        if (props.section) setSectionName(props.section.sectionName);
+    }, [props.section])
 
-    const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => setOfficeName(event.target.value);
+    const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => setSectionName(event.target.value);
     
     const handleSubmitOffice = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        await addBirOffice({
+        await addOfficeSection({
             variables: {
-                data: {
-                    officeName: officeName,
-                    officeSections: ['default']
-                }
+                officeId: props.officeId,
+                sectionName: sectionName
             }
         })
 
-        setOfficeName("");
+        setSectionName("");
         props.onSubmit();
         props.onClose();
     }
 
     const handleUpdateOffice = async () => {
-        if (props.office) {
-            await updateBirOffice({
+        if (props.section) {
+            await updateOfficeSection({
                 variables: {
-                    officeId: props.office.officeId,
-                    officeName: officeName
+                    sectionId: props.section.sectionId,
+                    sectionName: sectionName
                 }
             })
-    
-            setOfficeName("");
+
+            setSectionName("");
             props.onSubmit();
             props.onClose();
         }
     }
 
-    const handleDeleteOffice = async () => {
-       if (props.office) {
-            await deleteBirOffice({
+    const handleDeleteSection = async () => {
+        if (props.section) {
+            await deleteOfficeSection({
                 variables: {
-                    officeId: props.office.officeId
+                    sectionId: props.section.sectionId
                 }
             })
 
-            setOfficeName("");
+            setSectionName("");
             props.onSubmit();
             props.onClose();
-       }
+        }
     }
-
 
     return (
         <React.Fragment>
             <LoadOverlay open={addLoad || updateLoad || deleteLoad} />
             <Dialog open={props.open} onClose={props.onClose} maxWidth="md">
                 <form onSubmit={handleSubmitOffice}>
-                    <DialogTitle>{props.office ? "Edit Office" : "Add Office"}</DialogTitle>
+                    <DialogTitle>{props.section ? "Edit Section" : "Add Section"}</DialogTitle>
                     <DialogContent>
                         <TextField
                             autoFocus
                             margin="dense"
-                            name="officeName"
-                            label="Office Name"
-                            value={officeName}
+                            name="sectionName"
+                            label="Section Name"
+                            value={sectionName}
                             onChange={handleTextChange}
                             fullWidth
                             variant="standard"
@@ -112,17 +112,11 @@ export default function AddOfficeDialog(props: AddOfficeDialogProps) {
                         />
                     </DialogContent>
                     <DialogActions>
-                        {props.office ? (
+                        {props.section ? (
                             <>
                                 <Button onClick={props.onClose}>Cancel</Button>
                                 <Button onClick={handleUpdateOffice}>Update</Button>
-                                <Button 
-                                    color='error' 
-                                    onClick={handleDeleteOffice}
-                                    disabled={props.office && props.office.officeSections.filter(section => section.sectionName !== 'default').length > 0}
-                                >
-                                    Delete
-                                </Button>
+                                <Button onClick={handleDeleteSection} color='error' disabled={props.section && props.section.officers.length > 0}>Delete</Button>
                             </>
                         ) : (
                             <>

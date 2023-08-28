@@ -39,14 +39,14 @@ export default function DeleteOfficeDialog(props: DeleteOfficeDialogProps) {
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-                {props.office.officeSections.length > 0 ? "Invalid Action" : `Are you sure you want to delete ${props.office.officeName}?`}
+                {props.office.officeSections.filter(section => section.sectionName !== 'default').length > 0 ? "Invalid Action" : `Are you sure you want to delete ${props.office.officeName}?`}
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    {props.office.officeSections.length > 0 ? "You cannot delete this office because it has active sections." : "Please keep in mind that this action cannot be undone."}
+                    {props.office.officeSections.filter(section => section.sectionName !== 'default').length > 0 ? "You cannot delete this office because it has active sections." : "Please keep in mind that this action cannot be undone."}
                 </DialogContentText>
             </DialogContent>
-            {props.office.officeSections.length === 0 ? (
+            {props.office.officeSections.filter(section => section.sectionName !== 'default').length === 0 ? (
                 <DialogActions>
                     <Button onClick={props.onClose}>Cancel</Button>
                     <Button color="error" onClick={handleDeleteOffice} autoFocus>
