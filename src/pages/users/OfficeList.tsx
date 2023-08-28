@@ -37,7 +37,10 @@ export default function OfficeList(props: OfficeListProps) {
     const [officeDialog, setOfficeDialog] = React.useState<boolean>(false);
     const [selected, setSelected] = React.useState<BirOffices | null>(null);
 
-    const handleToggleDialog = () => setOfficeDialog(!officeDialog);
+    const handleToggleDialog = () => {
+        setOfficeDialog(!officeDialog);
+        setSelected(null);
+    }
 
     const handleRefresh = () => refetch();
     

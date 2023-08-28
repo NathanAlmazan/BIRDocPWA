@@ -79,7 +79,10 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
         setUserDialog(false);
     }
 
-    const handleToggleDialog = () => setSectionDialog(!sectionDialog);
+    const handleToggleDialog = () => {
+        setSectionDialog(!sectionDialog);
+        setSelectedSection(null);
+    }
 
     const handleUpdateSection = (section: OfficeSections) => {
         setSelectedSection(section);
@@ -146,9 +149,11 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                                     title={section.sectionName === 'default' ? 'Main' : section.sectionName}
                                     action={
                                        <>
-                                        <IconButton onClick={() => handleUpdateSection(section)}>
-                                            <EditOutlinedIcon />
-                                        </IconButton>
+                                        {section.sectionName !== 'default' && (
+                                            <IconButton onClick={() => handleUpdateSection(section)}>
+                                                <EditOutlinedIcon />
+                                            </IconButton>
+                                        )}
                                         <Button variant='contained' sx={{ ml: 2 }} onClick={() => handleRegisterOfficer(section)}>
                                             Register
                                         </Button>
