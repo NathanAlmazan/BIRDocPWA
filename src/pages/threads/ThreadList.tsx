@@ -9,8 +9,9 @@ import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import { useTheme } from '@mui/material/styles';
 // icons
 import TuneIcon from '@mui/icons-material/Tune';
@@ -19,6 +20,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 // project imports
 import { LoadOverlay } from '../../components/Loaders';
 import MessageCard from './MessageCard';
+import Form2309 from './Form2309';
 import ReplyBox from './ReplyBox';
 import { DocumentStatus, Thread } from '../../api/threads/types';
 // api
@@ -29,9 +31,20 @@ import {
     SET_MESSAGE_AS_READ, 
     UPDATE_THREAD_STATUS
 } from '../../api/threads';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import Form2309 from '../../components/Form2309';
 
+interface TabPaneProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+}
+
+export function TabPanel(props: TabPaneProps) {
+    return (
+        <div>
+            {props.value === props.index && props.children}
+        </div>
+    )
+}
 
 const formatInboxDate = (date: string | Date) => {
     const target = new Date(date);
@@ -52,6 +65,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
   const [updateThreadStatus] = useMutation(UPDATE_THREAD_STATUS); 
   const [setMessageAsRead] = useMutation(SET_MESSAGE_AS_READ);
 
+  const [tabValue, setTableValue] = React.useState<number>(0);
   const [expanded, setExpanded] = React.useState<boolean>(false);
   const [statusId, setStatusId] = React.useState<number>(2);
   const [attach, setAttach] = React.useState<string>('true');
@@ -146,13 +160,9 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
         >
             <Box sx={{ width: '100%', p: 2 }}>
                 <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
-                    <PDFDownloadLink document={<Form2309 thread={threadData.getThreadById} />} fileName={`${threadData.getThreadById.subject}.pdf`}>
-                        {({ blob, url, loading, error }) => (
-                            <Link variant='subtitle2' href={url as string} target='_blank' sx={{ textDecoration: 'none', color: 'black' }}>
-                                {`${docType.docType} ${!loading && '(Download Form 2309)'}`}
-                            </Link>
-                        )}
-                    </PDFDownloadLink>
+                    <Typography variant='body2' sx={{ fontWeight: 800 }}>
+                        {docType.docType}
+                    </Typography>
         
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                         <Typography variant='body2'>{`From ${formatInboxDate(dateCreated)} to ${formatInboxDate(dateDue)}`}</Typography>
@@ -210,27 +220,48 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
                     {subject}
                 </Typography>
             </Box>
-           
-            <Box sx={{ p: 2 }}>
-                {messages.map(msg => (
-                    <Box 
-                        key={msg.msgId} 
-                        sx={{ 
-                            my: 2, 
-                            pl: msg.sender.accountId === userId ? 8 : 0,
-                            pr: msg.sender.accountId !== userId ? 8 : 0
-                        }}
-                    >
-                        <MessageCard content={msg} sender={msg.sender.accountId === userId} />
-                    </Box>
-                ))}
-            </Box>
 
-            <Box sx={{ p: 2 }}>
-                {!completed && (
-                    <ReplyBox userId={userId} threadId={threadId} attached={attachments} onSubmit={reloadThread} />
-                )}
-            </Box>
+            <Tabs value={tabValue} onChange={(e, value) => setTableValue(value)} sx={{ mt: 2 }}>
+                <Tab label="Conversation" />
+                <Tab label="History" />
+                <Tab label="Files" />
+                <Tab label="Form 2309" />
+            </Tabs>
+           
+            <TabPanel index={0} value={tabValue}>
+                <Box sx={{ p: 2 }}>
+                    {messages.map(msg => (
+                        <Box 
+                            key={msg.msgId} 
+                            sx={{ 
+                                my: 2, 
+                                pl: msg.sender.accountId === userId ? 8 : 0,
+                                pr: msg.sender.accountId !== userId ? 8 : 0
+                            }}
+                        >
+                            <MessageCard content={msg} sender={msg.sender.accountId === userId} />
+                        </Box>
+                    ))}
+                </Box>
+
+                <Box sx={{ p: 2 }}>
+                    {!completed && (
+                        <ReplyBox userId={userId} threadId={threadId} attached={attachments} onSubmit={reloadThread} />
+                    )}
+                </Box>
+            </TabPanel>
+
+            <TabPanel index={1} value={tabValue}>
+                History
+            </TabPanel>
+
+            <TabPanel index={2} value={tabValue}>
+                Files
+            </TabPanel>
+
+            <TabPanel index={3} value={tabValue}>
+                <Form2309 thread={threadData.getThreadById} />
+            </TabPanel>
         </Box>
     </Paper>
   )

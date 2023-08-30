@@ -7,6 +7,7 @@ import {
     StyleSheet
 } from '@react-pdf/renderer';
 import { Thread } from '../../api/threads/types';
+import { Form2309Data } from '../../pages/threads/Form2309';
 
 
 const formatInboxDate = (date: string | Date) => {
@@ -19,7 +20,7 @@ Font.register({
     src: 'https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf'
 });
 
-export default function Form2309({ thread }: { thread: Thread }) { 
+export default function Form2309({ thread, details }: { thread: Thread, details: Form2309Data }) { 
     
     return (
         <Document>
@@ -42,7 +43,7 @@ export default function Form2309({ thread }: { thread: Thread }) {
                     <View style={styles.tableRow}>
                         <View style={styles.recipientCol}>
                             <Text style={styles.tableCellLeftBold}>TO:</Text>
-                            <Text style={styles.tableCellLeft}>{thread.recipient.sectionOffice.officeName}</Text>
+                            <Text style={styles.tableCellLeft}>{details.recipient}</Text>
                         </View>
                         <View style={styles.dateCol}>
                             <Text style={styles.tableCellLeftBold}>DATE:</Text>
@@ -54,7 +55,7 @@ export default function Form2309({ thread }: { thread: Thread }) {
                     <View style={styles.tableRow}>
                     <View style={styles.purposeCol}>
                     <Text style={styles.tableCellLeftBold}>SUBJECT:</Text>
-                    <Text style={styles.tableCellLeft}>{thread.subject}</Text>
+                    <Text style={styles.tableCellLeft}>{details.subject}</Text>
                     </View>
                 </View>
                 </View>
@@ -62,7 +63,7 @@ export default function Form2309({ thread }: { thread: Thread }) {
                     <View style={styles.tableRow}>
                         <View style={styles.recipientCol}>
                             <Text style={styles.tableCellLeftBold}>FOR:</Text>
-                            <Text style={styles.tableCellLeft}>{thread.docType.docType}</Text>
+                            <Text style={styles.tableCellLeft}>{details.type}</Text>
                         </View>
                         <View style={styles.dateCol}>
                             <Text style={styles.tableCellLeftBold}>DEADLINE:</Text>
@@ -80,7 +81,7 @@ export default function Form2309({ thread }: { thread: Thread }) {
                     <View style={styles.tableRow}>
                     <View style={styles.purposeCol}>
                     <Text style={styles.tableCellLeftBold}>REMARKS (or additional instructions):</Text>
-                    <Text style={styles.tableCellLeft}>{thread.messages[0].message}</Text>
+                    <Text style={styles.tableCellLeft}>{details.remarks}</Text>
                     </View>
                 </View>
                 </View>
