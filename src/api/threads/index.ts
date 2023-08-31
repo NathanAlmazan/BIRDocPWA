@@ -30,11 +30,21 @@ export const GET_ALL_THREAD_STATUS = gql`
         }
     }
 `
+export const GET_ALL_THREAD_PURPOSE = gql`
+    query GetAllThreadPurpose {
+        getAllThreadPurpose {
+            purposeId
+            purposeName
+            actionable
+        }
+    }
+`
 
 export const GET_THREAD_BY_ID = gql`
     query GetThreadById($uid: String!) {
         getThreadById(uid: $uid) {
             refId
+            refSlipNum
             revision
             subject
             author {
@@ -64,6 +74,10 @@ export const GET_THREAD_BY_ID = gql`
             docType {
                 docId
                 docType
+            }
+            purpose {
+                purposeId
+                purposeName
             }
             dateCreated
             dateUpdated
@@ -97,6 +111,7 @@ export const GET_THREAD_INBOX = gql`
     query GetThreadInbox($userId: String!, $completed: Boolean) {
         getThreadInbox(userId: $userId, completed: $completed) {
             refId
+            refSlipNum
             subject
             author {
                 firstName
@@ -108,6 +123,10 @@ export const GET_THREAD_INBOX = gql`
             }
             status {
                 statusLabel
+            }
+            purpose {
+                purposeId
+                purposeName
             }
             dateDue
             dateCreated
@@ -121,6 +140,7 @@ export const GET_SENT_THREAD = gql`
     query GetSentThread($userId: String!) {
         getSentThread(userId: $userId) {
             refId
+            refSlipNum
             subject
             author {
                 firstName
@@ -132,6 +152,10 @@ export const GET_SENT_THREAD = gql`
             }
             status {
                 statusLabel
+            }
+            purpose {
+                purposeId
+                purposeName
             }
             dateDue
             dateCreated

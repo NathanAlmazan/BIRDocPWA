@@ -24,8 +24,15 @@ export type DocumentStatus = {
     threadCount?: number;
 }
 
+export type DocumentPurpose = {
+    purposeId: number;
+    purposeName: string;
+    actionable: boolean;
+} 
+
 export type Thread = {
     refId: string;
+    refSlipNum: string;
     subject: string;
     revision: number;
     author: UserAccounts;
@@ -34,6 +41,7 @@ export type Thread = {
     docType: DocumentTypes;
     attachments: boolean;
     completed: boolean;
+    purpose: DocumentPurpose;
     dateCreated: Date;
     dateUpdated: Date;
     dateDue: Date;

@@ -223,8 +223,6 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
             <Tabs value={tabValue} onChange={(e, value) => setTableValue(value)} sx={{ mt: 2 }}>
                 <Tab label="Conversation" />
-                <Tab label="History" />
-                <Tab label="Files" />
                 <Tab label="Form 2309" />
             </Tabs>
            
@@ -252,14 +250,6 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
             </TabPanel>
 
             <TabPanel index={1} value={tabValue}>
-                History
-            </TabPanel>
-
-            <TabPanel index={2} value={tabValue}>
-                Files
-            </TabPanel>
-
-            <TabPanel index={3} value={tabValue}>
                 <Form2309 thread={threadData.getThreadById} />
             </TabPanel>
         </Box>

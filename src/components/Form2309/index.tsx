@@ -12,7 +12,7 @@ import { Form2309Data } from '../../pages/threads/Form2309';
 
 const formatInboxDate = (date: string | Date) => {
     const target = new Date(date);
-    return target.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 Font.register({
@@ -35,7 +35,7 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
                         <View style={styles.tableCol}>
                             <Text style={styles.tableCellRight}>BUREAU OF INTERNAL REVENUE</Text>
                             <Text style={styles.tableCellRight}>Revenue Region No. 6 - Manila</Text>
-                            <Text style={styles.tableCellRight}>REFERENCE SLIP # 03-2020</Text>
+                            <Text style={styles.tableCellRight}>{`REFERENCE SLIP # ${thread.refSlipNum}`}</Text>
                         </View>
                     </View>
                 </View>
@@ -43,7 +43,7 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
                     <View style={styles.tableRow}>
                         <View style={styles.recipientCol}>
                             <Text style={styles.tableCellLeftBold}>TO:</Text>
-                            <Text style={styles.tableCellLeft}>{details.recipient}</Text>
+                            <Text style={styles.tableCellLeft}>{thread.recipient.sectionOffice.officeName}</Text>
                         </View>
                         <View style={styles.dateCol}>
                             <Text style={styles.tableCellLeftBold}>DATE:</Text>
@@ -63,17 +63,11 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
                     <View style={styles.tableRow}>
                         <View style={styles.recipientCol}>
                             <Text style={styles.tableCellLeftBold}>FOR:</Text>
-                            <Text style={styles.tableCellLeft}>{details.type}</Text>
+                            <Text style={styles.tableCellLeft}>{thread.purpose.purposeName}</Text>
                         </View>
                         <View style={styles.dateCol}>
                             <Text style={styles.tableCellLeftBold}>DEADLINE:</Text>
                             <Text style={styles.tableCellLeft}>{formatInboxDate(thread.dateDue)}</Text>
-                        </View>
-                    </View>
-                    <View style={styles.tableRow}>
-                        <View style={styles.purposeCol}>
-                            <Text style={styles.tableCellLeftBold}>OTHERS:</Text>
-                            <Text style={styles.tableCellLeft}>---</Text>
                         </View>
                     </View>
                 </View>
@@ -141,32 +135,32 @@ const styles = StyleSheet.create({
       width: "100%"
     },
     tableCellLeft: { 
-      margin: 2,
-      fontSize: 14,
+      margin: 3,
+      fontSize: 11,
       textAlign: "left"
     },
     emptyCell: { 
       height: 30
     },
     tableCellLeftBold: { 
-      margin: 2,
-      fontSize: 14,
+      margin: 3,
+      fontSize: 11,
       textAlign: "left",
       fontWeight: "bold"
     },
     tableCellRight: { 
-      margin: 2,
-      fontSize: 14,
+      margin: 3,
+      fontSize: 11,
       textAlign: "right"
     },
     tableCellCenter: { 
-        margin: 2,
-        fontSize: 14,
+        margin: 3,
+        fontSize: 11,
         textAlign: "center"
     },
     tableCellCenterSmall: { 
-        margin: 2,
-        fontSize: 12,
+        margin: 3,
+        fontSize: 10,
         textAlign: "center"
     }
 });

@@ -10,30 +10,20 @@ import Form2309 from '../../components/Form2309';
 
 
 export interface Form2309Data {
-    recipient: string;
-    dateCreated: string;
     subject: string;
-    type: string;
-    deadline: string;
     remarks: string;
 }
 
 export default function EditForm2309({ thread }: { thread: Thread }) {
     const [formData, setFormData] = React.useState<Form2309Data>({
-        recipient: '',
-        dateCreated: '',
         subject: '',
-        deadline: '',
-        remarks: '',
-        type: ''
+        remarks: ''
     })
 
     React.useEffect(() => {
         setFormData(state => ({
             ...state,
-            recipient: thread.recipient.sectionOffice.officeName,
             subject: thread.subject,
-            type: thread.docType.docType,
             remarks: thread.messages[0].message
         }))
     }, [thread])
@@ -45,13 +35,8 @@ export default function EditForm2309({ thread }: { thread: Thread }) {
     return (
         <Stack spacing={3} sx={{ p: 2 }}>
             <TextField
-                name='recipient'
-                label='Recipient'
-                value={formData.recipient}
-                onChange={handleTextChange}
-            />
-
-            <TextField
+                multiline
+                rows={2}
                 name='subject'
                 label='Subject'
                 value={formData.subject}
@@ -59,13 +44,8 @@ export default function EditForm2309({ thread }: { thread: Thread }) {
             />
 
             <TextField
-                name='type'
-                label='Type'
-                value={formData.type}
-                onChange={handleTextChange}
-            />
-
-            <TextField
+                multiline
+                rows={3}
                 name='remarks'
                 label='Remarks'
                 value={formData.remarks}
