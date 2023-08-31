@@ -127,7 +127,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
   if (loading || !threadData || !threadStatus) return <LoadOverlay open={true} />
 
-  const { subject, author, docType, dateDue, messages, recipient, dateUpdated, dateCreated, status, attachments } = threadData.getThreadById;
+  const { subject, author, refSlipNum, dateDue, messages, recipient, dateUpdated, dateCreated, status, attachments } = threadData.getThreadById;
 
   return (
     <Paper sx={{ width: '100%' }}>
@@ -161,7 +161,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
             <Box sx={{ width: '100%', p: 2 }}>
                 <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
                     <Typography variant='body2' sx={{ fontWeight: 800 }}>
-                        {docType.docType}
+                        {`Ref # ${refSlipNum}`}
                     </Typography>
         
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
