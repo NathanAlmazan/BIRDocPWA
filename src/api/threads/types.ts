@@ -2,6 +2,7 @@
 export type BirOffices = {
     officeId: number;
     officeName: string;
+    refNum?: string;
     officeSections: OfficeSections[];
 }
 
@@ -30,9 +31,17 @@ export type DocumentPurpose = {
     actionable: boolean;
 } 
 
+export type ThreadHistory = {
+    historyId: string;
+    historyLabel: string;
+    dateCreated: string;
+    status: DocumentStatus | null;
+}
+
 export type Thread = {
     refId: string;
     refSlipNum: string;
+    reqForm?: string;
     subject: string;
     revision: number;
     author: UserAccounts;
@@ -46,6 +55,7 @@ export type Thread = {
     dateUpdated: Date;
     dateDue: Date;
     messages: Messages[]
+    history: ThreadHistory[]
 }
 
 export type Messages = {
@@ -78,10 +88,12 @@ export type UserAccounts = {
     role: Roles;
     officeSection: OfficeSections;
     resetCode: string | null;
+    signImage?: string;
 }
 
 export type Analytics = {
     status: DocumentStatus;
     docType: DocumentTypes;
+    purpose: DocumentPurpose;
     count: number;
 }

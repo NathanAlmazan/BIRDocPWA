@@ -39,6 +39,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
     const [registerOfficer] = useMutation(REGISTER_OFFICER);
     const [updateOfficer] = useMutation(UPDATE_OFFICER);
     const [deleteOfficer] = useMutation(DELETE_OFFICER);
+    const [deleteMode, setDeleteMode] = React.useState<boolean>(false);
     const [formData, setFormData] = React.useState<AccountRegister>({
         accountId: '',
         firstName: '',
@@ -120,6 +121,8 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
         props.onClose();
     }
 
+    const handleConfirmDelete = () => setDeleteMode(!deleteMode);
+
     const handleDeleteOfficer = async () => {
         await deleteOfficer({
             variables: {
@@ -143,96 +146,128 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
     return (
         <Dialog open={props.open} onClose={props.onClose} maxWidth='md'>
             <DialogTitle>
-                <Stack direction='row' justifyContent='space-between'>
+                {deleteMode ? (
                     <Typography variant='h6'>
-                        {props.officer ? "Update Officer" : "Register Officer"}
+                        {`Are you sure you want to delete ${props.officer?.firstName}?`}
                     </Typography>
-                    
-                    {props.officer && (
-                        <IconButton color='error' onClick={handleDeleteOfficer}>
-                            <DeleteOutlineOutlinedIcon />
-                        </IconButton>
-                    )}
-                </Stack>
+                ) : (
+                    <Stack direction='row' justifyContent='space-between'>
+                        <Typography variant='h6'>
+                            {props.officer ? "Update Officer" : "Register Officer"}
+                        </Typography>
+                        
+                        {props.officer && (
+                            <IconButton color='error' onClick={handleConfirmDelete}>
+                                <DeleteOutlineOutlinedIcon />
+                            </IconButton>
+                        )}
+                    </Stack>
+                )}
             </DialogTitle>
             <DialogContent>
-                <Stack component='form' onSubmit={props.officer ? handleUpdateOfficer : handleSubmitOfficer} spacing={3} sx={{ width: 500, mt: 2 }}>
-                    <TextField 
-                        name='firstName'
-                        label='First Name'
-                        value={firstName}
-                        onChange={handleTextChange}
-                        required
-                    />
+                {deleteMode ? (
+                    <Stack spacing={3} sx={{ width: 500, mt: 2 }}>
+                        <Typography variant='body1'>
+                            This action cannot be undone.
+                        </Typography>
+                        <Stack spacing={1} direction='row' justifyContent='flex-end'>
+                            <Button 
+                                variant='contained'
+                                onClick={handleDeleteOfficer}
+                                fullWidth
+                                color='error'
+                            >
+                                Delete
+                            </Button>
 
-                    <TextField 
-                        name='lastName'
-                        label='Last Name'
-                        value={lastName}
-                        onChange={handleTextChange}
-                        required
-                    />
-
-                    <TextField 
-                        name='Office'
-                        label='Office'
-                        value={props.office.officeName}
-                        required
-                    />
-
-                    {props.section.sectionName !== "default" && (
-                        <TextField 
-                            name='section'
-                            label='Section'
-                            value={props.section.sectionName}
-                            required
-                        />
-                    )}
-
-                    {roles && (
-                        <TextField 
-                            name='roleId'
-                            label='Position'
-                            value={roleId}
-                            onChange={handleTextChange}
-                            fullWidth
-                            required
-                            select
-                        >
-                            {roles.getAllRoles.map(role => (
-                                <MenuItem key={role.roleId} value={role.roleId}>{role.roleName}</MenuItem>
-                            ))}
-                        </TextField>
-                    )}
-
-                    {resetCode && (
-                        <TextField 
-                            name='resetCode'
-                            label='Reset/Registration Code'
-                            value={resetCode}
-                        />
-                    )}
-                 
-
-                    <Stack spacing={1}>
-                        <Button 
-                            type='submit'
-                            variant='contained'
-                            fullWidth
-                        >
-                            {props.officer ? "Update" : "Register"}
-                        </Button>
-
-                        <Button 
-                            variant='outlined'
-                            onClick={props.onClose}
-                            fullWidth
-                        >
-                            Cancel
-                        </Button>
+                            <Button 
+                                variant='outlined'
+                                onClick={handleConfirmDelete}
+                                fullWidth
+                            >
+                                Cancel
+                            </Button>
+                        </Stack>
                     </Stack>
+                ) : (
+                    <Stack component='form' onSubmit={props.officer ? handleUpdateOfficer : handleSubmitOfficer} spacing={3} sx={{ width: 500, mt: 2 }}>
+                        <TextField 
+                            name='firstName'
+                            label='First Name'
+                            value={firstName}
+                            onChange={handleTextChange}
+                            required
+                        />
 
-                </Stack>
+                        <TextField 
+                            name='lastName'
+                            label='Last Name'
+                            value={lastName}
+                            onChange={handleTextChange}
+                            required
+                        />
+
+                        <TextField 
+                            name='Office'
+                            label='Office'
+                            value={props.office.officeName}
+                            required
+                        />
+
+                        {props.section.sectionName !== "default" && (
+                            <TextField 
+                                name='section'
+                                label='Section'
+                                value={props.section.sectionName}
+                                required
+                            />
+                        )}
+
+                        {roles && (
+                            <TextField 
+                                name='roleId'
+                                label='Position'
+                                value={roleId}
+                                onChange={handleTextChange}
+                                fullWidth
+                                required
+                                select
+                            >
+                                {roles.getAllRoles.map(role => (
+                                    <MenuItem key={role.roleId} value={role.roleId}>{role.roleName}</MenuItem>
+                                ))}
+                            </TextField>
+                        )}
+
+                        {resetCode && (
+                            <TextField 
+                                name='resetCode'
+                                label='Reset/Registration Code'
+                                value={resetCode}
+                            />
+                        )}
+                    
+
+                        <Stack spacing={1}>
+                            <Button 
+                                type='submit'
+                                variant='contained'
+                                fullWidth
+                            >
+                                {props.officer ? "Update" : "Register"}
+                            </Button>
+
+                            <Button 
+                                variant='outlined'
+                                onClick={props.onClose}
+                                fullWidth
+                            >
+                                Cancel
+                            </Button>
+                        </Stack>
+
+                    </Stack>
+                )}
             </DialogContent>
         </Dialog>
     )

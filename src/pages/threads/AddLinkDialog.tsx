@@ -9,15 +9,16 @@ import DialogTitle from '@mui/material/DialogTitle';
 interface LinkDialogProps {
     open: boolean;
     onClose: () => void;
-    onSubmit: (link: string) => void;
+    onSubmit: (name: string, link: string) => void;
 }
 
 export default function LinkDialog(props: LinkDialogProps) {
+  const [name, setName] = React.useState<string>("");
   const [link, setLink] = React.useState<string>("");
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    props.onSubmit(link);
+    props.onSubmit(name, link);
     setLink("");
   }
 
@@ -26,6 +27,18 @@ export default function LinkDialog(props: LinkDialogProps) {
         <form onSubmit={handleSubmit} >
             <DialogTitle>Add Link</DialogTitle>
             <DialogContent>
+              <TextField
+                    autoFocus
+                    margin="dense"
+                    name="name"
+                    label="File Name"
+                    fullWidth
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    variant="standard"
+                    sx={{ minWidth: 300 }}
+                    required
+                />
                 <TextField
                     autoFocus
                     margin="dense"
@@ -36,7 +49,7 @@ export default function LinkDialog(props: LinkDialogProps) {
                     value={link}
                     onChange={(event) => setLink(event.target.value)}
                     variant="standard"
-                    sx={{ minWidth: 500 }}
+                    sx={{ minWidth: 300 }}
                     required
                 />
             </DialogContent>

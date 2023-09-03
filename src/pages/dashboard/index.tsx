@@ -3,6 +3,7 @@ import React from 'react';
 import Grid from '@mui/material/Grid';
 // project imports
 import StatusReportBar from './StatusReportBar';
+import PurposeReportBar from './PurposeReportBar';
 import TypesReportDonut from './TypesReportDonut';
 import UserTasks from './UserTasks';
 import { useAppSelector } from '../../redux/hooks';
@@ -13,22 +14,25 @@ export default function DashboardPage() {
 
     return (
         <Grid container spacing={2} sx={{ maxHeight: 'calc(100vh - 80px)', overflowY: 'auto', pb: 2, px: 2 }}>
-            <Grid item xs={12} md={12}>
+            <Grid item md={12} lg={8}>
                 <StatusReportBar officeId={office?.sectionId as number} />
             </Grid>
-            <Grid item md={12} lg={3}>
+            <Grid item md={6} lg={4}>
                 <TypesReportDonut
                     officeId={office?.sectionId as number}
                     completed={true}
                 />
             </Grid>
-            <Grid item md={12} lg={3}>
+            <Grid item md={12} lg={8}>
+                <PurposeReportBar officeId={office?.sectionId as number} />
+            </Grid>
+            <Grid item md={6} lg={4}>
                 <TypesReportDonut
                     officeId={office?.sectionId as number}
                     completed={false}
                 />
             </Grid>
-            <Grid item md={12} lg={6}>
+            <Grid item md={12} lg={8}>
                 <UserTasks userId={uid as string} />
             </Grid>
         </Grid>

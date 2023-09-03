@@ -84,7 +84,7 @@ export default function TypesReportDonut({ officeId, completed }: TypesReportDon
   }, [analytics, threadTypes])
 
   return (
-    <Card>
+    <Card sx={{ height: '100%' }}>
       <CardHeader title={
           <Typography variant='h6'>
             {completed ? "Completed Documents" : "Pending Documents"}
@@ -93,7 +93,7 @@ export default function TypesReportDonut({ officeId, completed }: TypesReportDon
       />
 
       <StyledChartWrapper dir="ltr">
-        <ReactApexChart type="donut" series={chartValues} options={chartOptions} height={320} />
+        <ReactApexChart type="donut" series={chartValues} options={chartOptions} height={380} />
       </StyledChartWrapper>
     </Card>
   );

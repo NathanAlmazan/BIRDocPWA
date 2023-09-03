@@ -16,12 +16,15 @@ import { GET_THREAD_INBOX } from '../../api/threads';
 import { Thread } from '../../api/threads/types';
 import { useQuery } from '@apollo/client';
 
-export default function EmailPage() {
+export type InboxType = "pending" | "approval" | "memos" | "finished";
+
+export default function EmailPage(props: { type: InboxType }) {
   const { refId } = useParams();
   const { uid } = useAppSelector((state) => state.auth);
   const { data, refetch } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
     variables: {
-      userId: uid
+      userId: uid,
+      type: props.type
     }
   });
   const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
@@ -37,7 +40,7 @@ export default function EmailPage() {
   }
 
   const handleRefreshList = () => {
-    refetch({ userId: uid });
+    refetch({ userId: uid, type: props.type });
   }
 
   return (

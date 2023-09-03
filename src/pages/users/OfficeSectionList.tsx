@@ -146,7 +146,7 @@ export default function OfficeSectionList(props: OfficeSectionListProps) {
                         <Card sx={{ width: '100%', height: '100%' }}>
                             {isAuthorized(role, userOffice, section.sectionId, section.sectionOffice.officeId) ? (
                                 <CardHeader 
-                                    title={section.sectionName === 'default' ? 'Main' : section.sectionName}
+                                    title={section.sectionName === 'default' ? 'Admin' : section.sectionName}
                                     action={
                                        <>
                                         {section.sectionName !== 'default' && (

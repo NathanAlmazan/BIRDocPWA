@@ -27,7 +27,8 @@ export default function UserTasks({ userId }: UserTasksProps) {
     const navigate = useNavigate();
     const { data: tasks } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
         variables: {
-          userId: userId
+          userId: userId,
+          type: "pending"
         }
     });
 

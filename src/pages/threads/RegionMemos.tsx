@@ -12,16 +12,16 @@ import ThreadList from './ThreadList';
 import CreateThread from './CreateThread';
 import { useAppSelector } from '../../redux/hooks';
 // api
+import { GET_REGION_INBOX } from '../../api/threads';
 import { Thread } from '../../api/threads/types';
-import { GET_SENT_THREAD } from '../../api/threads';
 import { useQuery } from '@apollo/client';
 
-export default function EmailPage() {
+export default function RegionMemos() {
   const { refId } = useParams();
   const { uid } = useAppSelector((state) => state.auth);
-  const { data, refetch } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
+  const { data, refetch } = useQuery<{ getAllThread: Thread[] }>(GET_REGION_INBOX, {
     variables: {
-      userId: uid
+      memos: true
     }
   });
   const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
@@ -44,9 +44,9 @@ export default function EmailPage() {
     <Grid container spacing={3} alignItems="stretch" sx={{ height: "95%" }}>
       <Grid item md={4}>
         <EmailList 
-          mails={data?.getSentThread}
+          mails={data?.getAllThread}
           compose={compose}
-          mode="sent"
+          mode="regionInbox"
           onRefresh={handleRefreshList}
           onComposeThread={handleComposeThread}
           onThreadClick={handleThreadClick}

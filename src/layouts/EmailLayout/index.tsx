@@ -14,6 +14,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 // icons
 import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
@@ -27,7 +28,13 @@ import Autocomplete from '@mui/material/Autocomplete';
 import AccountPopover from './AccountPopover';
 import NotificationPopover from './NotificationsPopover';
 // paths
-import { settings, paths } from '../../routes/paths';
+import { 
+  settings, 
+  dashboardPaths,
+  inboxPaths,
+  regionPaths,
+  sentPaths 
+} from '../../routes/paths';
 // redux
 import { useAppSelector } from '../../redux/hooks';
 import subscribeUser from '../../subscription';
@@ -36,7 +43,7 @@ import { useQuery } from '@apollo/client';
 import { Thread } from '../../api/threads/types';
 import { GET_SENT_THREAD, GET_THREAD_INBOX } from '../../api/threads';
 
-const drawerWidth = 240;
+const drawerWidth = 280;
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -124,18 +131,14 @@ export default function EmailLayout() {
 
   const { data: threadInbox } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
     variables: {
-      userId: uid
-    }
-  });
-  const { data: threadCompleted } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
-    variables: {
       userId: uid,
-      completed: true
+      type: "search"
     }
   });
   const { data: sentThread } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
     variables: {
-      userId: uid
+      userId: uid,
+      type: "search"
     }
   });
 
@@ -145,21 +148,27 @@ export default function EmailLayout() {
   const [options, setOptions] = React.useState<Thread[]>([]);
 
   React.useEffect(() => {
+    if (threadInbox && sentThread) {
+      setOptions(threadInbox.getThreadInbox.concat(sentThread.getSentThread));
+    }
+  }, [threadInbox, sentThread])
+
+  React.useEffect(() => {
     if (!uid) navigate("/auth/login")
     else subscribeUser(uid);
   }, [uid, navigate])
 
   React.useEffect(() => {
-    if (threadInbox && threadCompleted && sentThread) {
-      setOptions(threadInbox.getThreadInbox.concat(threadCompleted.getThreadInbox).concat(sentThread.getSentThread));
-    }
-  }, [threadInbox, threadCompleted, sentThread])
-
-  React.useEffect(() => {
     if (selected) {
-      if (selected.author.accountId === uid) navigate(`/app/sent/${selected.refId}`);
-      else if (selected.completed) navigate(`/app/sent/${selected.refId}`);
-      else navigate(`/app/inbox/${selected.refId}`);
+      if (selected.author.accountId === uid) {
+        if (!selected.completed && selected.purpose.actionable) navigate(`/app/sent/pending/${selected.refId}`);
+        else if (selected.completed && !selected.purpose.actionable) navigate(`/app/sent/memos/${selected.refId}`)
+        else if (selected.completed && selected.purpose.actionable) navigate(`/app/sent/completed/${selected.refId}`)
+      } else {
+        if (!selected.completed && selected.purpose.actionable) navigate(`/app/inbox/tasks/${selected.refId}`);
+        else if (selected.completed && !selected.purpose.actionable) navigate(`/app/inbox/memos/${selected.refId}`)
+        else if (selected.completed && selected.purpose.actionable) navigate(`/app/inbox/finished/${selected.refId}`)
+      }
     }
   }, [selected, navigate, uid])
 
@@ -170,6 +179,18 @@ export default function EmailLayout() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const handleRefresh = () => {
+    setQuery('');
+    setSelected(null);
+    navigate('/app/inbox/tasks')
+  }
+
+  const handleNavigateToPage = (url: string) => {
+    setQuery('');
+    setSelected(null);
+    navigate(url)
+  }
 
   return (
     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -201,7 +222,7 @@ export default function EmailLayout() {
                   setQuery(newInputValue);
                 }}
                 filterOptions={option => query.length === 0 ? [] : option.filter(mail => 
-                  mail.subject.includes(query) || mail.docType.docType.includes(query) || mail.author.firstName.includes(query) || 
+                  mail.subject.includes(query) || mail.refSlipNum.includes(query) || mail.author.firstName.includes(query) || 
                   mail.author.lastName.includes(query) || formatInboxDate(mail.dateCreated).includes(query)
                 )}
                 noOptionsText={'Please type a search query'}
@@ -231,7 +252,13 @@ export default function EmailLayout() {
                       ...params.InputProps,
                       endAdornment: 
                         <InputAdornment position='end'>
-                          <SearchIcon />
+                          {selected ? (
+                            <IconButton onClick={handleRefresh}>
+                              <CloseIcon />
+                            </IconButton>
+                          ): (
+                            <SearchIcon />
+                          )}
                         </InputAdornment>
                     }}
                   />
@@ -253,7 +280,7 @@ export default function EmailLayout() {
         </DrawerHeader>
         <Divider />
         <List>
-          {paths.map(path => (
+          {dashboardPaths.map(path => (
             <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 sx={{
@@ -261,7 +288,7 @@ export default function EmailLayout() {
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
                 }}
-                onClick={() => navigate(path.url)}
+                onClick={() => handleNavigateToPage(path.url)}
                 selected={path.url === pathname}
               >
                 <ListItemIcon
@@ -278,34 +305,128 @@ export default function EmailLayout() {
             </ListItem>
           ))}
         </List>
-        <Divider />
-        {role && !['Technical Staff', 'Administrative Officer/Staff'].includes(role.roleName) && (
-          <List>
-            {settings.filter(setting => (setting.label !== "Settings" && setting.label !== 'Region Inbox') || role.superuser).map(path => (
-              <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
-                <ListItemButton
+
+        <Divider textAlign='left' sx={{ fontSize: 12 }}>{open && "My Inbox"}</Divider>
+
+        <List>
+          {inboxPaths.map(path => (
+            <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                }}
+                onClick={() => handleNavigateToPage(path.url)}
+                selected={path.url === pathname}
+              >
+                <ListItemIcon
                   sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
                   }}
-                  onClick={() => navigate(path.url)}
-                  selected={path.url === pathname}
                 >
-                  <ListItemIcon
+                  {path.icon}
+                </ListItemIcon>
+                <ListItemText primary={path.label} sx={{ opacity: open ? 1 : 0 }} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+
+        <Divider textAlign='left' sx={{ fontSize: 12 }}>{open && "Sent Requests"}</Divider>
+
+        <List>
+          {sentPaths.map(path => (
+            <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                }}
+                onClick={() => handleNavigateToPage(path.url)}
+                selected={path.url === pathname}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {path.icon}
+                </ListItemIcon>
+                <ListItemText primary={path.label} sx={{ opacity: open ? 1 : 0 }} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+
+        {role && role.superuser && (
+          <>
+           <Divider textAlign='left' sx={{ fontSize: 12 }}>{open && "Regional Inbox"}</Divider>
+
+            <List>
+              {regionPaths.map(path => (
+                <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
                     }}
+                    onClick={() => handleNavigateToPage(path.url)}
+                    selected={path.url === pathname}
                   >
-                    {path.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={path.label} sx={{ opacity: open ? 1 : 0 }} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {path.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={path.label} sx={{ opacity: open ? 1 : 0 }} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </>
+        )}
+
+        {role && !['Technical Staff', 'Administrative Officer/Staff'].includes(role.roleName) && (
+          <>
+            <Divider textAlign='left' sx={{ fontSize: 12 }}>{open && "Configurations"}</Divider>
+            <List>
+              {settings.filter(setting => setting.label !== "Settings" || role.superuser).map(path => (
+                <ListItem key={path.url} disablePadding sx={{ display: 'block' }}>
+                  <ListItemButton
+                    sx={{
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                    }}
+                    onClick={() => handleNavigateToPage(path.url)}
+                    selected={path.url === pathname}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {path.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={path.label} sx={{ opacity: open ? 1 : 0 }} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </>
         )}
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: "#EEEEEE", height: "100vh" }}>

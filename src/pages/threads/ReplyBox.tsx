@@ -25,7 +25,10 @@ import { SEND_THREAD_MESSAGE } from '../../api/threads';
 export interface MessageInput {
     message: string;
     files: File[];
-    links: string[];
+    links: {
+        name: string;
+        link: string;
+    }[];
 }
 
 export interface MessageCreateInput {
@@ -56,7 +59,7 @@ export default function ReplyBox({ userId, threadId, attached, onChange, onSubmi
 
   React.useEffect(() => {
     const fileNames = formData.files.map(file => file.name);
-    setAttachments(fileNames.concat(formData.links))
+    setAttachments(fileNames.concat(formData.links.map(link => link.name)))
   }, [formData, onChange]);
 
   React.useEffect(() => {
@@ -70,16 +73,16 @@ export default function ReplyBox({ userId, threadId, attached, onChange, onSubmi
         setFormData({ ...formData, files: [ ...formData.files, event.target.files[0] ] });
   }
 
-  const handleAddLink = (link: string) => {
-    setFormData({ ...formData, links: [ ...formData.links, link ] });
+  const handleAddLink = (name: string, link: string) => {
+    setFormData({ ...formData, links: [ ...formData.links, { name, link } ] });
     setOpen(false);
   }
 
   const handleDelete = (name: string) => {
-    const link = formData.links.find(l => l === name);
+    const link = formData.links.find(l => l.name === name);
     const file = formData.files.find(f => f.name === name);
 
-    if (link) setFormData({ ...formData, links: formData.links.filter(l => l !== name) });
+    if (link) setFormData({ ...formData, links: formData.links.filter(l => l.name !== name) });
     if (file) setFormData({ ...formData, files: formData.files.filter(f => f.name !== name) });
   }
 
@@ -117,9 +120,9 @@ export default function ReplyBox({ userId, threadId, attached, onChange, onSubmi
     // arrange links if any
     if (formData.links.length > 0) {
         insertedLinks = formData.links.map(link => ({
-            fileName: link.split('/').pop() as string,
-            fileType: "",
-            fileUrl: link
+            fileName: link.name,
+            fileType: "url",
+            fileUrl: link.link
         }))
     }
 
@@ -157,7 +160,7 @@ export default function ReplyBox({ userId, threadId, attached, onChange, onSubmi
             value={formData.message}
             onChange={handleMessageTextChange}
             multiline
-            rows={6}
+            rows={4}
             fullWidth
         />
         <Stack 

@@ -14,9 +14,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Chart from 'react-apexcharts';
 // api
 import { useQuery } from '@apollo/client';
-import { GET_DOCUMENT_TYPE_ANALYTICS } from '../../api/offices';
-import { DocumentStatus, DocumentTypes, Analytics } from '../../api/threads/types';
-import { GET_ALL_THREAD_STATUS, GET_ALL_THREAD_TYPES } from '../../api/threads';
+import { GET_DOCUMENT_PURPOSE_ANALYTICS } from '../../api/offices';
+import { DocumentStatus, Analytics, DocumentPurpose } from '../../api/threads/types';
+import { GET_ALL_THREAD_STATUS, GET_ALL_THREAD_PURPOSE } from '../../api/threads';
 import { chartColors } from '.';
 import { useAppSelector } from '../../redux/hooks';
 
@@ -28,12 +28,12 @@ function getWeekBeforeDate() {
     return current;
 }
 
-export default function StatusReportBar({ officeId }: { officeId: number }) {
+export default function PurposeReportBar({ officeId }: { officeId: number }) {
     const theme = useTheme();
     const { role } = useAppSelector((state) => state.auth);
     const [startDate, setStartDate] = React.useState<string>(getWeekBeforeDate().toISOString());
     const [endDate, setEndDate] = React.useState<string>(new Date().toISOString());
-    const { data: analytics, refetch } = useQuery<{ getThreadTypeAnalytics: Analytics[] }>(GET_DOCUMENT_TYPE_ANALYTICS, {
+    const { data: analytics, refetch } = useQuery<{ getThreadPurposeAnalytics: Analytics[] }>(GET_DOCUMENT_PURPOSE_ANALYTICS, {
         variables: {
             officeId: officeId,
             startDate: startDate,
@@ -41,7 +41,7 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
             superuser: role ? role.superuser : null
         }
     });
-    const { data: threadTypes } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES);
+    const { data: threadPurposes } = useQuery<{ getAllThreadPurpose: DocumentPurpose[] }>(GET_ALL_THREAD_PURPOSE);
     const { data: threadStatus } = useQuery<{ getAllThreadStatus: DocumentStatus[] }>(GET_ALL_THREAD_STATUS);
 
     const [chartOptions, setChartOptions] = React.useState<any>();
@@ -50,8 +50,10 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
         data: number[];
     }[]>([])
 
+    console.log(analytics);
+
     React.useEffect(() => {
-        if (analytics && threadTypes && threadStatus) {
+        if (analytics && threadPurposes && threadStatus) {
             const { primary } = theme.palette.text;
             const grey200 = theme.palette.grey[200];
             const grey500 = theme.palette.grey[500];
@@ -82,7 +84,7 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
                 ],
                 xaxis: {
                     type: 'category',
-                    categories: threadTypes.getAllThreadTypes.map(type => type.docType),
+                    categories: threadPurposes.getAllThreadPurpose.map(purpose => purpose.purposeName),
                     labels: {
                         style: {
                             colors: [primary, primary, primary, primary, primary, primary, primary, primary, primary, primary, primary, primary],
@@ -145,15 +147,15 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
 
             setChartSeries(threadStatus.getAllThreadStatus.map(status => ({
                 name: status.statusLabel,
-                data: threadTypes.getAllThreadTypes.map(type => {
-                    const data = analytics.getThreadTypeAnalytics.filter(s => s.status.statusId === status.statusId && s.docType.docId === type.docId);
+                data: threadPurposes.getAllThreadPurpose.map(purpose => {
+                    const data = analytics.getThreadPurposeAnalytics.filter(s => s.status.statusId === status.statusId && s.purpose.purposeId === purpose.purposeId);
 
                     if (data.length > 0) return data.reduce((sum, d) => sum + d.count, 0);
                     return 0;
                 })
             })))
         }
-    }, [analytics, threadTypes, threadStatus, theme]);
+    }, [analytics, threadPurposes, threadStatus, theme]);
 
     const handleStartDateChange = (date: Dayjs | null) => {
         if (date) {
@@ -183,7 +185,7 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
                 title={
                     <Box>
                         <Typography variant='h6'>
-                            Document Types Tracker
+                            Document Purpose Tracker
                         </Typography>
                     </Box>
                 }

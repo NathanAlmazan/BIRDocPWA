@@ -6,6 +6,7 @@ import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 
 interface Paths {
     label: string;
@@ -13,35 +14,64 @@ interface Paths {
     icon: React.ReactNode
 }
 
-export const paths: Paths[] = [
+export const dashboardPaths: Paths[] = [
     {
         label: 'Dashboard',
         url: '/app/dashboard',
         icon: <SpaceDashboardIcon />
-    },
+    }
+];
+
+export const inboxPaths: Paths[] = [
     {
-        label: 'Inbox',
-        url: '/app/inbox',
+        label: 'My Tasks',
+        url: '/app/inbox/tasks',
         icon: <AllInboxIcon />
     },
     {
-        label: 'Sent',
-        url: '/app/sent',
+        label: 'Memos',
+        url: '/app/inbox/memos',
+        icon: <StickyNote2Icon />
+    },
+    {
+        label: 'Finished',
+        url: '/app/inbox/finished',
+        icon: <ArchiveIcon />
+    }
+];
+
+export const sentPaths: Paths[] = [
+    {
+        label: 'Pending',
+        url: '/app/sent/pending',
         icon: <SendOutlinedIcon />
     },
     {
+        label: 'Sent Memos',
+        url: '/app/sent/memos',
+        icon: <StickyNote2Icon />
+    },
+    {
         label: 'Completed',
-        url: '/app/completed',
+        url: '/app/sent/completed',
         icon: <ArchiveIcon />
+    }
+]
+
+export const regionPaths: Paths[] = [
+    {
+        label: 'All Requests',
+        url: '/admin/inbox/requests',
+        icon: <AllInboxIcon />
+    },
+    {
+        label: 'All Memos',
+        url: '/admin/inbox/memos',
+        icon: <StickyNote2Icon />
     },
 ];
 
 export const settings: Paths[] = [
-    {
-        label: 'Region Inbox',
-        url: '/admin/inbox',
-        icon: <AllInboxIcon />
-    },
     {
         label: 'Settings',
         url: '/admin/settings',

@@ -22,6 +22,8 @@ import { LoadOverlay } from '../../components/Loaders';
 import MessageCard from './MessageCard';
 import Form2309 from './Form2309';
 import ReplyBox from './ReplyBox';
+import ThreadDirectory from './Directory';
+import ThreadHistory from './History';
 import { DocumentStatus, Thread } from '../../api/threads/types';
 // api
 import { useQuery, useMutation } from '@apollo/client';
@@ -49,7 +51,7 @@ export function TabPanel(props: TabPaneProps) {
 const formatInboxDate = (date: string | Date) => {
     const target = new Date(date);
     return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-  }
+}
 
 interface ThreadListProps {
     userId: string;
@@ -166,7 +168,8 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
         
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                         <Typography variant='body2'>{`From ${formatInboxDate(dateCreated)} to ${formatInboxDate(dateDue)}`}</Typography>
-                        {userId === threadData.getThreadById.author.accountId && (
+                        {((userId === threadData.getThreadById.author.accountId && !threadData.getThreadById.purpose.purposeName.includes("Approval")) || 
+                           (userId !== threadData.getThreadById.author.accountId && threadData.getThreadById.purpose.purposeName.includes("Approval"))) && (
                             <IconButton onClick={handleExpand}>
                                 {expanded ? <CloseIcon /> : <TuneIcon />}
                             </IconButton>
@@ -223,7 +226,11 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
             <Tabs value={tabValue} onChange={(e, value) => setTableValue(value)} sx={{ mt: 2 }}>
                 <Tab label="Conversation" />
-                <Tab label="Form 2309" />
+                <Tab label="Files" />
+                <Tab label="History" />
+                {threadData.getThreadById.author.accountId === userId && (
+                    <Tab label="Form 2309" />
+                )}
             </Tabs>
            
             <TabPanel index={0} value={tabValue}>
@@ -250,8 +257,18 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
             </TabPanel>
 
             <TabPanel index={1} value={tabValue}>
-                <Form2309 thread={threadData.getThreadById} />
+                <ThreadDirectory messages={threadData.getThreadById.messages} reqForm={threadData.getThreadById.reqForm} />
             </TabPanel>
+
+            <TabPanel index={2} value={tabValue}>
+                <ThreadHistory history={threadData.getThreadById.history} />
+            </TabPanel>
+
+           {threadData.getThreadById.author.accountId === userId && (
+                <TabPanel index={3} value={tabValue}>
+                    <Form2309 thread={threadData.getThreadById} onGenerate={reloadThread} />
+                </TabPanel>
+           )}
         </Box>
     </Paper>
   )

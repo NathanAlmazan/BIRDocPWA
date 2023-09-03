@@ -19,7 +19,7 @@ import Badge from '@mui/material/Badge';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 // api
-import { Messages } from '../../api/threads/types';
+import { Thread } from '../../api/threads/types';
 import { GET_USER_NOTIFICATIONS } from '../../api/offices';
 import { useQuery } from '@apollo/client';
 
@@ -28,18 +28,38 @@ import { useQuery } from '@apollo/client';
 export default function NotificationsPopover({ uid }: { uid: string }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { data: notifications, refetch } = useQuery<{ getUserNotifications: Messages[] }>(GET_USER_NOTIFICATIONS, {
+  const { data: messages, refetch: refetchMessages } = useQuery<{ getUserNotifications: Thread[] }>(GET_USER_NOTIFICATIONS, {
     variables: {
-        userId: uid
+        userId: uid,
+        type: "unread"
+    }
+  });
+  const { data: approvals, refetch: refetchApprovals } = useQuery<{ getUserNotifications: Thread[] }>(GET_USER_NOTIFICATIONS, {
+    variables: {
+        userId: uid,
+        type: "approval"
+    }
+  });
+  const { data: overdue, refetch: refetchOverdue } = useQuery<{ getUserNotifications: Thread[] }>(GET_USER_NOTIFICATIONS, {
+    variables: {
+        userId: uid,
+        type: "overdue"
     }
   });
   const [open, setOpen] = useState<Element | null>(null);
+  const [count, setCount] = useState<number>(0);
 
   React.useEffect(() => {
-    refetch({
-        userId: uid
-    })
-  }, [pathname, uid, refetch])
+    refetchMessages({ userId: uid, type: "unread" });
+    refetchApprovals({ userId: uid, type: "approval" });
+    refetchOverdue({ userId: uid, type: "overdue" });
+  }, [pathname, uid, refetchMessages, refetchApprovals, refetchOverdue])
+
+  React.useEffect(() => {
+    if (messages && approvals && overdue) {
+      setCount(messages.getUserNotifications.length + approvals.getUserNotifications.length + overdue.getUserNotifications.length)
+    }
+  }, [messages, approvals, overdue])
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setOpen(event.currentTarget);
@@ -69,7 +89,7 @@ export default function NotificationsPopover({ uid }: { uid: string }) {
           }),
         }}
       >
-        <Badge badgeContent={notifications?.getUserNotifications.length} color="error">
+        <Badge badgeContent={count} color="error">
             <NotificationsIcon />
         </Badge>
       </IconButton>
@@ -97,38 +117,84 @@ export default function NotificationsPopover({ uid }: { uid: string }) {
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">Notifications</Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              You have {notifications?.getUserNotifications.length} unread messages
+              {count > 0 ? `You have ${count} notifications` : 'You have no notifications.'}
             </Typography>
           </Box>
         </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Box sx={{ maxHeight: 500, overflowY: 'auto' }}>
-            <List
-                disablePadding
-                subheader={
-                    <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                        {notifications && notifications.getUserNotifications.length > 0 ? "New" : "No Notifications"}
-                    </ListSubheader>
-                }
-            >
-                {notifications?.getUserNotifications.map((notification) => (
-                    <NotificationItem 
-                        key={notification.msgId} 
-                        notification={notification}
-                        userId={uid}
-                        onClose={handleClose}
-                    />
-                ))}
-            </List>
-        </Box>
+        {messages && messages.getUserNotifications.length > 0 && (
+           <Box sx={{ maxHeight: 500, overflowY: 'auto' }}>
+              <List
+                  disablePadding
+                  subheader={
+                      <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
+                          Unread Messages
+                      </ListSubheader>
+                  }
+              >
+                  {messages.getUserNotifications.map((thread) => (
+                      <NotificationItem 
+                          key={thread.refId} 
+                          notification={thread}
+                          userId={uid}
+                          onClose={handleClose}
+                      />
+                  ))}
+              </List>
+          </Box>
+        )}
+
+        {approvals && approvals.getUserNotifications.length > 0 && (
+           <Box sx={{ maxHeight: 500, overflowY: 'auto' }}>
+              <List
+                  disablePadding
+                  subheader={
+                      <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
+                          Needs Your Approval
+                      </ListSubheader>
+                  }
+              >
+                  {approvals.getUserNotifications.map((thread) => (
+                      <NotificationItem 
+                          key={thread.refId} 
+                          notification={thread}
+                          userId={uid}
+                          onClose={handleClose}
+                      />
+                  ))}
+              </List>
+          </Box>
+        )}
+
+        {overdue && overdue.getUserNotifications.length > 0 && (
+           <Box sx={{ maxHeight: 500, overflowY: 'auto' }}>
+              <List
+                  disablePadding
+                  subheader={
+                      <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
+                          Overdue Tasks
+                      </ListSubheader>
+                  }
+              >
+                  {overdue.getUserNotifications.map((thread) => (
+                      <NotificationItem 
+                          key={thread.refId} 
+                          notification={thread}
+                          userId={uid}
+                          onClose={handleClose}
+                      />
+                  ))}
+              </List>
+          </Box>
+        )}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Box sx={{ p: 1 }}>
           <Button fullWidth disableRipple onClick={() => {
-            navigate('/app/inbox');
+            navigate('/app/inbox/tasks');
             handleClose();
           }}>
             View All
@@ -145,14 +211,22 @@ const formatInboxDate = (date: string | Date) => {
     return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-  
-function NotificationItem({ userId, notification, onClose }: { userId: string, notification: Messages, onClose: () => void }) {
+
+
+function NotificationItem({ userId, notification, onClose }: { userId: string, notification: Thread, onClose: () => void }) {
     const navigate = useNavigate();
 
     const handleRedirect = (threadId: string) => {
-        if (notification.thread.author.accountId === userId) navigate(`/app/sent/${threadId}`);
-        else navigate(`/app/inbox/${threadId}`);
-        onClose();
+      if (notification.author.accountId === userId) {
+        if (!notification.completed && notification.purpose.actionable) navigate(`/app/sent/pending/${threadId}`);
+        else if (notification.completed && !notification.purpose.actionable) navigate(`/app/sent/memos/${threadId}`)
+        else if (notification.completed && notification.purpose.actionable) navigate(`/app/sent/completed/${threadId}`)
+      } else {
+        if (!notification.completed && notification.purpose.actionable) navigate(`/app/inbox/tasks/${threadId}`);
+        else if (notification.completed && !notification.purpose.actionable) navigate(`/app/inbox/memos/${threadId}`)
+        else if (notification.completed && notification.purpose.actionable) navigate(`/app/inbox/finished/${threadId}`)
+      }
+      onClose();
     }
 
     return (
@@ -163,19 +237,19 @@ function NotificationItem({ userId, notification, onClose }: { userId: string, n
           mt: '1px',
           bgcolor: 'action.selected'
         }}
-        onClick={() =>handleRedirect(notification.thread.refId)}
+        onClick={() =>handleRedirect(notification.refId)}
       >
         <ListItemAvatar>
             <Avatar sx={{ bgcolor: 'red' }}>
-                {`${notification.sender.firstName.charAt(0)}${notification.sender.lastName.charAt(0)}`}
+                {`${notification.author.firstName.charAt(0)}${notification.author.lastName.charAt(0)}`}
             </Avatar>
         </ListItemAvatar>
         <ListItemText
           primary={
             <Typography variant="subtitle2">
-                {notification.thread.subject}
+                {notification.subject}
                 <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-                    &nbsp; {`from ${notification.sender.firstName} ${notification.sender.lastName} — ${notification.message}`}
+                    &nbsp; {`from ${notification.author.firstName} ${notification.author.lastName} — ${notification.docType.docType}`}
                 </Typography>
             </Typography>
           }
@@ -190,7 +264,7 @@ function NotificationItem({ userId, notification, onClose }: { userId: string, n
               }}
             >
               <AccessTimeIcon sx={{ mr: 0.5, width: 16, height: 16 }} />
-              {formatInboxDate(notification.dateSent)}
+              {`Due at ${formatInboxDate(notification.dateDue)}`}
             </Typography>
           }
         />

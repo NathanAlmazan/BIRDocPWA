@@ -7,6 +7,7 @@ export const GET_BIR_OFFICES = gql`
             sectionId
             sectionName
             sectionOffice {
+                officeId
                 officeName
             }
         }
@@ -45,12 +46,14 @@ export const GET_THREAD_BY_ID = gql`
         getThreadById(uid: $uid) {
             refId
             refSlipNum
+            reqForm
             revision
             subject
             author {
                 accountId
                 firstName
                 lastName
+                signImage
                 role {
                     roleId
                     roleName
@@ -58,6 +61,7 @@ export const GET_THREAD_BY_ID = gql`
                 officeSection {
                     sectionOffice {
                         officeName
+                        refNum
                     }
                 }
             }
@@ -100,20 +104,29 @@ export const GET_THREAD_BY_ID = gql`
                     fileId
                     fileName
                     fileUrl
+                    fileType
                 }
                 dateSent
+            }
+            history {
+                historyLabel
+                dateCreated
+                status {
+                    statusLabel
+                }
             }
         }
     }
 `
 
 export const GET_THREAD_INBOX = gql`
-    query GetThreadInbox($userId: String!, $completed: Boolean) {
-        getThreadInbox(userId: $userId, completed: $completed) {
+    query GetThreadInbox($userId: String!, $type: String!) {
+        getThreadInbox(userId: $userId, type: $type) {
             refId
             refSlipNum
             subject
             author {
+                accountId
                 firstName
                 lastName
             }
@@ -127,6 +140,7 @@ export const GET_THREAD_INBOX = gql`
             purpose {
                 purposeId
                 purposeName
+                actionable
             }
             dateDue
             dateCreated
@@ -137,12 +151,13 @@ export const GET_THREAD_INBOX = gql`
 `
 
 export const GET_SENT_THREAD = gql`
-    query GetSentThread($userId: String!) {
-        getSentThread(userId: $userId) {
+    query GetSentThread($userId: String!, $type: String!) {
+        getSentThread(userId: $userId, type: $type) {
             refId
             refSlipNum
             subject
             author {
+                accountId
                 firstName
                 lastName
             }
@@ -156,6 +171,7 @@ export const GET_SENT_THREAD = gql`
             purpose {
                 purposeId
                 purposeName
+                actionable
             }
             dateDue
             dateCreated
@@ -166,11 +182,12 @@ export const GET_SENT_THREAD = gql`
 `
 
 export const GET_REGION_INBOX = gql`
-    query GetAllThread {
-        getAllThread {
+    query GetAllThread($memos: Boolean) {
+        getAllThread(memos: $memos) {
             refId
             subject
             author {
+                accountId
                 firstName
                 lastName
             }
@@ -180,6 +197,11 @@ export const GET_REGION_INBOX = gql`
             }
             status {
                 statusLabel
+            }
+            purpose {
+                purposeId
+                purposeName
+                actionable
             }
             recipient {
                 sectionOffice {

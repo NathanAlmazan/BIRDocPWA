@@ -4,7 +4,8 @@ import {
     View,
     Text,
     Font,
-    StyleSheet
+    StyleSheet,
+    Image
 } from '@react-pdf/renderer';
 import { Thread } from '../../api/threads/types';
 import { Form2309Data } from '../../pages/threads/Form2309';
@@ -83,26 +84,32 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
                     <View style={styles.tableRow}>
                         <View style={styles.recipientCol}>
                             <Text style={styles.tableCellLeftBold}>FROM:</Text>
-                            <Text style={styles.emptyCell}></Text>
+                            {thread.author.signImage ? (
+                                <View style={styles.signatureContainer}>
+                                    <Image style={styles.signatureImage} src="https://picsum.photos/200/300?random=1" />
+                                </View>
+                            ) : (
+                                <Text style={styles.emptyCell}></Text>
+                            )}
                             <Text style={styles.tableCellCenter}>{thread.author.firstName + ' ' + thread.author.lastName}</Text>
                             <Text style={styles.tableCellCenterSmall}>{thread.author.role.roleName}</Text>
                             <Text style={styles.tableCellCenterSmall}>{thread.author.officeSection.sectionOffice.officeName}</Text>
                         </View>
                         <View style={styles.dateCol}>
-                            <Text style={styles.tableCellLeftBold}>Office Code: RR-6</Text>
+                            <Text style={styles.tableCellLeftBold}>{thread.author.officeSection.sectionOffice.refNum}</Text>
                         </View>
                 </View>
                 </View>
                 <View style={styles.table}>
                     <View style={styles.tableRow}>
                         <View style={styles.purposeCol}>
-                            <Text style={styles.tableCellLeftBold}>NOTE: This slip must be filled with the papers to which it is attached.</Text>
+                            <Text style={styles.tableCellLeftBoldSmall}>NOTE: This slip must be filled with the papers to which it is attached.</Text>
                         </View>
                     </View>
                 </View>
             </Page>
         </Document>
-);
+    );
 }
   
 const styles = StyleSheet.create({
@@ -140,11 +147,17 @@ const styles = StyleSheet.create({
       textAlign: "left"
     },
     emptyCell: { 
-      height: 30
+      height: 50
     },
     tableCellLeftBold: { 
       margin: 3,
       fontSize: 11,
+      textAlign: "left",
+      fontWeight: "bold"
+    },
+  	tableCellLeftBoldSmall: { 
+      margin: 3,
+      fontSize: 9,
       textAlign: "left",
       fontWeight: "bold"
     },
@@ -162,6 +175,15 @@ const styles = StyleSheet.create({
         margin: 3,
         fontSize: 10,
         textAlign: "center"
+    },
+  	signatureContainer: {
+    	display: "flex",
+      	flexDirection: "row",
+      	justifyContent: "center"
+    },
+  	signatureImage: {
+    	width: 90,
+      	height: 50
     }
 });
   

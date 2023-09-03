@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 // mui
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -9,21 +10,24 @@ import MarkAsUnreadIcon from '@mui/icons-material/MarkAsUnread';
 import EmailList from './EmailList';
 import ThreadList from './ThreadList';
 import CreateThread from './CreateThread';
+import { InboxType } from './Inbox';
 import { useAppSelector } from '../../redux/hooks';
 // api
-import { GET_THREAD_INBOX } from '../../api/threads';
+import { GET_SENT_THREAD } from '../../api/threads';
 import { Thread } from '../../api/threads/types';
 import { useQuery } from '@apollo/client';
 
-export default function EmailPage() {
+
+export default function EmailPage(props: { type: InboxType }) {
+  const { refId } = useParams();
   const { uid } = useAppSelector((state) => state.auth);
-  const { data, refetch } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
+  const { data, refetch } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
     variables: {
       userId: uid,
-      completed: true
+      type: props.type
     }
   });
-  const [threadId, setThreadId] = React.useState<string | null>(null);
+  const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
   const [compose, setCompose] = React.useState<boolean>(false);
 
   const handleComposeThread = () => setCompose(!compose);
@@ -36,16 +40,16 @@ export default function EmailPage() {
   }
 
   const handleRefreshList = () => {
-    refetch({ userId: uid, completed: true });
+    refetch({ userId: uid, type: props.type });
   }
 
   return (
     <Grid container spacing={3} alignItems="stretch" sx={{ height: "95%" }}>
       <Grid item md={4}>
         <EmailList 
-          mails={data?.getThreadInbox}
+          mails={data?.getSentThread}
           compose={compose}
-          mode="completed"
+          mode="sent"
           onRefresh={handleRefreshList}
           onComposeThread={handleComposeThread}
           onThreadClick={handleThreadClick}

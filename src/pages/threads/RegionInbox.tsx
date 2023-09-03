@@ -21,7 +21,7 @@ export default function RegionInbox() {
   const { uid } = useAppSelector((state) => state.auth);
   const { data, refetch } = useQuery<{ getAllThread: Thread[] }>(GET_REGION_INBOX, {
     variables: {
-      userId: uid
+      memos: false
     }
   });
   const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);

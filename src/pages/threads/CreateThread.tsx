@@ -102,10 +102,14 @@ export default function CreateThread(props: CreateThreadProps) {
     if (officeSections && threadTypes && threadPurposes) {
         let officeObject: Queue = {};
         officeSections.getAllOfficeSections.forEach(office => {
-            officeObject[office.sectionName === "default" ?
-            office.sectionOffice.officeName :
-            office.sectionOffice.officeName + " — " + office.sectionName] = office.sectionId;
+            if (office.sectionName === "default") {
+                officeObject[office.sectionOffice.officeName + " — All"] = -(office.sectionOffice.officeId);
+                officeObject[office.sectionOffice.officeName + " — Admin"] = office.sectionId;
+            } else {
+                officeObject[office.sectionOffice.officeName + " — " + office.sectionName] = office.sectionId;
+            }
         })
+        
         setOffices(officeObject);
 
         let typesObject: Queue = {};
@@ -122,9 +126,6 @@ export default function CreateThread(props: CreateThreadProps) {
 
     }
   }, [officeSections, threadTypes, threadPurposes])
-
-  console.log(formData.purposeId);
-  console.log(purposes)
 
   if (!offices || !types || !purposes) return <LoadOverlay open={true} />
 
@@ -198,9 +199,9 @@ export default function CreateThread(props: CreateThreadProps) {
         // arrange links if any
         if (messageData.links.length > 0) {
             insertedLinks = messageData.links.map(link => ({
-                fileName: link.split('/').pop() as string,
-                fileType: "",
-                fileUrl: link
+                fileName: link.name,
+                fileType: "url",
+                fileUrl: link.link
             }))
         }
 

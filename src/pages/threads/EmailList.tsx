@@ -40,14 +40,6 @@ const emptyMessages: { [key: string]: { title: string, sub: string }} = {
   "sent": {
     title: "Compose a thread",
     sub: "You have no created threads"
-  },
-  "completed": {
-    title: "It's time to work!",
-    sub: "You have no finished threads"
-  },
-  "regionInbox": {
-    title: "Compose a thread",
-    sub: "No threads are created yet"
   }
 }
 
@@ -131,28 +123,34 @@ export default function EmailList(props: EmailListProps) {
                 </ListItemAvatar>
                 <ListItemText
                   primary={
-                    <Box>
+                    <Box sx={{ mb: 2 }}>
                         <Typography variant='body1' gutterBottom>
                             {msg.subject}
                         </Typography>
-                        <Chip color={msg.completed ? 'success' : 'info'} label={msg.status.statusLabel} size='small' sx={{ fontSize: 10 }} />
-                        <Typography variant='caption'>
-                          {` Due at ${formatInboxDate(msg.dateDue)}`}
-                        </Typography>
+                        <div>
+                          <Typography
+                            sx={{ display: 'inline' }}
+                            component="span"
+                            variant="subtitle2"
+                            color="text.primary"
+                          >
+                            {props.mode === 'regionInbox' ? msg.recipient.sectionOffice.officeName : `${msg.author.firstName} ${msg.author.lastName}`}
+                          </Typography>
+                          {` — ${msg.docType.docType} request For ${msg.purpose.purposeName}.`}
+                        </div>
                     </Box>
                   } 
                   secondary={
-                    <React.Fragment>
-                      <Typography
-                        sx={{ display: 'inline' }}
-                        component="span"
-                        variant="subtitle2"
-                        color="text.primary"
-                      >
-                        {props.mode === 'regionInbox' ? msg.recipient.sectionOffice.officeName : `${msg.author.firstName} ${msg.author.lastName}`}
+                    <Box sx={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between'
+                    }}>
+                      <Chip color={msg.completed ? 'success' : 'info'} label={msg.status.statusLabel} size='small' sx={{ fontSize: 10 }} />
+                      <Typography variant='caption'>
+                        {`Due at ${formatInboxDate(msg.dateDue)}`}
                       </Typography>
-                      {" — " + msg.docType.docType}
-                    </React.Fragment>
+                    </Box>
                   }
                 />
               </ListItemButton>

@@ -69,6 +69,22 @@ export const GET_DOCUMENT_TYPE_ANALYTICS = gql`
     }
 `
 
+export const GET_DOCUMENT_PURPOSE_ANALYTICS = gql`
+    query GetThreadPurposeAnalytics($officeId: Int!, $startDate: String!, $endDate: String!, $superuser: Boolean) {
+        getThreadPurposeAnalytics(officeId: $officeId, startDate: $startDate, endDate: $endDate, superuser: $superuser) {
+          purpose {
+            purposeId
+            purposeName
+          }
+          status {
+            statusId
+            statusLabel
+          }
+          count
+        }
+    }
+`
+
 export const GET_DOCUMENT_STATUS_ANALYTICS = gql`
     query GetStatusAnalytics($officeId: Int!, $completed: Boolean!, $superuser: Boolean) {
         getStatusAnalytics(officeId: $officeId, completed: $completed, superuser: $superuser) {
@@ -206,23 +222,32 @@ export const USER_LOGIN = gql`
 `
 
 export const GET_USER_NOTIFICATIONS = gql`
-    query GetUserNotifications($userId: String!) {
-        getUserNotifications(userId: $userId) {
-            msgId
-            sender {
+    query GetUserNotifications($userId: String!, $type: String!) {
+        getUserNotifications(userId: $userId, type: $type) {
+            refId
+            refSlipNum
+            subject
+            author {
                 accountId
                 firstName
                 lastName
             }
-            message
-            thread {
-                refId
-                subject
-                author {
-                    accountId
-                }
+            docType {
+                docId
+                docType
             }
-            dateSent
+            status {
+                statusLabel
+            }
+            purpose {
+                purposeId
+                purposeName
+                actionable
+            }
+            dateDue
+            dateCreated
+            dateUpdated
+            completed
         }
     }
 `

@@ -10,9 +10,10 @@ import { useAppSelector } from '../redux/hooks';
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
 
 const Inbox = React.lazy(() => import("../pages/threads/Inbox"));
-const SentItems = React.lazy(() => import("../pages/threads/SentItems"));
-const Completed = React.lazy(() => import("../pages/threads/Completed"));
+const SentItems = React.lazy(() => import("../pages/threads/Sent"));
+
 const RegionInbox = React.lazy(() => import("../pages/threads/RegionInbox"));
+const RegionMemos = React.lazy(() => import("../pages/threads/RegionMemos"));
 
 const Users = React.lazy(() => import("../pages/users"));
 const Settings = React.lazy(() => import("../pages/settings"));
@@ -42,25 +43,60 @@ export default function Router() {
                     path: 'dashboard',
                     element: <SuspenseLoader children={<Dashboard />} />
                 },
+
+                // ========================= INBOX ITEMS ========================= //
+
                 {
-                    path: 'inbox',
-                    element: <SuspenseLoader children={<Inbox />} />
+                    path: 'inbox/tasks',
+                    element: <SuspenseLoader children={<Inbox type="pending" />} />
                 },
                 {
-                    path: 'inbox/:refId',
-                    element: <SuspenseLoader children={<Inbox />} />
+                    path: 'inbox/memos',
+                    element: <SuspenseLoader children={<Inbox type="memos" />} />
                 },
                 {
-                    path: 'sent',
-                    element: <SuspenseLoader children={<SentItems />} />
+                    path: 'inbox/finished',
+                    element: <SuspenseLoader children={<Inbox type="finished" />} />
                 },
                 {
-                    path: 'sent/:refId',
-                    element: <SuspenseLoader children={<SentItems />} />
+                    path: 'inbox/tasks/:refId',
+                    element: <SuspenseLoader children={<Inbox type="pending" />} />
                 },
                 {
-                    path: 'completed',
-                    element: <SuspenseLoader children={<Completed />} />
+                    path: 'inbox/memos/:refId',
+                    element: <SuspenseLoader children={<Inbox type="memos" />} />
+                },
+                {
+                    path: 'inbox/finished/:refId',
+                    element: <SuspenseLoader children={<Inbox type="finished" />} />
+                },
+
+
+                // ========================= SENT ITEMS ========================= //
+
+                {
+                    path: 'sent/pending',
+                    element: <SuspenseLoader children={<SentItems type="pending" />} />
+                },
+                {
+                    path: 'sent/memos',
+                    element: <SuspenseLoader children={<SentItems type="memos" />} />
+                },
+                {
+                    path: 'sent/completed',
+                    element: <SuspenseLoader children={<SentItems type="finished" />} />
+                },
+                {
+                    path: 'sent/pending/:refId',
+                    element: <SuspenseLoader children={<SentItems type="pending" />} />
+                },
+                {
+                    path: 'sent/memos/:refId',
+                    element: <SuspenseLoader children={<SentItems type="memos" />} />
+                },
+                {
+                    path: 'sent/completed/:refId',
+                    element: <SuspenseLoader children={<SentItems type="finished" />} />
                 }
             ]
         },
@@ -69,8 +105,12 @@ export default function Router() {
             element: <EmailLayout />,
             children: [
                 {
-                    path: 'inbox',
+                    path: 'inbox/requests',
                     element: <SuspenseLoader children={<RegionInbox />} />
+                },
+                {
+                    path: 'inbox/memos',
+                    element: <SuspenseLoader children={<RegionMemos />} />
                 },
                 {
                     path: 'users',
