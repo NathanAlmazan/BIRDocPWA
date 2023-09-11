@@ -9,6 +9,7 @@ export type BirOffices = {
 export type OfficeSections = {
     sectionId: number;
     sectionName: string;
+    refNum?: string;
     sectionOffice: BirOffices;
     officers: UserAccounts[];
 }

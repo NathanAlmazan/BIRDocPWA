@@ -67,6 +67,12 @@ interface CreateThreadProps {
     onCreateThread: (threadId: string) => void;
 }
 
+export function generateOfficeCode(officeCode?: string, sectionCode?: string) {
+    if (officeCode && sectionCode) return ` (${officeCode}-${sectionCode})`;
+    else if (officeCode) return ` (${officeCode})`
+    else return '';
+}
+
 export default function CreateThread(props: CreateThreadProps) {
   const theme = useTheme();
   const { data: officeSections } = useQuery<{ getAllOfficeSections: OfficeSections[] }>(GET_BIR_OFFICES);
@@ -103,10 +109,10 @@ export default function CreateThread(props: CreateThreadProps) {
         let officeObject: Queue = {};
         officeSections.getAllOfficeSections.forEach(office => {
             if (office.sectionName === "default") {
-                officeObject[office.sectionOffice.officeName + " — All"] = -(office.sectionOffice.officeId);
-                officeObject[office.sectionOffice.officeName + " — Admin"] = office.sectionId;
+                officeObject[office.sectionOffice.officeName + " — All" + generateOfficeCode(office.sectionOffice.refNum, office.refNum)] = -(office.sectionOffice.officeId);
+                officeObject[office.sectionOffice.officeName + " — Admin" + generateOfficeCode(office.sectionOffice.refNum, office.refNum)] = office.sectionId;
             } else {
-                officeObject[office.sectionOffice.officeName + " — " + office.sectionName] = office.sectionId;
+                officeObject[office.sectionOffice.officeName + " — " + office.sectionName + generateOfficeCode(office.sectionOffice.refNum, office.refNum)] = office.sectionId;
             }
         })
         

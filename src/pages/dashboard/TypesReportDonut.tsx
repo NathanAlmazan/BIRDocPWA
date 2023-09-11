@@ -1,10 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReactApexChart from 'react-apexcharts';
 import merge from 'lodash/merge';
 // @mui
 import { useTheme, styled, alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
-import { Card, CardHeader } from '@mui/material';
+import { Card, CardHeader, CardActions, CardContent, Button } from '@mui/material';
 // api
 import { useQuery } from '@apollo/client';
 import { Analytics, DocumentTypes } from '../../api/threads/types';
@@ -43,6 +44,7 @@ interface TypesReportDonutProps {
 
 export default function TypesReportDonut({ officeId, completed }: TypesReportDonutProps) {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { role } = useAppSelector((state) => state.auth);
   const { data: threadTypes } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES);
   const { data: analytics } = useQuery<{ getStatusAnalytics: Analytics[] }>(GET_DOCUMENT_STATUS_ANALYTICS, {
@@ -83,6 +85,11 @@ export default function TypesReportDonut({ officeId, completed }: TypesReportDon
     }
   }, [analytics, threadTypes])
 
+  const handleRedirect = () => {
+    if (completed) navigate('/app/inbox/finished');
+    else navigate('/app/inbox/tasks');
+  }
+
   return (
     <Card sx={{ height: '100%' }}>
       <CardHeader title={
@@ -92,9 +99,15 @@ export default function TypesReportDonut({ officeId, completed }: TypesReportDon
         } 
       />
 
+     <CardContent>
       <StyledChartWrapper dir="ltr">
-        <ReactApexChart type="donut" series={chartValues} options={chartOptions} height={380} />
-      </StyledChartWrapper>
+          <ReactApexChart type="donut" series={chartValues} options={chartOptions} height={380} />
+        </StyledChartWrapper>
+     </CardContent>
+
+      <CardActions>
+        <Button size="large" onClick={handleRedirect} fullWidth>{completed ? "See Completed Documents" : "See Pending Documents"}</Button>
+      </CardActions>
     </Card>
   );
 }
