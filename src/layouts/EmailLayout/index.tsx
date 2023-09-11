@@ -161,7 +161,8 @@ export default function EmailLayout() {
   React.useEffect(() => {
     if (selected) {
       if (selected.author.accountId === uid) {
-        if (!selected.completed && selected.purpose.actionable) navigate(`/app/sent/pending/${selected.refId}`);
+        if (!selected.active) navigate(`/app/sent/archived/${selected.refId}`);
+        else if (!selected.completed && selected.purpose.actionable) navigate(`/app/sent/pending/${selected.refId}`);
         else if (selected.completed && !selected.purpose.actionable) navigate(`/app/sent/memos/${selected.refId}`)
         else if (selected.completed && selected.purpose.actionable) navigate(`/app/sent/completed/${selected.refId}`)
       } else {

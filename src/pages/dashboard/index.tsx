@@ -6,6 +6,7 @@ import StatusReportBar from './StatusReportBar';
 import PurposeReportBar from './PurposeReportBar';
 import TypesReportDonut from './TypesReportDonut';
 import UserTasks from './UserTasks';
+import RequestSummaryTable from './RequestSummaryTable';
 import { useAppSelector } from '../../redux/hooks';
 
 
@@ -31,6 +32,9 @@ export default function DashboardPage() {
                     officeId={office?.sectionId as number}
                     completed={false}
                 />
+            </Grid>
+            <Grid item md={12} lg={12}>
+                <RequestSummaryTable />
             </Grid>
             <Grid item md={12} lg={8}>
                 <UserTasks userId={uid as string} />

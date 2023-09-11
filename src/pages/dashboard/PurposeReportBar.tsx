@@ -50,8 +50,6 @@ export default function PurposeReportBar({ officeId }: { officeId: number }) {
         data: number[];
     }[]>([])
 
-    console.log(analytics);
-
     React.useEffect(() => {
         if (analytics && threadPurposes && threadStatus) {
             const { primary } = theme.palette.text;

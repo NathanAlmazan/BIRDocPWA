@@ -90,6 +90,7 @@ export const GET_THREAD_BY_ID = gql`
             dateDue
             attachments
             completed
+            active
             messages {
                 msgId
                 message
@@ -145,6 +146,7 @@ export const GET_THREAD_INBOX = gql`
                 actionable
             }
             dateDue
+            active
             dateCreated
             dateUpdated
             completed
@@ -176,6 +178,7 @@ export const GET_SENT_THREAD = gql`
                 actionable
             }
             dateDue
+            active
             dateCreated
             dateUpdated
             completed
@@ -212,6 +215,7 @@ export const GET_REGION_INBOX = gql`
                 }
             }
             dateDue
+            active
             dateCreated
             dateUpdated
             completed
@@ -247,6 +251,22 @@ export const SET_MESSAGE_AS_READ = gql`
     mutation SetMessageAsRead($threadId: String!, $userId: String!) {
         setMessageAsRead(threadId: $threadId, userId: $userId) {
             msgId
+        }
+    }
+`
+
+export const ARCHIVE_THREAD = gql`
+    mutation ArchiveThread($threadId: String!) {
+        archiveThread(threadId: $threadId) {
+            refId
+        }
+    }
+`
+
+export const RESTORE_THREAD = gql`
+    mutation RestoreThread($threadId: String!) {
+        restoreThread(threadId: $threadId) {
+            refId
         }
     }
 `

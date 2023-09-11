@@ -25,7 +25,7 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
     
     return (
         <Document>
-            <Page style={styles.body}>
+            <Page size={[345.60, 525.60]} style={styles.body}>
                 <View style={styles.table}>
                     <View style={styles.tableRow}>
                         <View style={styles.tableCol}>
@@ -114,15 +114,16 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
   
 const styles = StyleSheet.create({
     body: {
-      paddingTop: 35,
-      paddingBottom: 65,
-      paddingHorizontal: 35,
+      paddingTop: 15,
+      paddingBottom: 15,
+      paddingHorizontal: 15,
+
     },
     table: { 
       width: "auto", 
       borderStyle: "solid", 
       borderWidth: 1,
-      padding: 8
+      padding: 2
     },
     tableRow: { 
       margin: "auto", 
@@ -142,38 +143,38 @@ const styles = StyleSheet.create({
       width: "100%"
     },
     tableCellLeft: { 
-      margin: 3,
-      fontSize: 11,
+      margin: 2,
+      fontSize: 9,
       textAlign: "left"
     },
     emptyCell: { 
-      height: 50
+      height: 30
     },
     tableCellLeftBold: { 
-      margin: 3,
-      fontSize: 11,
-      textAlign: "left",
-      fontWeight: "bold"
-    },
-  	tableCellLeftBoldSmall: { 
-      margin: 3,
+      margin: 2,
       fontSize: 9,
       textAlign: "left",
       fontWeight: "bold"
     },
+  	tableCellLeftBoldSmall: { 
+      margin: 2,
+      fontSize: 6,
+      textAlign: "left",
+      fontWeight: "bold"
+    },
     tableCellRight: { 
-      margin: 3,
-      fontSize: 11,
+      margin: 2,
+      fontSize: 9,
       textAlign: "right"
     },
     tableCellCenter: { 
-        margin: 3,
-        fontSize: 11,
+        margin: 2,
+        fontSize: 8,
         textAlign: "center"
     },
     tableCellCenterSmall: { 
-        margin: 3,
-        fontSize: 10,
+        margin: 2,
+        fontSize: 8,
         textAlign: "center"
     },
   	signatureContainer: {
@@ -182,8 +183,8 @@ const styles = StyleSheet.create({
       	justifyContent: "center"
     },
   	signatureImage: {
-    	width: 90,
-      	height: 50
+    	width: 60,
+      	height: 30
     }
 });
   

@@ -4,6 +4,7 @@ import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import AllInboxIcon from '@mui/icons-material/AllInbox';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ArchiveIcon from '@mui/icons-material/Archive';
+import TaskIcon from '@mui/icons-material/Task';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
@@ -36,7 +37,7 @@ export const inboxPaths: Paths[] = [
     {
         label: 'Finished',
         url: '/app/inbox/finished',
-        icon: <ArchiveIcon />
+        icon: <TaskIcon />
     }
 ];
 
@@ -54,6 +55,11 @@ export const sentPaths: Paths[] = [
     {
         label: 'Completed',
         url: '/app/sent/completed',
+        icon: <TaskIcon />
+    },
+    {
+        label: 'Archived',
+        url: '/app/sent/archived',
         icon: <ArchiveIcon />
     }
 ]

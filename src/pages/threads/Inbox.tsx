@@ -16,7 +16,7 @@ import { GET_THREAD_INBOX } from '../../api/threads';
 import { Thread } from '../../api/threads/types';
 import { useQuery } from '@apollo/client';
 
-export type InboxType = "pending" | "approval" | "memos" | "finished";
+export type InboxType = "pending" | "approval" | "memos" | "finished" | "archived";
 
 export default function EmailPage(props: { type: InboxType }) {
   const { refId } = useParams();

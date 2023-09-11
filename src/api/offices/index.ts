@@ -53,6 +53,8 @@ export const GET_BIR_OFFICE_BY_ID = gql`
     }
 `
 
+// ====================== Analytics ========================== //
+
 export const GET_DOCUMENT_TYPE_ANALYTICS = gql`
     query GetThreadTypeAnalytics($officeId: Int!, $startDate: String!, $endDate: String!, $superuser: Boolean) {
         getThreadTypeAnalytics(officeId: $officeId, startDate: $startDate, endDate: $endDate, superuser: $superuser) {
@@ -93,6 +95,54 @@ export const GET_DOCUMENT_STATUS_ANALYTICS = gql`
                 docType
             }
             count
+        }
+    }
+`
+
+export const GET_DOCUMENT_SUMMARY_ANALYTICS = gql`
+    query GetThreadSummary($userId: String!, $dateCreated: String!) {
+        getThreadSummary(userId: $userId, dateCreated: $dateCreated) {
+            refId
+            refSlipNum
+            dateDue
+            dateCreated
+            status {
+                statusId
+                statusLabel
+            }
+            author {
+                accountId
+                firstName
+                lastName
+                officeSection {
+                    sectionId
+                    sectionName
+                    sectionOffice {
+                        officeId
+                        officeName
+                    }
+                }
+                role {
+                    roleName
+                }
+            }
+            recipient {
+                sectionId
+                sectionName
+                sectionOffice {
+                    officeId
+                    officeName
+                }
+            }
+            docType {
+                docId
+                docType
+            }
+            purpose {
+                purposeId
+                purposeName
+            }
+            completed
         }
     }
 `

@@ -87,6 +87,10 @@ export default function Router() {
                     element: <SuspenseLoader children={<SentItems type="finished" />} />
                 },
                 {
+                    path: 'sent/archived',
+                    element: <SuspenseLoader children={<SentItems type="archived" />} />
+                },
+                {
                     path: 'sent/pending/:refId',
                     element: <SuspenseLoader children={<SentItems type="pending" />} />
                 },
@@ -97,6 +101,10 @@ export default function Router() {
                 {
                     path: 'sent/completed/:refId',
                     element: <SuspenseLoader children={<SentItems type="finished" />} />
+                },
+                {
+                    path: 'sent/archived/:refId',
+                    element: <SuspenseLoader children={<SentItems type="archived" />} />
                 }
             ]
         },

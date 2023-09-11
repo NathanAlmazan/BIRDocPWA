@@ -9,6 +9,7 @@ import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -28,8 +29,10 @@ import { DocumentStatus, Thread } from '../../api/threads/types';
 // api
 import { useQuery, useMutation } from '@apollo/client';
 import { 
+    ARCHIVE_THREAD,
     GET_ALL_THREAD_STATUS, 
     GET_THREAD_BY_ID, 
+    RESTORE_THREAD, 
     SET_MESSAGE_AS_READ, 
     UPDATE_THREAD_STATUS
 } from '../../api/threads';
@@ -66,6 +69,8 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
   const { data: threadStatus } = useQuery<{ getAllThreadStatus: DocumentStatus[] }>(GET_ALL_THREAD_STATUS);
   const [updateThreadStatus] = useMutation(UPDATE_THREAD_STATUS); 
   const [setMessageAsRead] = useMutation(SET_MESSAGE_AS_READ);
+  const [archiveThread] = useMutation(ARCHIVE_THREAD);
+  const [restoreThread] = useMutation(RESTORE_THREAD);
 
   const [tabValue, setTableValue] = React.useState<number>(0);
   const [expanded, setExpanded] = React.useState<boolean>(false);
@@ -125,11 +130,33 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
     setAttach(event.target.value);
   }
 
+  const handleArchiveThread = async () => {
+    await archiveThread({
+        variables: {
+            threadId: threadId
+        }
+    })
+
+    refetch({ uid: threadId });
+  }
+
+  const handleRestoreThread = async () => {
+    await restoreThread({
+        variables: {
+            threadId: threadId
+        }
+    })
+
+    refetch({ uid: threadId });
+  }
+
   const reloadThread = () => refetch({ uid: threadId });
 
   if (loading || !threadData || !threadStatus) return <LoadOverlay open={true} />
 
-  const { subject, author, refSlipNum, dateDue, messages, recipient, dateUpdated, dateCreated, status, attachments } = threadData.getThreadById;
+  const { subject, author, refSlipNum, dateDue, messages, recipient, dateUpdated, dateCreated, status, attachments, active } = threadData.getThreadById;
+
+  console.log(active)
 
   return (
     <Paper sx={{ width: '100%' }}>
@@ -208,9 +235,31 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
                     </Stack>
                 </Collapse>
                 <Divider sx={{ mb: 1 }} />
-                <Alert severity={completed ? "success" : "info"}>
-                    {completed ? `This thread is complied and closed at ${formatInboxDate(dateUpdated)}.` : status.statusLabel}
-                </Alert>
+                
+                {active ? (
+                    <Alert 
+                        severity={completed ? "success" : "info"}
+                        action={userId === threadData.getThreadById.author.accountId && (
+                            <Button color='error' onClick={handleArchiveThread}>
+                                Cancel
+                            </Button>
+                        )}
+                    >
+                        {completed ? `This thread is complied and closed at ${formatInboxDate(dateUpdated)}.` : status.statusLabel}
+                    </Alert>
+                ) : (
+                    <Alert 
+                        severity='error'
+                        action={userId === threadData.getThreadById.author.accountId && (
+                            <Button onClick={handleRestoreThread}>
+                                Restore
+                            </Button>
+                        )}
+                    >
+                        Archived Request
+                    </Alert>
+                )}
+
             </Box>
 
             <Box sx={{ px: 2 }}>
