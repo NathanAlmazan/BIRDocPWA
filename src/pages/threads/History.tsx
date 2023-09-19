@@ -26,8 +26,8 @@ export default function History(props: { history: ThreadHistory[] }) {
                 Request History
             </Typography>
             <Stack spacing={2}>
-                {props.history.map(event => (
-                    <Alert severity={handleSeverity(event.status ? event.status.statusLabel : null)}>
+                {props.history.map((event, index) => (
+                    <Alert key={index} severity={handleSeverity(event.status ? event.status.statusLabel : null)}>
                         {`${event.historyLabel} ${event.status ? `to ${event.status.statusLabel}`: ''} at ${formatInboxDate(event.dateCreated)}`}
                     </Alert>
                 ))}

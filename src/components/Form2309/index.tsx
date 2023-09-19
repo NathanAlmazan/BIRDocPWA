@@ -84,9 +84,13 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
                     <View style={styles.tableRow}>
                         <View style={styles.recipientCol}>
                             <Text style={styles.tableCellLeftBold}>FROM:</Text>
-                            {thread.author.signImage ? (
+                            {details.signatureUrl ? (
                                 <View style={styles.signatureContainer}>
-                                    <Image style={styles.signatureImage} src="https://picsum.photos/200/300?random=1" />
+                                    <Image style={styles.signatureImage} src={details.signatureUrl} />
+                                </View>
+                            ) : thread.author.signImage ? (
+                                <View style={styles.signatureContainer}>
+                                    <Image style={styles.signatureImage} src={thread.author.signImage} />
                                 </View>
                             ) : (
                                 <Text style={styles.emptyCell}></Text>

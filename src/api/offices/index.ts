@@ -314,3 +314,11 @@ export const GET_USER_BY_ID = gql`
         }
     }
 `
+
+export const UPLOAD_SIGNATURE = gql`
+    mutation UpdateSignature($userId: String!, $signImage: String) {
+        uploadSignature(userId: $userId, signImage: $signImage) {
+            accountId
+        }
+    } 
+`

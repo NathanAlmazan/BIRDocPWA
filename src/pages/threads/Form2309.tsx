@@ -1,26 +1,35 @@
 import React from 'react';
-import { Thread } from '../../api/threads/types';
+import { Thread, UserAccounts } from '../../api/threads/types';
 // mui
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+// project imports
+import SignatureDialog from './Signature';
 // renderer
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import Form2309 from '../../components/Form2309';
 import axios from 'axios';
+import { useMutation } from '@apollo/client';
+import { UPLOAD_SIGNATURE } from '../../api/offices';
 
 
 export interface Form2309Data {
     subject: string;
     remarks: string;
+    signatureUrl: string | null;
 }
 
-export default function EditForm2309({ thread, onGenerate }: { thread: Thread, onGenerate: () => void }) {
+export default function EditForm2309({ userId, thread, onGenerate }: { userId: string, thread: Thread, onGenerate: () => void }) {
+    const [uploadSignature, { error }] = useMutation<{ updateSignature: UserAccounts }>(UPLOAD_SIGNATURE);
     const [formData, setFormData] = React.useState<Form2309Data>({
         subject: '',
-        remarks: ''
+        remarks: '',
+        signatureUrl: null
     });
     const [upload, setUpload] = React.useState<File | null>(null);
+    const [open, setOpen] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         setFormData(state => ({
@@ -84,8 +93,43 @@ export default function EditForm2309({ thread, onGenerate }: { thread: Thread, o
         }
     }
 
+    const handleToggleSignature = () => setOpen(!open);
+
+    const handleSubmitESignature = async (url: string) => {
+        setFormData({ ...formData, signatureUrl: url });
+        await uploadSignature({
+            variables: {
+                userId: userId,
+                signImage: url
+            }
+        })
+    }
+
+    const handleRemoveSignature = async () => {
+        setFormData({ ...formData, signatureUrl: null });
+        await uploadSignature({
+            variables: {
+                userId: userId,
+                signImage: null
+            }
+        })
+    }
+
     return (
         <Stack spacing={3} sx={{ p: 2 }}>
+
+            {error && (
+                <Alert severity='error'>{error.message}</Alert> 
+            )}
+
+
+            <Stack direction='row' spacing={1} justifyContent='flex-end' alignItems='center'>
+                <Button variant='outlined' onClick={handleToggleSignature}>Add Signature</Button>
+                {thread.author.signImage && (
+                    <Button variant='outlined' color='error' onClick={handleRemoveSignature}>Remove Signature</Button>
+                )}
+            </Stack>
+
             <TextField
                 multiline
                 rows={2}
@@ -124,6 +168,13 @@ export default function EditForm2309({ thread, onGenerate }: { thread: Thread, o
 
                     <input type='file' hidden onChange={handleUploadForm} />
             </Button>
+
+            <SignatureDialog 
+                open={open}
+                imageUrl={formData.signatureUrl}
+                onSubmit={handleSubmitESignature}
+                onClose={handleToggleSignature}
+            />
         </Stack>
     );
 }

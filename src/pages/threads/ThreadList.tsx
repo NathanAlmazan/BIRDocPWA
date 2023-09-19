@@ -156,8 +156,6 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
   const { subject, author, refSlipNum, dateDue, messages, recipient, dateUpdated, dateCreated, status, attachments, active } = threadData.getThreadById;
 
-  console.log(active)
-
   return (
     <Paper sx={{ width: '100%' }}>
         <Box 
@@ -315,7 +313,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
            {threadData.getThreadById.author.accountId === userId && (
                 <TabPanel index={3} value={tabValue}>
-                    <Form2309 thread={threadData.getThreadById} onGenerate={reloadThread} />
+                    <Form2309 userId={userId} thread={threadData.getThreadById} onGenerate={reloadThread} />
                 </TabPanel>
            )}
         </Box>

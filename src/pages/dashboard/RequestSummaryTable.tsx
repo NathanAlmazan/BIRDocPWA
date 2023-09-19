@@ -14,6 +14,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import TablePagination from '@mui/material/TablePagination';
 import Chip from '@mui/material/Chip';
 // csv
 import { CSVLink } from 'react-csv';
@@ -47,6 +48,15 @@ export default function RequestSummaryTable() {
     });
     const [month, setMonth] = React.useState<number>(new Date().getMonth());
     const [year, setYear] = React.useState<number>(new Date().getFullYear())
+    const [page, setPage] = React.useState<number>(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState<number>(5);
+    const [emptyRows, setEmptyRows] = React.useState<number>(0);
+
+    React.useEffect(() => {
+        if (summary) {
+            setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - summary.getThreadSummary.length) : 0);
+        }
+    }, [summary, page, rowsPerPage])
 
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -64,6 +74,15 @@ export default function RequestSummaryTable() {
             userId: uid,
             dateCreated: new Date(parseInt(event.target.value), new Date().getMonth(), 1).toISOString()
         })
+    }
+
+    const handlePageChange = (event:  unknown, newPage: number) => {
+        setPage(newPage);
+    }
+
+    const handleRowPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10))
+        setPage(0);
     }
 
     return (
@@ -135,7 +154,10 @@ export default function RequestSummaryTable() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {summary && summary.getThreadSummary.map(thread => (
+                            {summary && summary.getThreadSummary.slice(
+                                page * rowsPerPage,
+                                page * rowsPerPage + rowsPerPage
+                            ).map(thread => (
                                 <TableRow key={thread.refId}>
                                     <TableCell>
                                         <Typography variant='body1' sx={{ fontWeight: 800 }}>
@@ -176,9 +198,28 @@ export default function RequestSummaryTable() {
                                     </TableCell>
                                 </TableRow>
                             ))}
+
+                            {emptyRows > 0 && (
+                                <TableRow
+                                    style={{
+                                        height: 60 * emptyRows,
+                                    }}
+                                >
+                                    <TableCell colSpan={6} />
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <TablePagination 
+                    rowsPerPageOptions={[5, 10, 15]}
+                    component='div'
+                    count={summary ? summary.getThreadSummary.length : 0}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={handlePageChange}
+                    onRowsPerPageChange={handleRowPerPageChange}
+                />
             </CardContent>
         </Card>
     )
