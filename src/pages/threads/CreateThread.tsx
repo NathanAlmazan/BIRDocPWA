@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -31,11 +32,14 @@ import {
     MessageFiles, 
     Messages, 
     OfficeSections, 
-    Thread
+    Thread,
+    ThreadTags,
+    UserAccounts
 } from '../../api/threads/types';
 import { 
     CREATE_THREAD,
     GET_ALL_THREAD_PURPOSE,
+    GET_ALL_THREAD_TAGS,
     GET_ALL_THREAD_TYPES, 
     GET_BIR_OFFICES,
     SEND_THREAD_MESSAGE
@@ -43,16 +47,20 @@ import {
 // project imports
 import ReplyBox, { MessageCreateInput, MessageInput } from './ReplyBox';
 import { LoadOverlay } from '../../components/Loaders';
+import { GET_USER_ACCOUNTS_BY_OFFICES } from '../../api/offices';
 
 
 interface ThreadInput {
     subject: string;
     authorId: string;
     statusId: number;
-    recipientId?: number;
+    recipientId: number[];
+    recipientUserId: string[];
     docTypeId?: number;
     purposeId?: number;
+    tagId: number | null;
     attachments: boolean;
+    purposeNotes: string;
     completed: boolean;
     dateDue: string;
 }
@@ -78,18 +86,25 @@ export default function CreateThread(props: CreateThreadProps) {
   const { data: officeSections } = useQuery<{ getAllOfficeSections: OfficeSections[] }>(GET_BIR_OFFICES);
   const { data: threadTypes } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES);
   const { data: threadPurposes } = useQuery<{ getAllThreadPurpose: DocumentPurpose[] }>(GET_ALL_THREAD_PURPOSE);
-  const [createThread] = useMutation<{ createThread: Thread }, { data: ThreadInput }>(CREATE_THREAD);
+  const { data: threadTags } = useQuery<{ getAllThreadTags: ThreadTags[] }>(GET_ALL_THREAD_TAGS);
+  const { data: threadOfficers, refetch: refetchOfficers } = useQuery<{ getAccountsByOffice: UserAccounts[] }>(GET_USER_ACCOUNTS_BY_OFFICES, { variables: { officeIds: [] } });
+  const [createThread] = useMutation<{ createThread: Thread[] }, { data: ThreadInput }>(CREATE_THREAD);
   const [sendThreadMessage] = useMutation<{ sendMessage: Messages }, { data: MessageCreateInput }>(SEND_THREAD_MESSAGE);
   const [offices, setOffices] = React.useState<Queue>();
   const [types, setTypes] = React.useState<Queue>();
   const [purposes, setPurposes] = React.useState<Queue>();
+  const [officers, setOfficers] = React.useState<{ [key: string]: string }>();
   const [formData, setFormData] = React.useState<ThreadInput>({
     subject: "",
     authorId: props.userId,
     statusId: 2,
     attachments: true,
     completed: false,
-    dateDue: new Date().toISOString()
+    dateDue: new Date().toISOString(),
+    tagId: null,
+    recipientId: [],
+    recipientUserId: [],
+    purposeNotes: ''
   })
   const [messageData, setMessageData] = React.useState<MessageInput>({
     message: "",
@@ -131,9 +146,20 @@ export default function CreateThread(props: CreateThreadProps) {
         setPurposes(purposesObject);
 
     }
-  }, [officeSections, threadTypes, threadPurposes])
+  }, [officeSections, threadTypes, threadPurposes]);
 
-  if (!offices || !types || !purposes) return <LoadOverlay open={true} />
+  React.useEffect(() => {
+    if (threadOfficers) {
+        let officersObject: { [key: string]: string } = {};
+        threadOfficers.getAccountsByOffice.forEach(officer => {
+            officersObject[officer.firstName + " " + officer.lastName] = officer.accountId
+        })
+
+        setOfficers(officersObject);
+    }
+  }, [threadOfficers])
+
+  if (!offices || !types || !purposes || !officers) return <LoadOverlay open={true} />
 
   const handleSubjectTextChange = (event: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, subject: event.target.value });
 
@@ -141,7 +167,22 @@ export default function CreateThread(props: CreateThreadProps) {
 
   const handleThreadPurposeChange = (_: any, newValue: string | null) => setFormData({ ...formData, purposeId: purposes[newValue as string] });
 
-  const handleRecipientChange = (_: any, newValue: string | null) => setFormData({ ...formData, recipientId: offices[newValue as string] });
+  const handlePurposeNotesChange = (_: any, newValue: string) => setFormData({ ...formData, purposeNotes: newValue });
+
+  const handleTegChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value, 10);
+    if (value === 0) setFormData({ ...formData, tagId: null });
+    else setFormData({ ...formData, tagId: value });
+  }
+
+  const handleRecipientChange = (_: any, newValue: string[]) => {
+    setFormData({ ...formData, recipientId: newValue.map(value => offices[value]) });
+    refetchOfficers({ officeIds: newValue.map(value => offices[value]).filter(id => id > 0) })
+  }
+
+  const handleOfficersChange = (_: any, newValue: string[]) => {
+    setFormData({ ...formData, recipientUserId: newValue.map(value => officers[value]) });
+  }
 
   const handleToggleAttachments = (event: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, attachments: event.target.checked });
 
@@ -176,6 +217,7 @@ export default function CreateThread(props: CreateThreadProps) {
     // create thread
     try {
         const threadResult = await createThread({ variables: { data: formData }});
+        console.log(threadResult);
 
         if (!threadResult.data) {
             setFormError({ ...formError, general: "Failed to create thread." });
@@ -216,14 +258,18 @@ export default function CreateThread(props: CreateThreadProps) {
 
         // send first message
         try {
-            await sendThreadMessage({ variables: { data: {
-                message: messageData.message,
-                files: messageFiles,
-                senderId: props.userId,
-                threadId: threadResult.data.createThread.refId
-            }}})
+            for (let i = 0; i < threadResult.data.createThread.length; i++) {
+                const thread = threadResult.data.createThread[i]
 
-            props.onCreateThread(threadResult.data.createThread.refId);
+                await sendThreadMessage({ variables: { data: {
+                    message: messageData.message,
+                    files: messageFiles,
+                    senderId: props.userId,
+                    threadId: thread.refId
+                }}})
+            }
+
+            props.onCreateThread(threadResult.data.createThread[0].refId);
         } catch (err) {
             setFormError({ ...formError, general: (err as Error).message });
             return
@@ -286,6 +332,7 @@ export default function CreateThread(props: CreateThreadProps) {
                 <Stack direction='row' spacing={2}>
                     <Chip label='To' variant='outlined' sx={{ width: 80 }} />
                     <Autocomplete
+                        multiple
                         freeSolo
                         fullWidth
                         options={Object.keys(offices)}
@@ -296,6 +343,23 @@ export default function CreateThread(props: CreateThreadProps) {
                                 variant='standard' 
                                 error={formError?.recipient !== undefined}
                                 helperText={formError && formError.recipient}
+                            />
+                        }
+                    />
+                </Stack>
+
+                <Stack direction='row' spacing={2}>
+                    <Chip label='Officers' variant='outlined' sx={{ width: 80 }} />
+                    <Autocomplete
+                        multiple
+                        freeSolo
+                        fullWidth
+                        options={Object.keys(officers)}
+                        onChange={handleOfficersChange}
+                        renderInput={(params) => 
+                            <TextField 
+                                {...params} 
+                                variant='standard'
                             />
                         }
                     />
@@ -319,6 +383,7 @@ export default function CreateThread(props: CreateThreadProps) {
                     <Autocomplete
                         freeSolo
                         fullWidth
+                        onInputChange={handlePurposeNotesChange}
                         onChange={handleThreadPurposeChange}
                         options={Object.keys(purposes)}
                         renderInput={(params) => 
@@ -348,6 +413,23 @@ export default function CreateThread(props: CreateThreadProps) {
                             />
                         }
                     />
+                </Stack>
+
+                <Stack direction='row' spacing={2}>
+                    <Chip label='Tag' variant='outlined' sx={{ width: 80 }} />
+                    <TextField
+                        fullWidth
+                        name='tagId'
+                        variant='standard'
+                        select
+                        value={formData.tagId ? formData.tagId : 0}
+                        onChange={handleTegChange}
+                    >
+                        <MenuItem value={0}>None</MenuItem>
+                        {threadTags && threadTags.getAllThreadTags.map(tag => (
+                            <MenuItem key={tag.tagId} value={tag.tagId}>{tag.tagName}</MenuItem>
+                        ))}
+                    </TextField>
                 </Stack>
 
                 <LocalizationProvider dateAdapter={AdapterDayjs}>

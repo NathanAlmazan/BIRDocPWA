@@ -154,7 +154,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
   if (loading || !threadData || !threadStatus) return <LoadOverlay open={true} />
 
-  const { subject, author, refSlipNum, dateDue, messages, recipient, dateUpdated, dateCreated, status, attachments, active } = threadData.getThreadById;
+  const { subject, author, refSlipNum, dateDue, messages, recipient, dateUpdated, dateCreated, status, attachments, active, recipientUser } = threadData.getThreadById;
 
   return (
     <Paper sx={{ width: '100%' }}>
@@ -264,7 +264,8 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
                 <Typography variant='body1' color='secondary'>
                     {author.firstName + ' ' + author.lastName} 
                     <span style={{ color: 'black' }}>{' to '}</span> 
-                    {`${recipient.sectionOffice.officeName} ${recipient.sectionName === "default" ? "" : ` — ${recipient.sectionName}`}`}
+                    {recipientUser ? `${recipientUser.firstName} ${recipientUser.lastName} (${recipient.sectionOffice.refNum})` :
+                    `${recipient.sectionOffice.officeName} ${recipient.sectionName === "default" ? "" : ` — ${recipient.sectionName}`}`}
                 </Typography>
                 <Typography variant='h4'>
                     {subject}

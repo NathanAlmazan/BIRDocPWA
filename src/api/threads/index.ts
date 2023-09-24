@@ -43,6 +43,15 @@ export const GET_ALL_THREAD_PURPOSE = gql`
     }
 `
 
+export const GET_ALL_THREAD_TAGS = gql`
+    query GetAllThreadTags {
+        getAllThreadTags {
+            tagId
+            tagName
+        }
+    }
+`
+
 export const GET_THREAD_BY_ID = gql`
     query GetThreadById($uid: String!) {
         getThreadById(uid: $uid) {
@@ -75,7 +84,13 @@ export const GET_THREAD_BY_ID = gql`
                 sectionName
                 sectionOffice {
                     officeName
+                    refNum
                 }
+            }
+            recipientUser {
+                firstName
+                lastName
+                accountId
             }
             docType {
                 docId
@@ -85,6 +100,7 @@ export const GET_THREAD_BY_ID = gql`
                 purposeId
                 purposeName
             }
+            purposeNotes
             dateCreated
             dateUpdated
             dateDue
@@ -145,6 +161,10 @@ export const GET_THREAD_INBOX = gql`
                 purposeName
                 actionable
             }
+            threadTag {
+                tagId
+                tagName
+            }
             dateDue
             active
             dateCreated
@@ -176,6 +196,10 @@ export const GET_SENT_THREAD = gql`
                 purposeId
                 purposeName
                 actionable
+            }
+            threadTag {
+                tagId
+                tagName
             }
             dateDue
             active
@@ -213,6 +237,10 @@ export const GET_REGION_INBOX = gql`
                     officeName
                     officeId
                 }
+            }
+            threadTag {
+                tagId
+                tagName
             }
             dateDue
             active

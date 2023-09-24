@@ -25,7 +25,7 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
     
     return (
         <Document>
-            <Page size={[345.60, 525.60]} style={styles.body}>
+            <Page size={[330.60, 525.60]} style={styles.body}>
                 <View style={styles.table}>
                     <View style={styles.tableRow}>
                         <View style={styles.tableCol}>
@@ -64,7 +64,7 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
                     <View style={styles.tableRow}>
                         <View style={styles.recipientCol}>
                             <Text style={styles.tableCellLeftBold}>FOR:</Text>
-                            <Text style={styles.tableCellLeft}>{thread.purpose.purposeName}</Text>
+                            <Text style={styles.tableCellLeft}>{thread.purposeNotes ? thread.purposeNotes : thread.purpose.purposeName}</Text>
                         </View>
                         <View style={styles.dateCol}>
                             <Text style={styles.tableCellLeftBold}>DEADLINE:</Text>

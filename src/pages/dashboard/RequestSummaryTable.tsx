@@ -33,6 +33,13 @@ function optionYears() {
     return [current - 3, current - 2, current - 1, current]
 }
 
+function getTagColor(tagName: string) {
+    if (tagName === "Top Priority") return "error";
+    else if (tagName === "Confidential") return "warning";
+    return "primary"
+  }
+  
+
 const formatSummaryDate = (date: string | Date) => {
     const target = new Date(date);
     return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
@@ -194,7 +201,11 @@ export default function RequestSummaryTable() {
                                     <TableCell>{formatSummaryDate(thread.dateCreated)}</TableCell>
                                     <TableCell>{formatSummaryDate(thread.dateDue)}</TableCell>
                                     <TableCell align="right">
-                                        <Chip size="small" label={thread.status.statusLabel} color={thread.completed ? "success" : "info"} />
+                                        <Chip size="small" label={thread.status.statusLabel} color={thread.completed ? "success" : "info"} sx={{ m: 1 }} />
+
+                                        {thread.threadTag && (
+                                            <Chip size="small" label={thread.threadTag.tagName} color={getTagColor(thread.threadTag.tagName)} sx={{ m: 1 }}/>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))}

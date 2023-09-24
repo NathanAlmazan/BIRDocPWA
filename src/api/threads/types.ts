@@ -39,6 +39,11 @@ export type ThreadHistory = {
     status: DocumentStatus | null;
 }
 
+export type ThreadTags = {
+    tagId: number;
+    tagName: string;
+}
+
 export type Thread = {
     refId: string;
     refSlipNum: string;
@@ -48,6 +53,9 @@ export type Thread = {
     author: UserAccounts;
     status: DocumentStatus;
     recipient: OfficeSections;
+    recipientUser?: UserAccounts;
+    threadTag?: ThreadTags;
+    purposeNotes?: string;
     docType: DocumentTypes;
     attachments: boolean;
     completed: boolean;

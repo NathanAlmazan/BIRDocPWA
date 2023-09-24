@@ -43,6 +43,12 @@ const emptyMessages: { [key: string]: { title: string, sub: string }} = {
   }
 }
 
+const getTagColor = (tagName: string) => {
+  if (tagName === "Top Priority") return "error";
+  else if (tagName === "Confidential") return "warning";
+  return "primary"
+}
+
 const formatInboxDate = (date: string | Date) => {
   const target = new Date(date);
   return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
@@ -146,7 +152,13 @@ export default function EmailList(props: EmailListProps) {
                       flexDirection: 'row',
                       justifyContent: 'space-between'
                     }}>
-                      <Chip color={msg.completed ? 'success' : 'info'} label={msg.status.statusLabel} size='small' sx={{ fontSize: 10 }} />
+                      <div>
+                        <Chip color={msg.completed ? 'success' : 'info'} label={msg.status.statusLabel} size='small' sx={{ fontSize: 10 }} />
+                        
+                        {msg.threadTag && (
+                          <Chip color={getTagColor(msg.threadTag.tagName)} label={msg.threadTag.tagName} size='small' sx={{ fontSize: 10 }} />
+                        )}
+                      </div>
                       <Typography variant='caption'>
                         {`Due at ${formatInboxDate(msg.dateDue)}`}
                       </Typography>

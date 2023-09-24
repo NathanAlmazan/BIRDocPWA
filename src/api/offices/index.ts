@@ -53,6 +53,19 @@ export const GET_BIR_OFFICE_BY_ID = gql`
     }
 `
 
+export const GET_USER_ACCOUNTS_BY_OFFICES = gql`
+    query GetAccountsByOffice($officeIds: [Int]) {
+        getAccountsByOffice(officeIds: $officeIds) {
+            firstName
+            lastName
+            accountId
+            officeSection {
+                sectionId
+            }
+        }
+    }   
+`
+
 // ====================== Analytics ========================== //
 
 export const GET_DOCUMENT_TYPE_ANALYTICS = gql`
@@ -137,6 +150,10 @@ export const GET_DOCUMENT_SUMMARY_ANALYTICS = gql`
             docType {
                 docId
                 docType
+            }
+            threadTag {
+                tagId
+                tagName
             }
             purpose {
                 purposeId
