@@ -7,6 +7,7 @@ export const GET_ALL_BIR_OFFICES = gql`
         getAllBirOffices {
             officeId
             officeName
+            refNum
             officeSections {
                 sectionId
                 sectionName

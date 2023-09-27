@@ -9,6 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import Autocomplete from '@mui/material/Autocomplete';
 import Snackbar from '@mui/material/Snackbar';
@@ -42,6 +43,7 @@ import {
     GET_ALL_THREAD_TAGS,
     GET_ALL_THREAD_TYPES, 
     GET_BIR_OFFICES,
+    GET_TEMP_REF_NUM,
     SEND_THREAD_MESSAGE
 } from '../../api/threads';
 // project imports
@@ -83,6 +85,7 @@ export function generateOfficeCode(officeCode?: string, sectionCode?: string) {
 
 export default function CreateThread(props: CreateThreadProps) {
   const theme = useTheme();
+  const { data: tempRefNum } = useQuery<{ getThreadRefNum: string }>(GET_TEMP_REF_NUM, { variables: { authorId: props.userId }});
   const { data: officeSections } = useQuery<{ getAllOfficeSections: OfficeSections[] }>(GET_BIR_OFFICES);
   const { data: threadTypes } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES);
   const { data: threadPurposes } = useQuery<{ getAllThreadPurpose: DocumentPurpose[] }>(GET_ALL_THREAD_PURPOSE);
@@ -217,7 +220,6 @@ export default function CreateThread(props: CreateThreadProps) {
     // create thread
     try {
         const threadResult = await createThread({ variables: { data: formData }});
-        console.log(threadResult);
 
         if (!threadResult.data) {
             setFormError({ ...formError, general: "Failed to create thread." });
@@ -312,23 +314,31 @@ export default function CreateThread(props: CreateThreadProps) {
         >
             <Stack spacing={3} sx={{ p: 2 }}>
                 <div>
-                    <Stack direction='row' spacing={1} alignItems='center' sx={{ py: 1 }}>
-                        <Button 
-                            variant='contained' 
-                            endIcon={<SendIcon />}
-                            onClick={handleCreateThread}
-                        >
-                            Send
-                        </Button>
-                        <Tooltip title='Discard'>
-                            <IconButton onClick={props.onDiscardThread}>
-                                <DeleteOutlinedIcon />
-                            </IconButton>
-                        </Tooltip>
+                    <Stack direction='row' justifyContent='space-between' alignItems='end'>
+                        <Stack direction='row' spacing={1} alignItems='center' sx={{ py: 1 }}>
+                            <Button 
+                                variant='contained' 
+                                endIcon={<SendIcon />}
+                                onClick={handleCreateThread}
+                            >
+                                Send
+                            </Button>
+                            <Tooltip title='Discard'>
+                                <IconButton onClick={props.onDiscardThread}>
+                                    <DeleteOutlinedIcon />
+                                </IconButton>
+                            </Tooltip>
+                        </Stack>
+                        
+                        {tempRefNum && (
+                            <Typography variant='body2' sx={{ fontWeight: 800 }}>
+                                {`${tempRefNum.getThreadRefNum}`}
+                            </Typography>
+                        )}
                     </Stack>
-                    <Divider />
+                    <Divider /> 
                 </div>
-            
+
                 <Stack direction='row' spacing={2}>
                     <Chip label='To' variant='outlined' sx={{ width: 80 }} />
                     <Autocomplete

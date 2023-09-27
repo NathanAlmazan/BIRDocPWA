@@ -25,8 +25,6 @@ export default function ThreadDirectory(props: { messages: Messages[], reqForm?:
 
     }, [props.messages])
 
-    console.log(files);
-
     return (
         <Box sx={{ width: '100%', p: 2 }}>
              <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">

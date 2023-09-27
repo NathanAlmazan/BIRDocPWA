@@ -52,6 +52,12 @@ export const GET_ALL_THREAD_TAGS = gql`
     }
 `
 
+export const GET_TEMP_REF_NUM = gql`
+    query GetRefNum($authorId: String!) {
+        getThreadRefNum(authorId: $authorId)
+    }
+`
+
 export const GET_THREAD_BY_ID = gql`
     query GetThreadById($uid: String!) {
         getThreadById(uid: $uid) {

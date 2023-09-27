@@ -126,7 +126,7 @@ export default function OfficeList(props: OfficeListProps) {
                                             {office.officeName}
                                         </Typography>
                                         <Typography variant='caption' gutterBottom>
-                                            RR-6
+                                            {office.refNum ? office.refNum : "RR-6"}
                                         </Typography>
                                     </Box>
                                 }
