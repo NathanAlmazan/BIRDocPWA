@@ -46,7 +46,7 @@ export default function RegionMemos() {
         <EmailList 
           mails={data?.getAllThread}
           compose={compose}
-          mode="regionInbox"
+          mode="inbox"
           onRefresh={handleRefreshList}
           onComposeThread={handleComposeThread}
           onThreadClick={handleThreadClick}
