@@ -93,6 +93,13 @@ export const GET_THREAD_BY_ID = gql`
                     refNum
                 }
             }
+            recipientList {
+                sectionName
+                sectionOffice {
+                    officeName
+                    refNum
+                }
+            }
             recipientUser {
                 firstName
                 lastName
@@ -139,6 +146,10 @@ export const GET_THREAD_BY_ID = gql`
                 status {
                     statusLabel
                 }
+            }
+            threadTag {
+                tagId
+                tagName
             }
         }
     }
@@ -261,6 +272,14 @@ export const GET_REGION_INBOX = gql`
 export const CREATE_THREAD = gql`
     mutation CreateThread($data: ThreadInput!) {
         createThread(data: $data) {
+            refId
+        }
+    }
+`
+
+export const UPDATE_THREAD = gql`
+    mutation UpdateThread($data: ThreadUpdateInput) {
+        updateThread(data: $data) {
             refId
         }
     }

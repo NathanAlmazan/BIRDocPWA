@@ -21,7 +21,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 // project imports
 import { LoadOverlay } from '../../components/Loaders';
 import MessageCard from './MessageCard';
-import Form2309 from './Form2309';
+import RequestDetails from './RequestDetails';
 import ReplyBox from './ReplyBox';
 import ThreadDirectory from './Directory';
 import ThreadHistory from './History';
@@ -101,6 +101,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
   React.useEffect(() => {
     refetch({ uid: threadId });
+    setTableValue(0);
   }, [threadId, refetch])
 
   const handleExpand = () => setExpanded(!expanded);
@@ -274,11 +275,11 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
 
             <Tabs value={tabValue} onChange={(e, value) => setTableValue(value)} sx={{ mt: 2 }}>
                 <Tab label="Conversation" />
+                {threadData.getThreadById.author.accountId === userId && (
+                    <Tab label="Details" />
+                )}
                 <Tab label="Files" />
                 <Tab label="History" />
-                {threadData.getThreadById.author.accountId === userId && (
-                    <Tab label="Form 2309" />
-                )}
             </Tabs>
            
             <TabPanel index={0} value={tabValue}>
@@ -304,19 +305,19 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
                 </Box>
             </TabPanel>
 
-            <TabPanel index={1} value={tabValue}>
+            {threadData.getThreadById.author.accountId === userId && (
+                <TabPanel index={1} value={tabValue}>
+                    <RequestDetails userId={userId} thread={threadData.getThreadById} onGenerate={reloadThread} />
+                </TabPanel>
+           )}
+
+            <TabPanel index={2} value={tabValue}>
                 <ThreadDirectory messages={threadData.getThreadById.messages} reqForm={threadData.getThreadById.reqForm} />
             </TabPanel>
 
-            <TabPanel index={2} value={tabValue}>
+            <TabPanel index={3} value={tabValue}>
                 <ThreadHistory history={threadData.getThreadById.history} />
             </TabPanel>
-
-           {threadData.getThreadById.author.accountId === userId && (
-                <TabPanel index={3} value={tabValue}>
-                    <Form2309 userId={userId} thread={threadData.getThreadById} onGenerate={reloadThread} />
-                </TabPanel>
-           )}
         </Box>
     </Paper>
   )

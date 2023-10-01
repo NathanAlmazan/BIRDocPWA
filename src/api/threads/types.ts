@@ -53,6 +53,7 @@ export type Thread = {
     author: UserAccounts;
     status: DocumentStatus;
     recipient: OfficeSections;
+    recipientList: OfficeSections[];
     recipientUser?: UserAccounts;
     threadTag?: ThreadTags;
     purposeNotes?: string;

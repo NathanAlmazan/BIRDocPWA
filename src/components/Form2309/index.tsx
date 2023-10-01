@@ -7,13 +7,18 @@ import {
     StyleSheet,
     Image
 } from '@react-pdf/renderer';
-import { Thread } from '../../api/threads/types';
-import { Form2309Data } from '../../pages/threads/Form2309';
+import { OfficeSections, Thread } from '../../api/threads/types';
+import { Form2309Data } from '../../pages/threads/RequestDetails';
 
 
 const formatInboxDate = (date: string | Date) => {
     const target = new Date(date);
     return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+const formatOfficeSections = (recipient: OfficeSections) => {
+    if (recipient.sectionName === "default") return recipient.sectionOffice.officeName;
+    else return `${recipient.sectionName} (${recipient.sectionOffice.refNum})`
 }
 
 Font.register({
@@ -44,7 +49,7 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
                     <View style={styles.tableRow}>
                         <View style={styles.recipientCol}>
                             <Text style={styles.tableCellLeftBold}>TO:</Text>
-                            <Text style={styles.tableCellLeft}>{thread.recipient.sectionOffice.officeName}</Text>
+                            <Text style={styles.tableCellLeft}>{thread.recipientList.map(recipient => formatOfficeSections(recipient)).join(', ')}</Text>
                         </View>
                         <View style={styles.dateCol}>
                             <Text style={styles.tableCellLeftBold}>DATE:</Text>
