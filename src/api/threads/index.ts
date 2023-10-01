@@ -270,7 +270,7 @@ export const GET_REGION_INBOX = gql`
 
 // ========================= Mutations =============================== //
 export const CREATE_THREAD = gql`
-    mutation CreateThread($data: ThreadInput!) {
+    mutation CreateThread($data: ThreadCreateInput!) {
         createThread(data: $data) {
             refId
         }
