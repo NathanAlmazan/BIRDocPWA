@@ -219,7 +219,6 @@ export default function CreateThread(props: CreateThreadProps) {
 
     // create thread
     try {
-        console.log(JSON.stringify(formData))
         const threadResult = await createThread({ variables: { data: formData }});
 
         if (!threadResult.data) {
