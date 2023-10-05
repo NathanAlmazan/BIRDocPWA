@@ -25,7 +25,8 @@ export default function EmailPage(props: { type: InboxType }) {
     variables: {
       userId: uid,
       type: props.type
-    }
+    },
+    fetchPolicy: 'network-only'
   });
   const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
   const [compose, setCompose] = React.useState<boolean>(false);
@@ -66,6 +67,7 @@ export default function EmailPage(props: { type: InboxType }) {
           <ThreadList 
             userId={uid as string}
             threadId={threadId}
+            onUpdate={handleRefreshList}
           />
         ) : (
           <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>

@@ -39,7 +39,8 @@ export default function StatusReportBar({ officeId }: { officeId: number }) {
             startDate: startDate,
             endDate: endDate,
             superuser: role ? role.superuser : null
-        }
+        },
+        fetchPolicy: 'network-only'
     });
     const { data: threadTypes } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES);
     const { data: threadStatus } = useQuery<{ getAllThreadStatus: DocumentStatus[] }>(GET_ALL_THREAD_STATUS);

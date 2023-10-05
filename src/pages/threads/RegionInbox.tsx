@@ -22,7 +22,8 @@ export default function RegionInbox() {
   const { data, refetch } = useQuery<{ getAllThread: Thread[] }>(GET_REGION_INBOX, {
     variables: {
       memos: false
-    }
+    },
+    fetchPolicy: 'network-only'
   });
   const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
   const [compose, setCompose] = React.useState<boolean>(false);
@@ -63,6 +64,7 @@ export default function RegionInbox() {
           <ThreadList 
             userId={uid as string}
             threadId={threadId}
+            onUpdate={handleRefreshList}
           />
         ) : (
           <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>

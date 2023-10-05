@@ -29,7 +29,8 @@ export default function UserTasks({ userId }: UserTasksProps) {
         variables: {
           userId: userId,
           type: "pending"
-        }
+        },
+        fetchPolicy: 'network-only'
     });
 
   return (
