@@ -34,7 +34,8 @@ export default function RegionInbox() {
 
   const handleCreateThread = (id: string) => {
     setThreadId(id);
-    setCompose(false)
+    setCompose(false);
+    handleRefreshList();
   }
 
   const handleRefreshList = () => {
