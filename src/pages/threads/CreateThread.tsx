@@ -85,7 +85,11 @@ export function generateOfficeCode(officeCode?: string, sectionCode?: string) {
 
 export default function CreateThread(props: CreateThreadProps) {
   const theme = useTheme();
-  const { data: tempRefNum } = useQuery<{ getThreadRefNum: string }>(GET_TEMP_REF_NUM, { variables: { authorId: props.userId }});
+  const { data: tempRefNum } = useQuery<{ getThreadRefNum: string }>(GET_TEMP_REF_NUM, 
+    { 
+        variables: { authorId: props.userId },
+        fetchPolicy: 'network-only'
+    });
   const { data: officeSections } = useQuery<{ getAllOfficeSections: OfficeSections[] }>(GET_BIR_OFFICES);
   const { data: threadTypes } = useQuery<{ getAllThreadTypes: DocumentTypes[] }>(GET_ALL_THREAD_TYPES);
   const { data: threadPurposes } = useQuery<{ getAllThreadPurpose: DocumentPurpose[] }>(GET_ALL_THREAD_PURPOSE);
