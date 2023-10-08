@@ -37,12 +37,30 @@ function getTagColor(tagName: string) {
     if (tagName === "Top Priority") return "error";
     else if (tagName === "Confidential") return "warning";
     return "primary"
-  }
-  
+}
+
+function getStatusColor(statusLabel: string) {
+    if (statusLabel.includes("Complied") || statusLabel.includes("FYI")) return "success";
+    else return undefined;
+}
 
 const formatSummaryDate = (date: string | Date) => {
     const target = new Date(date);
     return target.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function getReportSummary(thread: Thread): string[] {
+    return [
+        thread.refSlipNum,
+        `${thread.author.firstName} ${thread.author.lastName} (${thread.author.officeSection.sectionOffice.officeName})`,
+        thread.recipientList.map(recipient => `${recipient.sectionOffice.officeName} ${recipient.sectionName === "default" ? "" : `(${recipient.sectionName})`}`).join(', '),
+        thread.purpose.purposeName,
+        thread.docType.docType,
+        formatSummaryDate(thread.dateCreated),
+        formatSummaryDate(thread.dateDue),
+        thread.recipientList.map((recipient, index) => `${thread.statusList[index].statusLabel} (${recipient.sectionOffice.refNum})`).join(', '),
+        `${thread.threadTag ? thread.threadTag.tagName : ''}`
+    ]
 }
 
 export default function RequestSummaryTable() {
@@ -122,17 +140,8 @@ export default function RequestSummaryTable() {
                         </TextField>
                         {summary && (
                             <CSVLink filename={`${new Date(year, month, 1).toISOString().split('T')[0]}.csv`} data={[
-                                ["Reference #", "Received From", "Office Concerned", "For", "Document Type", "Date Received", "Date Due", "Status"],
-                                ...summary.getThreadSummary.map(thread => [
-                                    thread.refSlipNum,
-                                    `${thread.author.firstName} ${thread.author.lastName} (${thread.author.officeSection.sectionOffice.officeName})`,
-                                    `${thread.recipient.sectionOffice.officeName} ${thread.recipient.sectionName === "default" ? "" : thread.recipient.sectionName}`,
-                                    thread.purpose.purposeName,
-                                    thread.docType.docType,
-                                    formatSummaryDate(thread.dateCreated),
-                                    formatSummaryDate(thread.dateDue),
-                                    thread.status.statusLabel
-                                ])
+                                ["Reference #", "Received From", "Offices Concerned", "For", "Document Type", "Date Received", "Date Due", "Statuses", "Tags"],
+                                ...summary.getThreadSummary.map(thread => getReportSummary(thread))
                             ]}>
                                 <Button
                                     variant='contained'
@@ -152,12 +161,11 @@ export default function RequestSummaryTable() {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Reference #</TableCell>
-                                <TableCell>Sender</TableCell>
-                                <TableCell>Recipient</TableCell>
+                                <TableCell>Received From</TableCell>
+                                <TableCell>Offices Concerned</TableCell>
                                 <TableCell>Details</TableCell>
-                                <TableCell>Date Sent</TableCell>
+                                <TableCell>Date Received</TableCell>
                                 <TableCell>Date Due</TableCell>
-                                <TableCell>Status</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -166,12 +174,15 @@ export default function RequestSummaryTable() {
                                 page * rowsPerPage + rowsPerPage
                             ).map(thread => (
                                 <TableRow key={thread.refId}>
-                                    <TableCell>
-                                        <Typography variant='body1' sx={{ fontWeight: 800 }}>
+                                    <TableCell style={{ verticalAlign: 'top' }}>
+                                        <Typography variant='body1' sx={{ fontWeight: 800, minWidth: 250 }}>
                                             {thread.refSlipNum}
                                         </Typography>
+                                        {thread.threadTag && (
+                                            <Chip size="small" label={thread.threadTag.tagName} color={getTagColor(thread.threadTag.tagName)} sx={{ my: 1 }} />
+                                        )}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell style={{ verticalAlign: 'top' }}>
                                         <Typography variant='body1'>
                                             {thread.author.firstName + ' ' + thread.author.lastName}
                                         </Typography>
@@ -182,38 +193,35 @@ export default function RequestSummaryTable() {
                                             {`${thread.author.officeSection.sectionOffice.officeName} ${thread.author.officeSection.sectionName === "default" ? "" : thread.author.officeSection.sectionName}`}
                                         </Typography>
                                     </TableCell>
-                                    <TableCell>
-                                        <Typography variant='body1'>
-                                            {thread.recipient.sectionOffice.officeName}
-                                        </Typography>
-                                        <Typography variant='caption'>
-                                            {`${thread.recipient.sectionName === "default" ? "All Sections" : thread.recipient.sectionName}`}
-                                        </Typography>
+                                    <TableCell style={{ verticalAlign: 'top' }}>
+                                        <Stack spacing={2}>
+                                            {thread.recipientList.map((recipient, index) => (
+                                                <div key={index}>
+                                                    <Typography variant='body1'>
+                                                        {recipient.sectionOffice.officeName}
+                                                    </Typography>
+                                                    <Chip size="small" label={thread.statusList[index].statusLabel} color={getStatusColor(thread.statusList[index].statusLabel)} />
+                                                </div>
+                                            ))}
+                                        </Stack>
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell style={{ verticalAlign: 'top' }}>
                                         <Typography variant='body1'>
-                                            {`For ${thread.purpose.purposeName}`}
+                                            {`For ${thread.purpose.purposeName.replace("For", "")}`}
                                         </Typography>
                                         <Typography variant='caption'>
                                             {thread.docType.docType}
                                         </Typography>
                                     </TableCell>
-                                    <TableCell>{formatSummaryDate(thread.dateCreated)}</TableCell>
-                                    <TableCell>{formatSummaryDate(thread.dateDue)}</TableCell>
-                                    <TableCell align="right">
-                                        <Chip size="small" label={thread.status.statusLabel} color={thread.completed ? "success" : "info"} sx={{ m: 1 }} />
-
-                                        {thread.threadTag && (
-                                            <Chip size="small" label={thread.threadTag.tagName} color={getTagColor(thread.threadTag.tagName)} sx={{ m: 1 }}/>
-                                        )}
-                                    </TableCell>
+                                    <TableCell style={{ verticalAlign: 'top' }}>{formatSummaryDate(thread.dateCreated)}</TableCell>
+                                    <TableCell style={{ verticalAlign: 'top' }}>{formatSummaryDate(thread.dateDue)}</TableCell>
                                 </TableRow>
                             ))}
 
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{
-                                        height: 60 * emptyRows,
+                                        height: 80 * emptyRows,
                                     }}
                                 >
                                     <TableCell colSpan={6} />

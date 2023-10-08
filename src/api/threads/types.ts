@@ -52,6 +52,7 @@ export type Thread = {
     revision: number;
     author: UserAccounts;
     status: DocumentStatus;
+    statusList: DocumentStatus[];
     recipient: OfficeSections;
     recipientList: OfficeSections[];
     recipientUser?: UserAccounts;

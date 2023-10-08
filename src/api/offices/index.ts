@@ -120,7 +120,7 @@ export const GET_DOCUMENT_SUMMARY_ANALYTICS = gql`
             refSlipNum
             dateDue
             dateCreated
-            status {
+            statusList {
                 statusId
                 statusLabel
             }
@@ -140,12 +140,13 @@ export const GET_DOCUMENT_SUMMARY_ANALYTICS = gql`
                     roleName
                 }
             }
-            recipient {
+            recipientList {
                 sectionId
                 sectionName
                 sectionOffice {
                     officeId
                     officeName
+                    refNum
                 }
             }
             docType {
