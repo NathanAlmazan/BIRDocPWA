@@ -32,19 +32,22 @@ export default function NotificationsPopover({ uid }: { uid: string }) {
     variables: {
         userId: uid,
         type: "unread"
-    }
+    },
+    fetchPolicy: 'network-only'
   });
   const { data: approvals, refetch: refetchApprovals } = useQuery<{ getUserNotifications: Thread[] }>(GET_USER_NOTIFICATIONS, {
     variables: {
         userId: uid,
         type: "approval"
-    }
+    },
+    fetchPolicy: 'network-only'
   });
   const { data: overdue, refetch: refetchOverdue } = useQuery<{ getUserNotifications: Thread[] }>(GET_USER_NOTIFICATIONS, {
     variables: {
         userId: uid,
         type: "overdue"
-    }
+    },
+    fetchPolicy: 'network-only'
   });
   const [open, setOpen] = useState<Element | null>(null);
   const [count, setCount] = useState<number>(0);
