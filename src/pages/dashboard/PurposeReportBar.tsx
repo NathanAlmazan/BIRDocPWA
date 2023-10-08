@@ -39,7 +39,8 @@ export default function PurposeReportBar({ officeId }: { officeId: number }) {
             startDate: startDate,
             endDate: endDate,
             superuser: role ? role.superuser : null
-        }
+        },
+        fetchPolicy: 'network-only'
     });
     const { data: threadPurposes } = useQuery<{ getAllThreadPurpose: DocumentPurpose[] }>(GET_ALL_THREAD_PURPOSE);
     const { data: threadStatus } = useQuery<{ getAllThreadStatus: DocumentStatus[] }>(GET_ALL_THREAD_STATUS);

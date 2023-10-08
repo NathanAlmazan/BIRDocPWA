@@ -69,7 +69,8 @@ export default function RequestSummaryTable() {
         variables: {
            userId: uid,
            dateCreated: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
-        }
+        },
+        fetchPolicy: 'network-only'
     });
     const [month, setMonth] = React.useState<number>(new Date().getMonth());
     const [year, setYear] = React.useState<number>(new Date().getFullYear())

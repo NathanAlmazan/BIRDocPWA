@@ -52,7 +52,8 @@ export default function TypesReportDonut({ officeId, completed }: TypesReportDon
       officeId: officeId,
       completed: completed,
       superuser: role ? role.superuser : null
-    }
+    },
+    fetchPolicy: 'network-only'
   });
   const [chartValues, setChartValues] = React.useState<number[]>([]);
 

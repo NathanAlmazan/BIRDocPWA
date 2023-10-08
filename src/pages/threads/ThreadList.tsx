@@ -59,9 +59,10 @@ const formatInboxDate = (date: string | Date) => {
 interface ThreadListProps {
     userId: string;
     threadId: string;
+    onUpdate: () => void;
 }
 
-export default function ThreadList({ userId, threadId }: ThreadListProps) {
+export default function ThreadList({ userId, threadId, onUpdate }: ThreadListProps) {
   const theme = useTheme();
   const { data: threadData, loading, refetch } = useQuery<{ getThreadById: Thread }>(GET_THREAD_BY_ID, {
     variables: { uid: threadId }
@@ -118,7 +119,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
     setCompleted(completedId.includes(parseInt(event.target.value)));
 
     setStatusId(parseInt(event.target.value));
-    refetch({ uid: threadId });
+    reloadThread();
   }
 
   const handleAttachmentChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,7 +139,7 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
         }
     })
 
-    refetch({ uid: threadId });
+    reloadThread();
   }
 
   const handleRestoreThread = async () => {
@@ -148,10 +149,13 @@ export default function ThreadList({ userId, threadId }: ThreadListProps) {
         }
     })
 
-    refetch({ uid: threadId });
+    reloadThread();
   }
 
-  const reloadThread = () => refetch({ uid: threadId });
+  const reloadThread = () => {
+    refetch({ uid: threadId });
+    onUpdate();
+  }
 
   if (loading || !threadData || !threadStatus) return <LoadOverlay open={true} />
 
