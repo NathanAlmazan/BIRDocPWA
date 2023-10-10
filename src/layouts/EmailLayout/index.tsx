@@ -162,13 +162,13 @@ export default function EmailLayout() {
     if (selected) {
       if (selected.author.accountId === uid) {
         if (!selected.active) navigate(`/app/sent/archived/${selected.refId}`);
-        else if (!selected.completed && selected.purpose.actionable) navigate(`/app/sent/pending/${selected.refId}`);
-        else if (selected.completed && !selected.purpose.actionable) navigate(`/app/sent/memos/${selected.refId}`)
-        else if (selected.completed && selected.purpose.actionable) navigate(`/app/sent/completed/${selected.refId}`)
+        else if (!selected.completed && selected.docType.actionable) navigate(`/app/sent/pending/${selected.refId}`);
+        else if (selected.completed && !selected.docType.actionable) navigate(`/app/sent/memos/${selected.refId}`)
+        else if (selected.completed && selected.docType.actionable) navigate(`/app/sent/completed/${selected.refId}`)
       } else {
-        if (!selected.completed && selected.purpose.actionable) navigate(`/app/inbox/tasks/${selected.refId}`);
-        else if (selected.completed && !selected.purpose.actionable) navigate(`/app/inbox/memos/${selected.refId}`)
-        else if (selected.completed && selected.purpose.actionable) navigate(`/app/inbox/finished/${selected.refId}`)
+        if (!selected.completed && selected.docType.actionable) navigate(`/app/inbox/tasks/${selected.refId}`);
+        else if (selected.completed && !selected.docType.actionable) navigate(`/app/inbox/memos/${selected.refId}`)
+        else if (selected.completed && selected.docType.actionable) navigate(`/app/inbox/finished/${selected.refId}`)
       }
     }
   }, [selected, navigate, uid])

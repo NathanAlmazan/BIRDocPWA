@@ -21,6 +21,7 @@ export const GET_ALL_THREAD_TYPES = gql`
         getAllThreadTypes {
             docId
             docType
+            actionable
         }
     }
 `
@@ -38,7 +39,6 @@ export const GET_ALL_THREAD_PURPOSE = gql`
         getAllThreadPurpose {
             purposeId
             purposeName
-            actionable
         }
     }
 `
@@ -169,6 +169,7 @@ export const GET_THREAD_INBOX = gql`
             docType {
                 docId
                 docType
+                actionable
             }
             status {
                 statusLabel
@@ -176,7 +177,6 @@ export const GET_THREAD_INBOX = gql`
             purpose {
                 purposeId
                 purposeName
-                actionable
             }
             threadTag {
                 tagId
@@ -205,6 +205,7 @@ export const GET_SENT_THREAD = gql`
             docType {
                 docId
                 docType
+                actionable
             }
             status {
                 statusLabel
@@ -212,7 +213,6 @@ export const GET_SENT_THREAD = gql`
             purpose {
                 purposeId
                 purposeName
-                actionable
             }
             threadTag {
                 tagId
@@ -240,6 +240,7 @@ export const GET_REGION_INBOX = gql`
             docType {
                 docId
                 docType
+                actionable
             }
             status {
                 statusLabel
@@ -247,7 +248,6 @@ export const GET_REGION_INBOX = gql`
             purpose {
                 purposeId
                 purposeName
-                actionable
             }
             recipient {
                 sectionOffice {
@@ -320,6 +320,28 @@ export const RESTORE_THREAD = gql`
     mutation RestoreThread($threadId: String!) {
         restoreThread(threadId: $threadId) {
             refId
+        }
+    }
+`
+
+// ================================= SUBSCRIPTIONS ================================= //
+
+export const OFFICE_INBOX_SUBSCRIBE = gql`
+    subscription OfficeInbox($officeId: Int!) {
+        officeInbox(officeId: $officeId) {
+            referenceNum
+            eventType
+            timestamp
+        }
+    }
+`
+
+export const THREAD_MESSAGES_SUBSCRIBE = gql`
+    subscription LiveThread($threadId: String!) {
+        liveThread(threadId: $threadId) {
+            referenceNum
+            eventType
+            timestamp
         }
     }
 `

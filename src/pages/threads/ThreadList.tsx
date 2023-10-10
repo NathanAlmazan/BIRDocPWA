@@ -25,15 +25,16 @@ import RequestDetails from './RequestDetails';
 import ReplyBox from './ReplyBox';
 import ThreadDirectory from './Directory';
 import ThreadHistory from './History';
-import { DocumentStatus, Thread } from '../../api/threads/types';
+import { DocumentStatus, SubscriptionMessage, Thread } from '../../api/threads/types';
 // api
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, useSubscription } from '@apollo/client';
 import { 
     ARCHIVE_THREAD,
     GET_ALL_THREAD_STATUS, 
     GET_THREAD_BY_ID, 
     RESTORE_THREAD, 
     SET_MESSAGE_AS_READ, 
+    THREAD_MESSAGES_SUBSCRIBE, 
     UPDATE_THREAD_STATUS
 } from '../../api/threads';
 
@@ -67,6 +68,11 @@ export default function ThreadList({ userId, threadId, onUpdate }: ThreadListPro
   const { data: threadData, loading, refetch } = useQuery<{ getThreadById: Thread }>(GET_THREAD_BY_ID, {
     variables: { uid: threadId }
   });
+  const { data: liveThread } = useSubscription<{ liveThread: SubscriptionMessage }>(THREAD_MESSAGES_SUBSCRIBE, {
+    variables: {
+      threadId: threadId
+    }
+  });
   const { data: threadStatus } = useQuery<{ getAllThreadStatus: DocumentStatus[] }>(GET_ALL_THREAD_STATUS);
   const [updateThreadStatus] = useMutation(UPDATE_THREAD_STATUS); 
   const [setMessageAsRead] = useMutation(SET_MESSAGE_AS_READ);
@@ -78,6 +84,10 @@ export default function ThreadList({ userId, threadId, onUpdate }: ThreadListPro
   const [statusId, setStatusId] = React.useState<number>(2);
   const [attach, setAttach] = React.useState<string>('true');
   const [completed, setCompleted] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (liveThread) refetch({ uid: liveThread.liveThread.referenceNum });
+  }, [liveThread, refetch])
 
   React.useEffect(() => {
     if (threadData) {

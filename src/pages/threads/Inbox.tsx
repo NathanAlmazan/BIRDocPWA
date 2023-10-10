@@ -12,24 +12,37 @@ import ThreadList from './ThreadList';
 import CreateThread from './CreateThread';
 import { useAppSelector } from '../../redux/hooks';
 // api
-import { GET_THREAD_INBOX } from '../../api/threads';
-import { Thread } from '../../api/threads/types';
-import { useQuery } from '@apollo/client';
+import { 
+  GET_THREAD_INBOX, 
+  OFFICE_INBOX_SUBSCRIBE
+} from '../../api/threads';
+import { SubscriptionMessage, Thread } from '../../api/threads/types';
+import { useQuery, useSubscription } from '@apollo/client';
+
 
 export type InboxType = "pending" | "approval" | "memos" | "finished" | "archived";
 
 export default function EmailPage(props: { type: InboxType }) {
   const { refId } = useParams();
-  const { uid } = useAppSelector((state) => state.auth);
-  const { data, refetch } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
+  const { uid, office } = useAppSelector((state) => state.auth);
+  const { data: threads, refetch } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
     variables: {
       userId: uid,
       type: props.type
     },
     fetchPolicy: 'network-only'
   });
+  const { data: officeInbox } = useSubscription<{ officeInbox: SubscriptionMessage }>(OFFICE_INBOX_SUBSCRIBE, {
+    variables: {
+      officeId: office?.sectionOffice.officeId
+    }
+  })
   const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
   const [compose, setCompose] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (officeInbox) refetch({ userId: uid, type: props.type });
+  }, [officeInbox, refetch, uid, props.type])
 
   const handleComposeThread = () => setCompose(!compose);
 
@@ -49,7 +62,7 @@ export default function EmailPage(props: { type: InboxType }) {
     <Grid container spacing={3} alignItems="stretch" sx={{ height: "95%" }}>
       <Grid item md={4}>
         <EmailList 
-          mails={data?.getThreadInbox}
+          mails={threads?.getThreadInbox}
           compose={compose}
           mode="inbox"
           onRefresh={handleRefreshList}

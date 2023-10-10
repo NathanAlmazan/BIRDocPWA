@@ -221,13 +221,13 @@ function NotificationItem({ userId, notification, onClose }: { userId: string, n
 
     const handleRedirect = (threadId: string) => {
       if (notification.author.accountId === userId) {
-        if (!notification.completed && notification.purpose.actionable) navigate(`/app/sent/pending/${threadId}`);
-        else if (notification.completed && !notification.purpose.actionable) navigate(`/app/sent/memos/${threadId}`)
-        else if (notification.completed && notification.purpose.actionable) navigate(`/app/sent/completed/${threadId}`)
+        if (!notification.completed && notification.docType.actionable) navigate(`/app/sent/pending/${threadId}`);
+        else if (notification.completed && !notification.docType.actionable) navigate(`/app/sent/memos/${threadId}`)
+        else if (notification.completed && notification.docType.actionable) navigate(`/app/sent/completed/${threadId}`)
       } else {
-        if (!notification.completed && notification.purpose.actionable) navigate(`/app/inbox/tasks/${threadId}`);
-        else if (notification.completed && !notification.purpose.actionable) navigate(`/app/inbox/memos/${threadId}`)
-        else if (notification.completed && notification.purpose.actionable) navigate(`/app/inbox/finished/${threadId}`)
+        if (!notification.completed && notification.docType.actionable) navigate(`/app/inbox/tasks/${threadId}`);
+        else if (notification.completed && !notification.docType.actionable) navigate(`/app/inbox/memos/${threadId}`)
+        else if (notification.completed && notification.docType.actionable) navigate(`/app/inbox/finished/${threadId}`)
       }
       onClose();
     }

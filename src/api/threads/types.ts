@@ -18,6 +18,7 @@ export type DocumentTypes = {
     docId: number;
     docType: string;
     threadCount?: number;
+    actionable: boolean;
 }
 
 export type DocumentStatus = {
@@ -29,7 +30,6 @@ export type DocumentStatus = {
 export type DocumentPurpose = {
     purposeId: number;
     purposeName: string;
-    actionable: boolean;
 } 
 
 export type ThreadHistory = {
@@ -108,4 +108,10 @@ export type Analytics = {
     docType: DocumentTypes;
     purpose: DocumentPurpose;
     count: number;
+}
+
+export type SubscriptionMessage = {
+    referenceNum: string;
+    eventType: string;
+    timestamp: string;
 }
