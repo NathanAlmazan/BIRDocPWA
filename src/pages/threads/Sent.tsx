@@ -13,9 +13,9 @@ import CreateThread from './CreateThread';
 import { InboxType } from './Inbox';
 import { useAppSelector } from '../../redux/hooks';
 // api
-import { GET_SENT_THREAD } from '../../api/threads';
-import { Thread } from '../../api/threads/types';
-import { useQuery } from '@apollo/client';
+import { AUTHOR_INBOX_SUBSCRIBE, GET_SENT_THREAD } from '../../api/threads';
+import { SubscriptionMessage, Thread } from '../../api/threads/types';
+import { useQuery, useSubscription } from '@apollo/client';
 
 
 export default function EmailPage(props: { type: InboxType }) {
@@ -28,8 +28,17 @@ export default function EmailPage(props: { type: InboxType }) {
     },
     fetchPolicy: 'network-only'
   });
+  const { data: authorInbox } = useSubscription<{ authorInbox: SubscriptionMessage }>(AUTHOR_INBOX_SUBSCRIBE, {
+    variables: {
+      authorId: uid
+    }
+  })
   const [threadId, setThreadId] = React.useState<string | null>(refId ? refId : null);
   const [compose, setCompose] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (authorInbox) refetch({ userId: authorInbox.authorInbox.referenceNum, type: props.type });
+  }, [authorInbox, refetch, props.type])
 
   const handleComposeThread = () => setCompose(!compose);
 

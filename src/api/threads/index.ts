@@ -345,3 +345,13 @@ export const THREAD_MESSAGES_SUBSCRIBE = gql`
         }
     }
 `
+
+export const AUTHOR_INBOX_SUBSCRIBE = gql`
+    subscription AuthorInbox($authorId: String!) {
+        authorInbox(authorId: $authorId) {
+            referenceNum
+            eventType
+            timestamp
+        }
+    }
+`
