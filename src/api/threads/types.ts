@@ -66,6 +66,7 @@ export type Thread = {
     dateUpdated: Date;
     dateDue: Date;
     active: boolean;
+    actionable: boolean;
     messages: Messages[]
     history: ThreadHistory[]
 }

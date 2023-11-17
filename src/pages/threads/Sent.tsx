@@ -21,7 +21,7 @@ import { useQuery, useSubscription } from '@apollo/client';
 export default function EmailPage(props: { type: InboxType }) {
   const { refId } = useParams();
   const { uid } = useAppSelector((state) => state.auth);
-  const { data, refetch } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
+  const { data: threads, refetch } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
     variables: {
       userId: uid,
       type: props.type
@@ -38,7 +38,13 @@ export default function EmailPage(props: { type: InboxType }) {
 
   React.useEffect(() => {
     if (authorInbox) refetch({ userId: authorInbox.authorInbox.referenceNum, type: props.type });
-  }, [authorInbox, refetch, props.type])
+  }, [authorInbox, refetch, props.type]);
+
+  React.useEffect(() => {
+    if (threads && threads.getSentThread.length > 0) {
+      setThreadId(threads.getSentThread[0].refId)
+    } 
+  }, [threads]);
 
   const handleComposeThread = () => setCompose(!compose);
 
@@ -58,8 +64,9 @@ export default function EmailPage(props: { type: InboxType }) {
     <Grid container spacing={3} alignItems="stretch" sx={{ height: "95%" }}>
       <Grid item md={4}>
         <EmailList 
-          mails={data?.getSentThread}
+          mails={threads?.getSentThread}
           compose={compose}
+          selectedId={threadId}
           mode="sent"
           onRefresh={handleRefreshList}
           onComposeThread={handleComposeThread}

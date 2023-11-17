@@ -12,13 +12,14 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import TablePagination from '@mui/material/TablePagination';
 import { useTheme } from '@mui/material/styles';
 // icons
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 import FolderCopyIcon from '@mui/icons-material/FolderCopy';
 // project imports
-import FilterPopover from './FilterPopover';
+import FilterPopover, { FilterOptions } from './FilterPopover';
 import { Thread } from '../../api/threads/types';
 import { LoadOverlay } from '../../components/Loaders';
 
@@ -26,6 +27,7 @@ import { LoadOverlay } from '../../components/Loaders';
 interface EmailListProps {
   mode: string;
   compose: boolean;
+  selectedId: string | null;
   mails?: Thread[];
   onRefresh: () => void;
   onComposeThread: () => void;
@@ -56,7 +58,48 @@ const formatInboxDate = (date: string | Date) => {
 
 export default function EmailList(props: EmailListProps) {
   const theme = useTheme();
-  const [selectedType, setSelectedType] = React.useState<number>(-1);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [options, setOptions] = React.useState<FilterOptions>({
+    typeId: 0,
+    statusId: 0,
+    tagId: 0,
+    sortBy: "due_desc"
+  });
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const visibleRows = React.useMemo(
+    () =>
+      props.mails?.filter(mail => 
+          (mail.status.statusId === options.statusId || options.statusId === 0) &&
+          (mail.docType.docId === options.typeId || options.typeId === 0) &&
+          (mail.threadTag?.tagId === options.tagId || options.tagId === 0))
+        .sort((a, b) => {
+          switch (options.sortBy) {
+            case "crt_asc": 
+              return new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime();
+            case "crt_desc":
+              return new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime();
+            case "due_asc":
+              return new Date(a.dateDue).getTime() - new Date(b.dateDue).getTime();
+            default:
+              return new Date(b.dateDue).getTime() - new Date(a.dateDue).getTime();
+          }
+        })
+        .slice(
+          page * rowsPerPage,
+          page * rowsPerPage + rowsPerPage,
+        ),
+    [props.mails, options, page, rowsPerPage],
+  );
 
   return (
     <React.Fragment>
@@ -76,14 +119,14 @@ export default function EmailList(props: EmailListProps) {
         <IconButton onClick={props.onRefresh}>
           <RefreshIcon />
         </IconButton>
-        <FilterPopover selected={selectedType} onClick={id => setSelectedType(id)} />
+        <FilterPopover options={options} onChange={option => setOptions(option)} />
       </Stack>
       
       <Paper sx={{ width: '100%' }}>
         <List 
           sx={{ 
             width: '100%', 
-            maxHeight: 'calc(100vh - 170px)', 
+            maxHeight: 'calc(100vh - 220px)', 
             overflowY: 'auto',
             "::-webkit-scrollbar": {
               height: "8px",
@@ -118,58 +161,70 @@ export default function EmailList(props: EmailListProps) {
             </Box>
           )}
           
-          {props.mails && props.mails.filter(mail => mail.docType.docId === selectedType || selectedType === -1).map(msg => (
-            <React.Fragment key={msg.refId}>
-              <ListItemButton alignItems="flex-start" onClick={() => props.onThreadClick(msg.refId)}>
-
-                <ListItemAvatar>
-                  <Avatar>
-                    {`${msg.author.firstName.charAt(0)}${msg.author.lastName.charAt(0)}`}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant='body1' gutterBottom>
-                            {msg.subject}
-                        </Typography>
-                        <div>
-                          <Typography
-                            sx={{ display: 'inline' }}
-                            component="span"
-                            variant="subtitle2"
-                            color="text.primary"
-                          >
-                            {props.mode === 'regionInbox' ? msg.recipient.sectionOffice.officeName : `${msg.author.firstName} ${msg.author.lastName}`}
+          {visibleRows && visibleRows.map(msg => (
+              <React.Fragment key={msg.refId}>
+                <ListItemButton selected={Boolean(props.selectedId) && msg.refId === props.selectedId} alignItems="flex-start" onClick={() => props.onThreadClick(msg.refId)}>
+                  <ListItemAvatar>
+                    <Avatar>
+                      {`${msg.author.firstName.charAt(0)}${msg.author.lastName.charAt(0)}`}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Box sx={{ mb: 2 }}>
+                          <Typography variant='body1' gutterBottom>
+                              {msg.subject}
                           </Typography>
-                          {` — ${msg.docType.docType} request For ${msg.purpose.purposeName}.`}
+                          <div>
+                            <Typography
+                              sx={{ display: 'inline' }}
+                              component="span"
+                              variant="subtitle2"
+                              color="text.primary"
+                            >
+                              {props.mode === 'regionInbox' ? msg.recipient.sectionOffice.officeName : `${msg.author.firstName} ${msg.author.lastName}`}
+                            </Typography>
+                            {` — ${msg.docType.docType} request For ${msg.purpose.purposeName}.`}
+                          </div>
+                      </Box>
+                    } 
+                    secondary={
+                      <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between'
+                      }}>
+                        <div>
+                          <Chip color={msg.completed ? 'success' : 'info'} label={msg.status.statusLabel} size='small' sx={{ fontSize: 10 }} />
+                          
+                          {msg.threadTag && (
+                            <Chip color={getTagColor(msg.threadTag.tagName)} label={msg.threadTag.tagName} size='small' sx={{ fontSize: 10 }} />
+                          )}
                         </div>
-                    </Box>
-                  } 
-                  secondary={
-                    <Box sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between'
-                    }}>
-                      <div>
-                        <Chip color={msg.completed ? 'success' : 'info'} label={msg.status.statusLabel} size='small' sx={{ fontSize: 10 }} />
-                        
-                        {msg.threadTag && (
-                          <Chip color={getTagColor(msg.threadTag.tagName)} label={msg.threadTag.tagName} size='small' sx={{ fontSize: 10 }} />
-                        )}
-                      </div>
-                      <Typography variant='caption'>
-                        {`Due at ${formatInboxDate(msg.dateDue)}`}
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </ListItemButton>
-              <Divider variant="inset" component="li" />
-            </React.Fragment>
+                        <Typography variant='caption'>
+                          {`Due at ${formatInboxDate(msg.dateDue)}`}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </ListItemButton>
+                <Divider variant="inset" component="li" />
+              </React.Fragment>
           ))}
         </List>
+        <TablePagination
+          rowsPerPageOptions={[10, 20, 30]}
+          component="div"
+          count={props.mails ? props.mails
+                  .filter(mail => 
+                    (mail.status.statusId === options.statusId || options.statusId === 0) &&
+                    (mail.docType.docId === options.typeId || options.typeId === 0) &&
+                    (mail.threadTag?.tagId === options.tagId || options.tagId === 0)).length : 0}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Paper>
     </React.Fragment>
   );

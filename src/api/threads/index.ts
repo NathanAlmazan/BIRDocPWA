@@ -172,6 +172,7 @@ export const GET_THREAD_INBOX = gql`
                 actionable
             }
             status {
+                statusId
                 statusLabel
             }
             purpose {
@@ -208,6 +209,7 @@ export const GET_SENT_THREAD = gql`
                 actionable
             }
             status {
+                statusId
                 statusLabel
             }
             purpose {
@@ -243,6 +245,7 @@ export const GET_REGION_INBOX = gql`
                 actionable
             }
             status {
+                statusId
                 statusLabel
             }
             purpose {
@@ -260,6 +263,44 @@ export const GET_REGION_INBOX = gql`
                 tagName
             }
             dateDue
+            active
+            dateCreated
+            dateUpdated
+            completed
+        }
+    }
+`
+
+export const SEARCH_THREAD = gql`
+    query SearchThread($userId: String!, $query: String!) {
+        searchThread(userId: $userId, query: $query) {
+            refId
+            refSlipNum
+            subject
+            author {
+                accountId
+                firstName
+                lastName
+            }
+            docType {
+                docId
+                docType
+                actionable
+            }
+            status {
+                statusId
+                statusLabel
+            }
+            purpose {
+                purposeId
+                purposeName
+            }
+            threadTag {
+                tagId
+                tagName
+            }
+            dateDue
+            actionable
             active
             dateCreated
             dateUpdated

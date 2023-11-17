@@ -288,12 +288,12 @@ export default function ThreadList({ userId, threadId, onUpdate }: ThreadListPro
             </Box>
 
             <Tabs value={tabValue} onChange={(e, value) => setTableValue(value)} sx={{ mt: 2 }}>
-                <Tab label="Conversation" />
+                <Tab value={0} label="Conversation" />
                 {threadData.getThreadById.author.accountId === userId && (
-                    <Tab label="Details" />
+                    <Tab value={1} label="Details" />
                 )}
-                <Tab label="Files" />
-                <Tab label="History" />
+                <Tab value={2} label="Files" />
+                <Tab value={3} label="History" />
             </Tabs>
            
             <TabPanel index={0} value={tabValue}>

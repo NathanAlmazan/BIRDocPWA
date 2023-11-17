@@ -63,7 +63,7 @@ interface ThreadInput {
     tagId: number | null;
     attachments: boolean;
     purposeNotes: string;
-    completed: boolean;
+    actionable: boolean;
     dateDue: string;
 }
 
@@ -106,7 +106,7 @@ export default function CreateThread(props: CreateThreadProps) {
     authorId: props.userId,
     statusId: 2,
     attachments: true,
-    completed: false,
+    actionable: true,
     dateDue: new Date().toISOString(),
     tagId: null,
     recipientId: [],
@@ -166,6 +166,13 @@ export default function CreateThread(props: CreateThreadProps) {
     }
   }, [threadOfficers])
 
+  React.useEffect(() => {
+    if (formData.docTypeId && threadTypes) {
+        const docType = threadTypes.getAllThreadTypes.find(type => type.docId === formData.docTypeId);
+        if (docType) setFormData(state => ({ ...state, actionable: docType.actionable }));
+    }
+  }, [formData.docTypeId, threadTypes])
+
   if (!offices || !types || !purposes || !officers) return <LoadOverlay open={true} />
 
   const handleSubjectTextChange = (event: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, subject: event.target.value });
@@ -192,6 +199,8 @@ export default function CreateThread(props: CreateThreadProps) {
   }
 
   const handleToggleAttachments = (event: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, attachments: event.target.checked });
+
+  const handleToggleActionable = (event: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, actionable: event.target.checked });
 
   const handleDateDueChange = (date: Dayjs | null) => {
     if (date) setFormData({ ...formData, dateDue: date.toISOString() });
@@ -456,15 +465,26 @@ export default function CreateThread(props: CreateThreadProps) {
                     />
                 </LocalizationProvider>
 
-                <FormControlLabel 
-                    control={
-                        <Checkbox 
-                            checked={formData.attachments} 
-                            onChange={handleToggleAttachments} 
-                        />
-                    } 
-                    label="Attachments Required" 
-                />
+                <Stack direction='row' spacing={2}>
+                    <FormControlLabel 
+                        control={
+                            <Checkbox 
+                                checked={formData.attachments} 
+                                onChange={handleToggleAttachments} 
+                            />
+                        } 
+                        label="Attachments Required?" 
+                    />
+                    <FormControlLabel 
+                        control={
+                            <Checkbox 
+                                checked={formData.actionable} 
+                                onChange={handleToggleActionable} 
+                            />
+                        } 
+                        label="Action Required?" 
+                    />
+                </Stack>
 
                 <ReplyBox userId={props.userId} onChange={(data) => setMessageData(data)} />
 

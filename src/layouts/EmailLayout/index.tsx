@@ -39,9 +39,9 @@ import {
 import { useAppSelector } from '../../redux/hooks';
 import subscribeUser from '../../subscription';
 // api
-import { useQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import { Thread } from '../../api/threads/types';
-import { GET_SENT_THREAD, GET_THREAD_INBOX } from '../../api/threads';
+import { SEARCH_THREAD } from '../../api/threads';
 
 const drawerWidth = 280;
 
@@ -128,30 +128,10 @@ export default function EmailLayout() {
   const { uid, role } = useAppSelector((state) => state.auth);
   const { pathname } = useLocation();
   const theme = useTheme();
-
-  const { data: threadInbox } = useQuery<{ getThreadInbox: Thread[] }>(GET_THREAD_INBOX, {
-    variables: {
-      userId: uid,
-      type: "search"
-    }
-  });
-  const { data: sentThread } = useQuery<{ getSentThread: Thread[] }>(GET_SENT_THREAD, {
-    variables: {
-      userId: uid,
-      type: "search"
-    }
-  });
-
+  const [searchThread, { data: options, loading }] = useLazyQuery<{ searchThread: Thread[] }>(SEARCH_THREAD);
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState<string>('');
   const [selected, setSelected] = React.useState<Thread | null>(null);
-  const [options, setOptions] = React.useState<Thread[]>([]);
-
-  React.useEffect(() => {
-    if (threadInbox && sentThread) {
-      setOptions(threadInbox.getThreadInbox.concat(sentThread.getSentThread));
-    }
-  }, [threadInbox, sentThread])
 
   React.useEffect(() => {
     if (!uid) navigate("/auth/login")
@@ -162,13 +142,13 @@ export default function EmailLayout() {
     if (selected) {
       if (selected.author.accountId === uid) {
         if (!selected.active) navigate(`/app/sent/archived/${selected.refId}`);
-        else if (!selected.completed && selected.docType.actionable) navigate(`/app/sent/pending/${selected.refId}`);
-        else if (selected.completed && !selected.docType.actionable) navigate(`/app/sent/memos/${selected.refId}`)
-        else if (selected.completed && selected.docType.actionable) navigate(`/app/sent/completed/${selected.refId}`)
+        else if (!selected.completed && selected.actionable) navigate(`/app/sent/pending/${selected.refId}`);
+        else if (!selected.actionable) navigate(`/app/sent/memos/${selected.refId}`)
+        else if (selected.completed && selected.actionable) navigate(`/app/sent/completed/${selected.refId}`)
       } else {
-        if (!selected.completed && selected.docType.actionable) navigate(`/app/inbox/tasks/${selected.refId}`);
-        else if (selected.completed && !selected.docType.actionable) navigate(`/app/inbox/memos/${selected.refId}`)
-        else if (selected.completed && selected.docType.actionable) navigate(`/app/inbox/finished/${selected.refId}`)
+        if (!selected.completed && selected.actionable) navigate(`/app/inbox/tasks/${selected.refId}`);
+        else if (!selected.actionable) navigate(`/app/inbox/memos/${selected.refId}`)
+        else if (selected.completed && selected.actionable) navigate(`/app/inbox/finished/${selected.refId}`)
       }
     }
   }, [selected, navigate, uid])
@@ -213,19 +193,23 @@ export default function EmailLayout() {
               </IconButton>
               <Autocomplete 
                 autoHighlight
-                options={options}
+                options={options ? options.searchThread : [] as Thread[]}
                 value={selected}
+                loading={loading}
                 onChange={(_: any, newValue: Thread | null) => {
                   setSelected(newValue);
                 }}
                 inputValue={query}
                 onInputChange={(_, newInputValue) => {
                   setQuery(newInputValue);
+                  searchThread({
+                    variables: {
+                      userId: uid,
+                      query: newInputValue
+                    }
+                  })
                 }}
-                filterOptions={option => query.length === 0 ? [] : option.filter(mail => 
-                  mail.subject.includes(query) || mail.refSlipNum.includes(query) || mail.author.firstName.includes(query) || 
-                  mail.author.lastName.includes(query) || formatInboxDate(mail.dateCreated).includes(query)
-                )}
+                isOptionEqualToValue={(option, value) => option.refId === value.refId}
                 noOptionsText={'Please type a search query'}
                 getOptionLabel={(option) => option.subject}
                 renderOption={(props, option) => (

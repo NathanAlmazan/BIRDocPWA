@@ -42,7 +42,13 @@ export default function EmailPage(props: { type: InboxType }) {
 
   React.useEffect(() => {
     if (officeInbox) refetch({ userId: uid, type: props.type });
-  }, [officeInbox, refetch, uid, props.type])
+  }, [officeInbox, refetch, uid, props.type]);
+
+  React.useEffect(() => {
+    if (threads && threads.getThreadInbox.length > 0) {
+      setThreadId(threads.getThreadInbox[0].refId)
+    } 
+  }, [threads]);
 
   const handleComposeThread = () => setCompose(!compose);
 
@@ -64,6 +70,7 @@ export default function EmailPage(props: { type: InboxType }) {
         <EmailList 
           mails={threads?.getThreadInbox}
           compose={compose}
+          selectedId={threadId}
           mode="inbox"
           onRefresh={handleRefreshList}
           onComposeThread={handleComposeThread}

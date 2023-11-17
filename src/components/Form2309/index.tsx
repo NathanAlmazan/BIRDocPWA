@@ -30,18 +30,19 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
     
     return (
         <Document>
-            <Page size={[330.60, 525.60]} style={styles.body}>
+            <Page size='A4' style={styles.body}>
                 <View style={styles.table}>
                     <View style={styles.tableRow}>
-                        <View style={styles.tableCol}>
+                        <View style={styles.tableColLeft}>
                             <Text style={styles.tableCellLeft}>BIR</Text>
                             <Text style={styles.tableCellLeft}>FORM 2309</Text>
                             <Text style={styles.tableCellLeft}>(REVISED OCTOBER, 1971)</Text>
                         </View>
-                        <View style={styles.tableCol}>
+                        <View style={styles.tableColRight}>
                             <Text style={styles.tableCellRight}>BUREAU OF INTERNAL REVENUE</Text>
                             <Text style={styles.tableCellRight}>Revenue Region No. 6 - Manila</Text>
                             <Text style={styles.tableCellRight}>{`REFERENCE SLIP # ${thread.refSlipNum}`}</Text>
+                            <Text style={styles.tableCellTag}>{thread.threadTag ? thread.threadTag.tagName.toUpperCase() : ''}</Text>
                         </View>
                     </View>
                 </View>
@@ -123,58 +124,67 @@ export default function Form2309({ thread, details }: { thread: Thread, details:
   
 const styles = StyleSheet.create({
     body: {
-      paddingTop: 15,
-      paddingBottom: 15,
-      paddingHorizontal: 15,
-
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingRight: '50%',
+        paddingLeft: 15
     },
     table: { 
-      width: "auto", 
-      borderStyle: "solid", 
-      borderWidth: 1,
-      padding: 2
+        width: "auto", 
+        borderStyle: "solid", 
+        borderWidth: 1,
+        padding: 2
     },
     tableRow: { 
-      margin: "auto", 
-      marginTop: 2,
-      flexDirection: "row" 
+        margin: "auto", 
+        marginTop: 2,
+        flexDirection: "row" 
     }, 
-    tableCol: { 
-      width: "50%"
+    tableColRight: { 
+        width: "60%"
+    },
+    tableColLeft: { 
+        width: "40%"
     },
     recipientCol: { 
-      width: "70%"
+        width: "70%"
     },
     dateCol: { 
-      width: "30%"
+        width: "30%"
     },
     purposeCol: { 
-      width: "100%"
+        width: "100%"
     },
     tableCellLeft: { 
-      margin: 2,
-      fontSize: 9,
-      textAlign: "left"
+        margin: 2,
+        fontSize: 9,
+        textAlign: "left"
     },
     emptyCell: { 
-      height: 30
+        height: 30
     },
     tableCellLeftBold: { 
-      margin: 2,
-      fontSize: 9,
-      textAlign: "left",
-      fontWeight: "bold"
+        margin: 2,
+        fontSize: 9,
+        textAlign: "left",
+        fontWeight: "bold"
     },
-  	tableCellLeftBoldSmall: { 
-      margin: 2,
-      fontSize: 6,
-      textAlign: "left",
-      fontWeight: "bold"
+    tableCellLeftBoldSmall: { 
+        margin: 2,
+        fontSize: 6,
+        textAlign: "left",
+        fontWeight: "bold"
     },
     tableCellRight: { 
-      margin: 2,
-      fontSize: 9,
-      textAlign: "right"
+        margin: 2,
+        fontSize: 9,
+        textAlign: "right"
+    },
+    tableCellTag: { 
+        margin: 2,
+        fontSize: 9,
+        textAlign: "right",
+        color: "red"
     },
     tableCellCenter: { 
         margin: 2,
@@ -186,14 +196,14 @@ const styles = StyleSheet.create({
         fontSize: 8,
         textAlign: "center"
     },
-  	signatureContainer: {
-    	display: "flex",
-      	flexDirection: "row",
-      	justifyContent: "center"
+    signatureContainer: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center"
     },
-  	signatureImage: {
-    	width: 60,
-      	height: 30
+    signatureImage: {
+        width: 60,
+        height: 30
     }
 });
   
