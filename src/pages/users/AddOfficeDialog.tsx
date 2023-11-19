@@ -9,7 +9,11 @@ import TextField from '@mui/material/TextField';
 import { LoadOverlay } from '../../components/Loaders';
 // api
 import { useMutation } from '@apollo/client';
-import { ADD_BIR_OFFICE, DELETE_BIR_OFFICE, UPDATE_BIR_OFFICE } from '../../api/offices';
+import { 
+    ADD_BIR_OFFICE, 
+    DELETE_BIR_OFFICE, 
+    UPDATE_BIR_OFFICE 
+} from '../../api/offices';
 import { BirOffices } from '../../api/threads/types';
 
 interface AddOfficeDialogProps {
@@ -106,7 +110,7 @@ export default function AddOfficeDialog(props: AddOfficeDialogProps) {
                             value={officeName}
                             onChange={handleTextChange}
                             fullWidth
-                            variant="standard"
+                            variant="outlined"
                             required
                             sx={{ width: 400 }}
                         />

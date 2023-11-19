@@ -11,6 +11,7 @@ export type OfficeSections = {
     sectionName: string;
     refNum?: string;
     sectionOffice: BirOffices;
+    positions?: Roles[]
     officers: UserAccounts[];
 }
 

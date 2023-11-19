@@ -12,9 +12,9 @@ import MenuItem from '@mui/material/MenuItem';
 // icons
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 // api
-import { useMutation, useQuery } from '@apollo/client';
-import { BirOffices, OfficeSections, Roles, UserAccounts } from '../../api/threads/types';
-import { DELETE_OFFICER, GET_ALL_ROLES, REGISTER_OFFICER, UPDATE_OFFICER } from '../../api/offices';
+import { useMutation } from '@apollo/client';
+import { BirOffices, OfficeSections, UserAccounts } from '../../api/threads/types';
+import { DELETE_OFFICER, REGISTER_OFFICER, UPDATE_OFFICER } from '../../api/offices';
 
 interface AccountRegister {
     accountId: string;
@@ -35,7 +35,6 @@ interface AddOfficerDrawerProps {
 }
 
 export default function OfficerDrawer(props: AddOfficerDrawerProps) {
-    const { data: roles } = useQuery<{ getAllRoles: Roles[] }>(GET_ALL_ROLES);
     const [registerOfficer] = useMutation(REGISTER_OFFICER);
     const [updateOfficer] = useMutation(UPDATE_OFFICER);
     const [deleteOfficer] = useMutation(DELETE_OFFICER);
@@ -45,7 +44,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
         firstName: '',
         lastName: '',
         officeId: props.section.sectionId,
-        roleId: 9,
+        roleId: props.section.positions ? props.section.positions[0].roleId : 0,
         resetCode: null
     })
     const { firstName, lastName, roleId, resetCode, officeId, accountId } = formData;
@@ -223,7 +222,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
                             />
                         )}
 
-                        {roles && (
+                        {props.section.positions && (
                             <TextField 
                                 name='roleId'
                                 label='Position'
@@ -233,7 +232,7 @@ export default function OfficerDrawer(props: AddOfficerDrawerProps) {
                                 required
                                 select
                             >
-                                {roles.getAllRoles.map(role => (
+                                {props.section.positions.map(role => (
                                     <MenuItem key={role.roleId} value={role.roleId}>{role.roleName}</MenuItem>
                                 ))}
                             </TextField>

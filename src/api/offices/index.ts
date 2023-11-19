@@ -11,6 +11,10 @@ export const GET_ALL_BIR_OFFICES = gql`
             officeSections {
                 sectionId
                 sectionName
+                positions {
+                    roleId
+                    roleName
+                }
             }
         }
     }
@@ -34,6 +38,10 @@ export const GET_BIR_OFFICE_BY_ID = gql`
             officeSections {
                 sectionId
                 sectionName
+                positions {
+                    roleId
+                    roleName
+                }
                 sectionOffice {
                     officeId
                 }
@@ -193,16 +201,16 @@ export const DELETE_BIR_OFFICE = gql`
 `
 
 export const ADD_SECTION_OFFICE = gql`
-    mutation AddOfficeSection($officeId: Int!, $sectionName: String!) {
-        addOfficeSection(officeId: $officeId, sectionName: $sectionName) {
+    mutation AddOfficeSection($officeId: Int!, $sectionName: String!, $positions: [Int]) {
+        addOfficeSection(officeId: $officeId, sectionName: $sectionName, positions: $positions) {
             sectionId
         }
     }
 `
 
 export const UPDATE_SECTION_OFFICE = gql`
-    mutation UpdateSection($sectionId: Int!, $sectionName: String!) {
-        updateSection(sectionId: $sectionId, sectionName: $sectionName) {
+    mutation UpdateSection($sectionId: Int!, $sectionName: String!, $positions: [Int]) {
+        updateSection(sectionId: $sectionId, sectionName: $sectionName, positions: $positions) {
             sectionId
         }
     }
