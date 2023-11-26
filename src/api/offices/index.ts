@@ -319,7 +319,6 @@ export const GET_USER_NOTIFICATIONS = gql`
             purpose {
                 purposeId
                 purposeName
-                actionable
             }
             dateDue
             dateCreated
