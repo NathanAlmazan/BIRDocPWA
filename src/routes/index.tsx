@@ -8,6 +8,7 @@ import { useAppSelector } from '../redux/hooks';
 
 // pages
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
+const Schedules = React.lazy(() => import("../pages/schedules"));
 
 const Inbox = React.lazy(() => import("../pages/threads/Inbox"));
 const SentItems = React.lazy(() => import("../pages/threads/Sent"));
@@ -127,7 +128,11 @@ export default function Router() {
                 {
                     path: 'settings',
                     element: <SuspenseLoader children={<Settings />} />
-                }
+                },
+                {
+                    path: 'schedules',
+                    element: <SuspenseLoader children={<Schedules />} />
+                },
             ]
         },
         {

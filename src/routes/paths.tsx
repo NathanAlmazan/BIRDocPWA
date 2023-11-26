@@ -8,6 +8,7 @@ import TaskIcon from '@mui/icons-material/Task';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
+import DateRangeIcon from '@mui/icons-material/DateRange';
 
 interface Paths {
     label: string;
@@ -82,6 +83,11 @@ export const settings: Paths[] = [
         label: 'Settings',
         url: '/admin/settings',
         icon: <SettingsIcon />
+    },
+    {
+        label: 'Schedules',
+        url: '/admin/schedules',
+        icon: <DateRangeIcon />
     },
     {
         label: 'Accounts',
