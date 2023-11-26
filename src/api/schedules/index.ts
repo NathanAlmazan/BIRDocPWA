@@ -85,3 +85,14 @@ export const GET_ALL_REPORTS = gql`
         }
     } 
 `
+
+export const GET_DUE_REPORTS = gql`
+    query GetDueReports($userId: String!) {
+        getDueReports(userId: $userId) {
+            schedId
+            subject
+            description
+            dateDue
+        }
+    }
+`

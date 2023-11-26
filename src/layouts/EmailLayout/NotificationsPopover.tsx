@@ -22,6 +22,8 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Thread } from '../../api/threads/types';
 import { GET_USER_NOTIFICATIONS } from '../../api/offices';
 import { useQuery } from '@apollo/client';
+import { Schedules } from '../../api/schedules/types';
+import { GET_DUE_REPORTS } from '../../api/schedules';
 
 // ----------------------------------------------------------------------
 
@@ -49,6 +51,11 @@ export default function NotificationsPopover({ uid }: { uid: string }) {
     },
     fetchPolicy: 'network-only'
   });
+  const { data: reports, refetch: refetchReports } = useQuery<{ getDueReports: Schedules[] }>(GET_DUE_REPORTS, {
+    variables: {
+      userId: uid
+    }
+  })
   const [open, setOpen] = useState<Element | null>(null);
   const [count, setCount] = useState<number>(0);
 
@@ -56,7 +63,8 @@ export default function NotificationsPopover({ uid }: { uid: string }) {
     refetchMessages({ userId: uid, type: "unread" });
     refetchApprovals({ userId: uid, type: "approval" });
     refetchOverdue({ userId: uid, type: "overdue" });
-  }, [pathname, uid, refetchMessages, refetchApprovals, refetchOverdue])
+    refetchReports({ userId: uid });
+  }, [pathname, uid, refetchMessages, refetchApprovals, refetchOverdue, refetchReports])
 
   React.useEffect(() => {
     if (messages && approvals && overdue) {
@@ -193,6 +201,27 @@ export default function NotificationsPopover({ uid }: { uid: string }) {
           </Box>
         )}
 
+        {reports && reports.getDueReports.length > 0 && (
+          <Box sx={{ maxHeight: 500, overflowY: 'auto' }}>
+            <List
+                disablePadding
+                subheader={
+                    <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
+                        Reports Due
+                    </ListSubheader>
+                }
+            >
+                {reports.getDueReports.map((report) => (
+                    <ReportItem 
+                        key={report.schedId} 
+                        report={report}
+                        onClose={handleClose}
+                    />
+                ))}
+            </List>
+          </Box>
+        )}
+
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Box sx={{ p: 1 }}>
@@ -268,6 +297,52 @@ function NotificationItem({ userId, notification, onClose }: { userId: string, n
             >
               <AccessTimeIcon sx={{ mr: 0.5, width: 16, height: 16 }} />
               {`Due at ${formatInboxDate(notification.dateDue)}`}
+            </Typography>
+          }
+        />
+      </ListItemButton>
+    );
+  }
+
+  function ReportItem({ report, onClose }: { report: Schedules, onClose: () => void }) {
+    const navigate = useNavigate();
+
+    const handleRedirect = () => {
+      navigate('/admin/schedules');
+      onClose();
+    }
+
+    return (
+      <ListItemButton
+        sx={{
+          py: 1.5,
+          px: 2.5,
+          mt: '1px',
+          bgcolor: 'action.selected'
+        }}
+        onClick={() => handleRedirect()}
+      >
+        <ListItemText
+          primary={
+            <Typography variant="subtitle2">
+                {report.subject}
+                <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
+                    &nbsp; {`${report.description.slice(0, 150)}...`}
+                </Typography>
+            </Typography>
+          }
+          secondary={
+            <Typography
+              variant="caption"
+              sx={{
+                mt: 0.5,
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.disabled',
+              }}
+            >
+              <AccessTimeIcon sx={{ mr: 0.5, width: 16, height: 16 }} />
+              {`Due at ${formatInboxDate(report.dateDue)}`}
             </Typography>
           }
         />
