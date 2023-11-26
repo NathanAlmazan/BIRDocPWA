@@ -312,15 +312,23 @@ export const GET_USER_NOTIFICATIONS = gql`
             docType {
                 docId
                 docType
+                actionable
             }
             status {
+                statusId
                 statusLabel
             }
             purpose {
                 purposeId
                 purposeName
             }
+            threadTag {
+                tagId
+                tagName
+            }
             dateDue
+            actionable
+            active
             dateCreated
             dateUpdated
             completed

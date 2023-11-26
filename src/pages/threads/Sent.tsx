@@ -40,12 +40,6 @@ export default function EmailPage(props: { type: InboxType }) {
     if (authorInbox) refetch({ userId: authorInbox.authorInbox.referenceNum, type: props.type });
   }, [authorInbox, refetch, props.type]);
 
-  React.useEffect(() => {
-    if (threads && threads.getSentThread.length > 0) {
-      setThreadId(threads.getSentThread[0].refId)
-    } 
-  }, [threads]);
-
   const handleComposeThread = () => setCompose(!compose);
 
   const handleThreadClick = (id: string) => setThreadId(id);
